@@ -1,0 +1,14 @@
+node_modules
+dist
+.angular
+.git
+.github
+.vscode
+e2e
+playwright-report
+test-results
+coverage
+npm-debug.log
+Dockerfile
+.dockerignore
+*.md
