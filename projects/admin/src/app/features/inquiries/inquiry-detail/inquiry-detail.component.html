@@ -1,0 +1,123 @@
+<div class="detail-page">
+  <a routerLink="/inquiries" class="back-link">
+    <i class="fas fa-arrow-left"></i>
+    {{ 'admin.common.back' | translate }}
+  </a>
+
+  @if (loading()) {
+    <div class="loading-state"><span class="spinner-border"></span></div>
+  } @else if (inquiry()) {
+    <div class="page-header">
+      <div>
+        <h2>{{ inquiry()!.referenceNumber }}</h2>
+        <p>{{ inquiry()!.travelerName }}</p>
+      </div>
+      <span class="badge" [class]="getStatusClass(inquiry()!.status)">{{ inquiry()!.status }}</span>
+    </div>
+
+    <div class="info-grid">
+      <!-- Traveler Info -->
+      <div class="info-card">
+        <div class="info-card-title">
+          <i class="fas fa-user"></i>
+          {{ 'admin.inquiries.traveler_info' | translate }}
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.inquiries.traveler' | translate }}</span>
+          <span class="info-value">{{ inquiry()!.travelerName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.inquiries.passport' | translate }}</span>
+          <span class="info-value">{{ inquiry()!.passportNumber }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.inquiries.nationality' | translate }}</span>
+          <span class="info-value">{{ inquiry()!.nationality }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.inquiries.dob' | translate }}</span>
+          <span class="info-value">{{ inquiry()!.dateOfBirth | date:'mediumDate' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.inquiries.gender' | translate }}</span>
+          <span class="info-value">{{ inquiry()!.gender }}</span>
+        </div>
+      </div>
+
+      <!-- Travel Info -->
+      <div class="info-card">
+        <div class="info-card-title">
+          <i class="fas fa-plane"></i>
+          {{ 'admin.inquiries.travel_info' | translate }}
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.inquiries.travel_date' | translate }}</span>
+          <span class="info-value">{{ inquiry()!.travelDate | date:'mediumDate' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.inquiries.arrival_airport' | translate }}</span>
+          <span class="info-value">{{ inquiry()!.arrivalAirport }}</span>
+        </div>
+        @if (inquiry()!.flightNumber) {
+          <div class="info-row">
+            <span class="info-label">{{ 'admin.inquiries.flight_number' | translate }}</span>
+            <span class="info-value">{{ inquiry()!.flightNumber }}</span>
+          </div>
+        }
+        @if (inquiry()!.transitCountries && inquiry()!.transitCountries!.length > 0) {
+          <div class="info-row">
+            <span class="info-label">{{ 'admin.inquiries.transit' | translate }}</span>
+            <span class="info-value">{{ inquiry()!.transitCountries!.join(', ') }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Agency Info -->
+      <div class="info-card">
+        <div class="info-card-title">
+          <i class="fas fa-building"></i>
+          {{ 'admin.inquiries.agency_info' | translate }}
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.inquiries.agency' | translate }}</span>
+          <span class="info-value">{{ inquiry()!.agencyName }}</span>
+        </div>
+        @if (inquiry()!.batchId) {
+          <div class="info-row">
+            <span class="info-label">{{ 'admin.inquiries.batch_id' | translate }}</span>
+            <span class="info-value">{{ inquiry()!.batchId }}</span>
+          </div>
+        }
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.inquiries.created_at' | translate }}</span>
+          <span class="info-value">{{ inquiry()!.createdAt | date:'medium' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.inquiries.updated_at' | translate }}</span>
+          <span class="info-value">{{ inquiry()!.updatedAt | date:'medium' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Timeline -->
+    <div class="timeline-section">
+      <h3>{{ 'admin.inquiries.status_timeline' | translate }}</h3>
+      <div class="timeline">
+        @for (event of inquiry()!.statusHistory; track $index) {
+          <div class="timeline-item" [class]="getStatusClass(event.status)">
+            <div class="timeline-dot">
+              <i [class]="getTimelineIcon(event.status)"></i>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-status">{{ event.status }}</div>
+              <div class="timeline-date">{{ event.timestamp | date:'medium' }}</div>
+              @if (event.note) {
+                <div class="timeline-note">{{ event.note }}</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

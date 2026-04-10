@@ -1,0 +1,95 @@
+<div class="list-page">
+  <div class="page-header">
+    <h2>{{ 'admin.inquiries.title' | translate }}</h2>
+    <p>{{ 'admin.inquiries.subtitle' | translate }}</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        [placeholder]="'admin.inquiries.search_placeholder' | translate"
+      />
+    </div>
+    <div class="filter-pills">
+      <button class="pill" [class.active]="statusFilter === ''" (click)="onFilterStatus('')">
+        {{ 'admin.common.all' | translate }}
+      </button>
+      <button class="pill" [class.active]="statusFilter === 'Submitted'" (click)="onFilterStatus('Submitted')">
+        {{ 'admin.inquiries.status_submitted' | translate }}
+      </button>
+      <button class="pill" [class.active]="statusFilter === 'UnderProcessing'" (click)="onFilterStatus('UnderProcessing')">
+        {{ 'admin.inquiries.status_processing' | translate }}
+      </button>
+      <button class="pill" [class.active]="statusFilter === 'Approved'" (click)="onFilterStatus('Approved')">
+        {{ 'admin.inquiries.status_approved' | translate }}
+      </button>
+      <button class="pill" [class.active]="statusFilter === 'Rejected'" (click)="onFilterStatus('Rejected')">
+        {{ 'admin.inquiries.status_rejected' | translate }}
+      </button>
+      <button class="pill" [class.active]="statusFilter === 'Failed'" (click)="onFilterStatus('Failed')">
+        {{ 'admin.inquiries.status_failed' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'admin.inquiries.reference' | translate }}</th>
+            <th>{{ 'admin.inquiries.traveler' | translate }}</th>
+            <th>{{ 'admin.inquiries.passport' | translate }}</th>
+            <th>{{ 'admin.inquiries.nationality' | translate }}</th>
+            <th>{{ 'admin.inquiries.agency' | translate }}</th>
+            <th>{{ 'admin.common.status' | translate }}</th>
+            <th>{{ 'admin.common.date' | translate }}</th>
+            <th>{{ 'admin.common.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr><td colspan="8" class="text-center"><span class="spinner-border spinner-border-sm"></span></td></tr>
+          } @else {
+            @for (inq of inquiries(); track inq.id) {
+              <tr>
+                <td class="fw-semibold">{{ inq.referenceNumber }}</td>
+                <td>{{ inq.travelerName }}</td>
+                <td>{{ inq.passportNumber }}</td>
+                <td>{{ inq.nationality }}</td>
+                <td>{{ inq.agencyName }}</td>
+                <td><span class="badge" [class]="getStatusClass(inq.status)">{{ inq.status }}</span></td>
+                <td>{{ inq.createdAt | date:'shortDate' }}</td>
+                <td>
+                  <a [routerLink]="['/inquiries', inq.id]" class="btn-action">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="8" class="text-center text-muted">{{ 'admin.common.no_data' | translate }}</td></tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination-bar">
+        <button class="page-btn" [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <span class="page-info">{{ currentPage() }} / {{ totalPages }}</span>
+        <button class="page-btn" [disabled]="currentPage() === totalPages" (click)="onPageChange(currentPage() + 1)">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    }
+  </div>
+</div>

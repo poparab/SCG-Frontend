@@ -1,0 +1,55 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-brand">
+      <img src="assets/img/logo.png" alt="نظام الموافقات الأمنية" class="admin-login-logo" />
+      <h1>{{ 'admin.brand_title' | translate }}</h1>
+      <p>{{ 'admin.login.subtitle' | translate }}</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      @if (error()) {
+        <div class="alert alert-danger">{{ error() | translate }}</div>
+      }
+
+      <div class="form-group">
+        <label for="email">{{ 'admin.login.email' | translate }}</label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          formControlName="email"
+          [placeholder]="'admin.login.email_placeholder' | translate"
+          [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid"
+        />
+        @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+          <div class="invalid-feedback">{{ 'admin.login.email_required' | translate }}</div>
+        }
+        @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+          <div class="invalid-feedback">{{ 'admin.login.email_invalid' | translate }}</div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">{{ 'admin.login.password' | translate }}</label>
+        <input
+          id="password"
+          type="password"
+          class="form-control"
+          formControlName="password"
+          [placeholder]="'admin.login.password_placeholder' | translate"
+          [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid"
+        />
+        @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+          <div class="invalid-feedback">{{ 'admin.login.password_required' | translate }}</div>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-login" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner-border spinner-border-sm"></span>
+        }
+        {{ 'admin.login.submit' | translate }}
+      </button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,4 @@
+// Entry point — @forward both tokens and mixins so component SCSS can do:
+//   @use 'path/to/styles' as *;
+@forward 'tokens';
+@forward 'mixins';

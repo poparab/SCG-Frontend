@@ -1,0 +1,167 @@
+<!-- ══ HERO ══ -->
+<section class="portal-hero">
+  <div class="container">
+    <h1>{{ 'portal.batchList.title' | translate }}</h1>
+    <p>{{ 'portal.batchList.subtitle' | translate }}</p>
+  </div>
+</section>
+
+<!-- ══ BREADCRUMB ══ -->
+<div class="portal-breadcrumb">
+  <div class="container">
+    <nav>
+      <a routerLink="/dashboard"><i class="fa-solid fa-house"></i></a>
+      <i class="fa-solid fa-chevron-left separator"></i>
+      <span class="current">{{ 'portal.batchList.breadcrumb' | translate }}</span>
+    </nav>
+  </div>
+</div>
+
+<!-- ══ PAGE BODY ══ -->
+<div class="container portal-body">
+
+  <!-- Stat Cards -->
+  <div class="stat-cards" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="stat-card sc-green">
+      <div class="stat-badge"><i class="fa-solid fa-circle-check"></i></div>
+      <div class="stat-number">{{ completedCount() }}</div>
+      <div class="stat-label">{{ 'batch.stat.completed' | translate }}</div>
+    </div>
+    <div class="stat-card sc-orange">
+      <div class="stat-badge"><i class="fa-solid fa-gear"></i></div>
+      <div class="stat-number">{{ processingCount() }}</div>
+      <div class="stat-label">{{ 'batch.stat.processing' | translate }}</div>
+    </div>
+    <div class="stat-card sc-blue">
+      <div class="stat-badge"><i class="fa-solid fa-file-lines"></i></div>
+      <div class="stat-number">{{ receivedCount() }}</div>
+      <div class="stat-label">{{ 'batch.stat.received' | translate }}</div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>{{ 'batch.filter.search' | translate }}</label>
+      <div class="search-input-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" [(ngModel)]="searchTerm"
+               [placeholder]="'batch.filter.searchPlaceholder' | translate">
+      </div>
+    </div>
+    <div class="filter-group">
+      <label>{{ 'batch.filter.status' | translate }}</label>
+      <select [(ngModel)]="filterStatus">
+        <option value="">{{ 'batch.filter.allStatuses' | translate }}</option>
+        <option value="Submitted">{{ 'batch.statusReceived' | translate }}</option>
+        <option value="UnderProcessing">{{ 'batch.statusProcessing' | translate }}</option>
+        <option value="Completed">{{ 'batch.statusApproved' | translate }}</option>
+        <option value="Rejected">{{ 'batch.statusRejected' | translate }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>{{ 'batch.filter.date' | translate }}</label>
+      <input type="date" [(ngModel)]="filterDate">
+    </div>
+    <div class="filter-actions">
+      <button class="btn-filter btn-search" (click)="applyFilters()">
+        <i class="fa-solid fa-magnifying-glass"></i> {{ 'common.search' | translate }}
+      </button>
+      <button class="btn-filter btn-reset" (click)="resetFilters()">
+        <i class="fa-solid fa-rotate-right"></i> {{ 'common.reset' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Section Header -->
+  <div class="section-header">
+    <h2><span class="title-icon"><i class="fa-solid fa-layer-group"></i></span> {{ 'batch.listTitle' | translate }}</h2>
+    <a routerLink="/batches/new" class="btn-add-new">
+      <i class="fa-solid fa-plus"></i> {{ 'batch.addNew' | translate }}
+    </a>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">{{ 'common.loading' | translate }}</span>
+      </div>
+    </div>
+  } @else {
+    <!-- Data Table -->
+    <div class="data-table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'batch.col.batchNumber' | translate }}</th>
+            <th>{{ 'batch.col.travelers' | translate }}</th>
+            <th>{{ 'batch.col.submissionDate' | translate }}</th>
+            <th>{{ 'batch.col.status' | translate }}</th>
+            <th>{{ 'batch.col.action' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (b of batches(); track b.id) {
+            <tr>
+              <td class="ref-cell" dir="ltr">{{ b.name }}</td>
+              <td>{{ b.travelerCount }} {{ 'batch.travelerUnit' | translate }}</td>
+              <td>{{ b.submittedAt ? (b.submittedAt | date:'yyyy/MM/dd') : (b.createdAt | date:'yyyy/MM/dd') }}</td>
+              <td>
+                <span class="status-pill" [ngClass]="getStatusPillClass(b.status)">
+                  <i [class]="getStatusIcon(b.status)"></i>
+                  {{ getStatusLabel(b.status) | translate }}
+                </span>
+              </td>
+              <td>
+                <div class="action-icons">
+                  <a [routerLink]="['/batches', b.id]" class="action-icon ai-view" [title]="'batch.action.view' | translate">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                  @if (b.status === 'Draft') {
+                    <a [routerLink]="['/batches', b.id, 'edit']" class="action-icon ai-edit" [title]="'batch.action.edit' | translate">
+                      <i class="fa-solid fa-pen"></i>
+                    </a>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">{{ 'batch.noBatches' | translate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="table-pagination">
+          <div class="pagination-pages">
+            <a class="page-btn" [class.disabled]="currentPage() === 1"
+               (click)="goToPage(currentPage() - 1)">
+              <i class="fa-solid fa-chevron-right"></i>
+            </a>
+            @for (p of pages(); track p) {
+              <a class="page-btn" [class.active]="currentPage() === p"
+                 (click)="goToPage(p)">{{ p }}</a>
+            }
+            <a class="page-btn" [class.disabled]="currentPage() === totalPages()"
+               (click)="goToPage(currentPage() + 1)">
+              <i class="fa-solid fa-chevron-left"></i>
+            </a>
+          </div>
+          <div class="pagination-info">
+            <span>{{ 'batch.pagination.show' | translate }}</span>
+            <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+            <span>{{ 'batch.pagination.rows' | translate }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

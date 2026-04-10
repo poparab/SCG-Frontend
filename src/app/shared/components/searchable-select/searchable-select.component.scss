@@ -1,0 +1,137 @@
+.searchable-select {
+  position: relative;
+  width: 100%;
+}
+
+.ss-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fafbfc;
+  cursor: pointer;
+  font-size: 14px;
+  gap: 8px;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: #9ca3af;
+  }
+}
+
+.is-open .ss-trigger {
+  border-color: #005FCC;
+  box-shadow: 0 0 0 3px rgba(0, 95, 204, 0.1);
+}
+
+.ss-selected-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ss-placeholder {
+  flex: 1;
+  color: #9ca3af;
+}
+
+.ss-arrow {
+  font-size: 10px;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+}
+
+.ss-arrow-up {
+  transform: rotate(180deg);
+}
+
+.ss-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #6b7280;
+  font-size: 9px;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    background: #d1d5db;
+    color: #374151;
+  }
+}
+
+.ss-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.ss-search-wrap {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  gap: 8px;
+}
+
+.ss-search-icon {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.ss-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  background: transparent;
+}
+
+.ss-options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.ss-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: #eaf4ff;
+  }
+}
+
+.ss-option-selected {
+  background: #eaf4ff;
+  font-weight: 600;
+  color: #005FCC;
+}
+
+.ss-no-results {
+  padding: 12px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}

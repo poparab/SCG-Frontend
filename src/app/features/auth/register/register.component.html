@@ -1,0 +1,235 @@
+<div class="auth-card">
+  <div class="auth-logo">
+    <div class="logo-icon">
+      <i class="fa-solid fa-shield-halved"></i>
+    </div>
+  </div>
+
+  <h2>{{ 'auth.register.title' | translate }}</h2>
+  <p class="auth-subtitle">{{ 'auth.register.subtitle' | translate }}</p>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ errorMessage() | translate }}</span>
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success" role="alert">
+      <i class="fa-solid fa-circle-check"></i>
+      <span>{{ successMessage() | translate }}</span>
+    </div>
+  }
+
+  @if (!successMessage()) {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <!-- Agency Name -->
+      <div class="form-group">
+        <label for="agencyName">{{ 'auth.register.agencyName' | translate }}</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-building input-icon"></i>
+          <input
+            id="agencyName"
+            type="text"
+            class="form-control"
+            formControlName="agencyName"
+            [placeholder]="'auth.register.agencyNamePlaceholder' | translate"
+            [class.is-invalid]="form.controls.agencyName.touched && form.controls.agencyName.invalid"
+          />
+        </div>
+        @if (form.controls.agencyName.touched && form.controls.agencyName.errors) {
+          <div class="invalid-feedback">
+            @if (form.controls.agencyName.errors['required']) {
+              {{ 'auth.validation.agencyNameRequired' | translate }}
+            } @else if (form.controls.agencyName.errors['minlength']) {
+              {{ 'auth.validation.agencyNameMinLength' | translate }}
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Commercial Registration Number -->
+      <div class="form-group">
+        <label for="commercialRegNumber">{{ 'auth.register.commercialRegNumber' | translate }}</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-hashtag input-icon"></i>
+          <input
+            id="commercialRegNumber"
+            type="text"
+            class="form-control"
+            formControlName="commercialRegNumber"
+            [placeholder]="'auth.register.commercialRegNumberPlaceholder' | translate"
+            [class.is-invalid]="form.controls.commercialRegNumber.touched && form.controls.commercialRegNumber.invalid"
+          />
+        </div>
+        @if (form.controls.commercialRegNumber.touched && form.controls.commercialRegNumber.errors) {
+          <div class="invalid-feedback">
+            @if (form.controls.commercialRegNumber.errors['pattern']) {
+              {{ 'auth.validation.commercialRegPattern' | translate }}
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Contact Person Name -->
+      <div class="form-group">
+        <label for="contactPersonName">{{ 'auth.register.contactPersonName' | translate }}</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-user input-icon"></i>
+          <input
+            id="contactPersonName"
+            type="text"
+            class="form-control"
+            formControlName="contactPersonName"
+            [placeholder]="'auth.register.contactPersonNamePlaceholder' | translate"
+            [class.is-invalid]="form.controls.contactPersonName.touched && form.controls.contactPersonName.invalid"
+          />
+        </div>
+        @if (form.controls.contactPersonName.touched && form.controls.contactPersonName.errors) {
+          <div class="invalid-feedback">
+            @if (form.controls.contactPersonName.errors['required']) {
+              {{ 'auth.validation.contactPersonRequired' | translate }}
+            } @else if (form.controls.contactPersonName.errors['minlength']) {
+              {{ 'auth.validation.contactPersonMinLength' | translate }}
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">{{ 'auth.register.email' | translate }}</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-envelope input-icon"></i>
+          <input
+            id="email"
+            type="email"
+            class="form-control"
+            formControlName="email"
+            [placeholder]="'auth.register.emailPlaceholder' | translate"
+            [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid"
+          />
+        </div>
+        @if (form.controls.email.touched && form.controls.email.errors) {
+          <div class="invalid-feedback">
+            @if (form.controls.email.errors['required']) {
+              {{ 'auth.validation.emailRequired' | translate }}
+            } @else if (form.controls.email.errors['email']) {
+              {{ 'auth.validation.emailInvalid' | translate }}
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">{{ 'auth.register.password' | translate }}</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-lock input-icon"></i>
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            class="form-control"
+            formControlName="password"
+            [placeholder]="'auth.register.passwordPlaceholder' | translate"
+            [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid"
+          />
+          <button type="button" class="toggle-password" (click)="togglePassword()">
+            <i [class]="showPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+          </button>
+        </div>
+        @if (form.controls.password.touched && form.controls.password.errors) {
+          <div class="invalid-feedback">
+            @if (form.controls.password.errors['required']) {
+              {{ 'auth.validation.passwordRequired' | translate }}
+            } @else if (form.controls.password.errors['minlength']) {
+              {{ 'auth.validation.passwordMinLength' | translate }}
+            } @else if (form.controls.password.errors['pattern']) {
+              {{ 'auth.validation.passwordPattern' | translate }}
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirmPassword">{{ 'auth.register.confirmPassword' | translate }}</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-lock input-icon"></i>
+          <input
+            id="confirmPassword"
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            class="form-control"
+            formControlName="confirmPassword"
+            [placeholder]="'auth.register.confirmPasswordPlaceholder' | translate"
+            [class.is-invalid]="form.controls.confirmPassword.touched && form.controls.confirmPassword.invalid"
+          />
+          <button type="button" class="toggle-password" (click)="toggleConfirmPassword()">
+            <i [class]="showConfirmPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+          </button>
+        </div>
+        @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors) {
+          <div class="invalid-feedback">
+            @if (form.controls.confirmPassword.errors['required']) {
+              {{ 'auth.validation.confirmPasswordRequired' | translate }}
+            } @else if (form.controls.confirmPassword.errors['passwordMismatch']) {
+              {{ 'auth.validation.passwordMismatch' | translate }}
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Phone: Country Code + Mobile -->
+      <div class="form-group">
+        <label for="mobileNumber">{{ 'auth.register.mobileNumber' | translate }}</label>
+        <div class="phone-row">
+          <select
+            class="form-control country-code-select"
+            formControlName="countryCode"
+          >
+            @for (cc of countryCodes; track cc.code) {
+              <option [value]="cc.code">{{ cc.code }} - {{ cc.label | translate }}</option>
+            }
+          </select>
+          <div class="input-wrapper phone-input">
+            <input
+              id="mobileNumber"
+              type="tel"
+              class="form-control"
+              formControlName="mobileNumber"
+              [placeholder]="'auth.register.mobileNumberPlaceholder' | translate"
+              [class.is-invalid]="form.controls.mobileNumber.touched && form.controls.mobileNumber.invalid"
+            />
+          </div>
+        </div>
+        @if (form.controls.mobileNumber.touched && form.controls.mobileNumber.errors) {
+          <div class="invalid-feedback">
+            @if (form.controls.mobileNumber.errors['required']) {
+              {{ 'auth.validation.mobileRequired' | translate }}
+            } @else if (form.controls.mobileNumber.errors['pattern']) {
+              {{ 'auth.validation.mobilePattern' | translate }}
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Submit -->
+      <button
+        type="submit"
+        class="btn btn-primary btn-full"
+        [disabled]="loading()"
+      >
+        @if (loading()) {
+          <span class="spinner-border spinner-border-sm" role="status"></span>
+        }
+        {{ 'auth.register.submit' | translate }}
+      </button>
+    </form>
+  }
+
+  <div class="auth-footer">
+    <span>{{ 'auth.register.hasAccount' | translate }}</span>
+    <a routerLink="/login">{{ 'auth.register.loginLink' | translate }}</a>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+@use '../../../styles/tokens' as *;
+
+:host { display: block; }
+
+.portal-footer { background: $color-text-primary; color: rgba(148,180,255,.6); }
+
+.footer-main { padding: $space-8 0 $space-6; }
+
+.footer-brand { margin-bottom: $space-4; }
+.footer-logo { height: 40px; width: auto; margin-bottom: $space-3; filter: brightness(0) invert(1); }
+.footer-desc { font-size: $font-size-md; line-height: 1.8; color: rgba(148,180,255,.5); max-width: 320px; }
+
+.footer-social { display: flex; gap: $space-3;
+  a { width: 36px; height: 36px; border-radius: $radius-md;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(148,180,255,.6); font-size: $font-size-lg;
+    transition: all .2s ease;
+    &:hover { background: $color-primary; border-color: $color-primary; color: #fff; }
+  }
+}
+
+.footer-heading { font-size: $font-size-lg; font-weight: 700; color: #fff;
+  margin-bottom: $space-4; padding-bottom: $space-2;
+  border-bottom: 2px solid rgba(255,255,255,.08);
+}
+
+.footer-nav { display: flex; flex-direction: column; gap: $space-3;
+  a { color: rgba(148,180,255,.5); text-decoration: none; font-size: $font-size-md;
+    transition: color .2s ease;
+    &:hover { color: #fff; padding-inline-start: $space-2; }
+  }
+}
+
+.footer-contact { list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: $space-3;
+  li { display: flex; align-items: center; gap: $space-3; font-size: $font-size-md; color: rgba(148,180,255,.5);
+    i { font-size: $font-size-lg; color: $color-primary; width: 20px; text-align: center; flex-shrink: 0; }
+  }
+}
+
+.footer-hotline { margin-top: $space-3; background: rgba(255,255,255,.04);
+  padding: $space-3 $space-4; border-radius: $radius-md;
+  .hotline-label { font-size: $font-size-md; font-weight: 700; color: rgba(148,180,255,.7); }
+  .hotline-number { font-size: $font-size-3xl; font-weight: 800; color: #fff; margin-inline-start: auto; }
+  i { color: $color-success; font-size: $font-size-3xl; }
+}
+
+.footer-bottom { border-top: 1px solid rgba(255,255,255,.06); padding: $space-4 0;
+  text-align: center; font-size: $font-size-sm; color: rgba(148,180,255,.4);
+}

@@ -1,0 +1,105 @@
+@use '../../../../../../../src/styles/tokens' as *;
+
+.detail-page { max-width: 960px; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: $space-2;
+  font-size: $font-size-md; color: $color-primary;
+  text-decoration: none; font-weight: 600; margin-bottom: $space-5;
+  &:hover { text-decoration: underline; }
+}
+
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: $space-6;
+  h2 { font-size: $font-size-3xl; font-weight: 800; color: $color-text-primary; margin: 0; }
+  p { font-size: $font-size-lg; color: $color-text-muted; margin-top: $space-1; }
+}
+
+.badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: $font-size-sm; font-weight: 700; }
+.badge-success { background: $color-success-bg; color: $color-success-dark; }
+.badge-warning { background: $color-warning-bg; color: $color-warning-dark; }
+.badge-danger { background: $color-danger-bg; color: $color-danger-dark; }
+.badge-info { background: $color-info-light; color: $color-primary; }
+.badge-primary { background: $color-primary-light; color: $color-primary; }
+.badge-secondary { background: $color-bg-alt; color: $color-text-muted; }
+
+.info-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: $space-5; margin-bottom: $space-6;
+}
+
+.info-card {
+  background: $color-bg-card; border: 1px solid $color-border-card;
+  border-radius: $radius-lg; padding: $space-5; box-shadow: $shadow-card;
+}
+.info-card-title {
+  font-size: $font-size-lg; font-weight: 700; color: $color-text-primary;
+  display: flex; align-items: center; gap: $space-2;
+  margin-bottom: $space-4; padding-bottom: $space-3;
+  border-bottom: 1px solid $color-border;
+  i { color: $color-primary; font-size: 14px; }
+}
+.info-row {
+  display: flex; justify-content: space-between; align-items: center; padding: $space-2 0;
+  & + .info-row { border-top: 1px solid #{$color-border}20; }
+}
+.info-label { font-size: $font-size-sm; color: $color-text-muted; font-weight: 500; }
+.info-value { font-size: $font-size-md; color: $color-text-body; font-weight: 600; }
+
+.timeline-section {
+  h3 { font-size: $font-size-2xl; font-weight: 700; color: $color-text-primary; margin-bottom: $space-5; }
+}
+
+.timeline {
+  position: relative;
+  padding-inline-start: $space-6;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 11px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: $color-border;
+  }
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: $space-5;
+
+  &:last-child { padding-bottom: 0; }
+}
+
+.timeline-dot {
+  position: absolute;
+  inset-inline-start: -#{$space-6};
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: $color-bg-card;
+  border: 2px solid $color-border;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  z-index: 1;
+}
+
+.badge-success .timeline-dot { border-color: $color-success; color: $color-success; }
+.badge-warning .timeline-dot { border-color: $color-warning; color: $color-warning; }
+.badge-danger .timeline-dot { border-color: $color-danger; color: $color-danger; }
+.badge-info .timeline-dot { border-color: $color-primary; color: $color-primary; }
+.badge-primary .timeline-dot { border-color: $color-primary; color: $color-primary; }
+
+.timeline-content {
+  background: $color-bg-card;
+  border: 1px solid $color-border-card;
+  border-radius: $radius-md;
+  padding: $space-3 $space-4;
+  box-shadow: $shadow-card;
+}
+
+.timeline-status { font-size: $font-size-md; font-weight: 700; color: $color-text-primary; }
+.timeline-date { font-size: $font-size-sm; color: $color-text-muted; margin-top: $space-1; }
+.timeline-note { font-size: $font-size-sm; color: $color-text-secondary; margin-top: $space-2; font-style: italic; }
+
+.loading-state { text-align: center; padding: $space-8; }

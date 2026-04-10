@@ -1,0 +1,139 @@
+<div class="detail-page">
+  <a routerLink="/nationalities" class="back-link">
+    <i class="fas fa-arrow-left"></i>
+    {{ 'admin.common.back' | translate }}
+  </a>
+
+  @if (loading()) {
+    <div class="loading-state"><span class="spinner-border"></span></div>
+  } @else if (nationality()) {
+    <div class="page-header">
+      <div>
+        <h2>{{ nationality()!.nameEn }} ({{ nationality()!.code }})</h2>
+        <p class="name-ar">{{ nationality()!.nameAr }}</p>
+      </div>
+      <div class="header-actions">
+        <label class="toggle-label">
+          <span>{{ 'admin.nationalities.requires_inquiry' | translate }}</span>
+          <label class="toggle-switch">
+            <input type="checkbox" [checked]="nationality()!.requiresInquiry" (change)="toggleInquiry()" />
+            <span class="toggle-slider"></span>
+          </label>
+        </label>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <!-- Info Card -->
+      <div class="info-card">
+        <div class="info-card-title">
+          <i class="fas fa-globe"></i>
+          {{ 'admin.nationalities.info' | translate }}
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.nationalities.code' | translate }}</span>
+          <span class="info-value">{{ nationality()!.code }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.nationalities.name_en' | translate }}</span>
+          <span class="info-value">{{ nationality()!.nameEn }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.nationalities.name_ar' | translate }}</span>
+          <span class="info-value">{{ nationality()!.nameAr }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.nationalities.requires_inquiry' | translate }}</span>
+          <span class="info-value">
+            @if (nationality()!.requiresInquiry) {
+              <span class="badge badge-success">{{ 'admin.common.yes' | translate }}</span>
+            } @else {
+              <span class="badge badge-secondary">{{ 'admin.common.no' | translate }}</span>
+            }
+          </span>
+        </div>
+        @if (getActiveFee(); as activeFee) {
+          <div class="info-row">
+            <span class="info-label">{{ 'admin.nationalities.current_fee' | translate }}</span>
+            <span class="info-value fee-value">{{ activeFee.fee | number:'1.2-2' }} {{ activeFee.currency }}</span>
+          </div>
+        }
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.common.date' | translate }}</span>
+          <span class="info-value">{{ nationality()!.createdAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <!-- Update Fee -->
+      <div class="info-card">
+        <div class="info-card-title">
+          <i class="fas fa-file-invoice-dollar"></i>
+          {{ 'admin.nationalities.update_fee' | translate }}
+        </div>
+        <form [formGroup]="feeForm" (ngSubmit)="submitFee()">
+          <div class="form-group">
+            <label>{{ 'admin.nationalities.new_fee' | translate }}</label>
+            <input type="number" formControlName="fee" class="form-control"
+              [class.is-invalid]="feeForm.controls.fee.touched && feeForm.controls.fee.invalid" />
+            @if (feeForm.controls.fee.touched && feeForm.controls.fee.hasError('required')) {
+              <div class="invalid-feedback">{{ 'admin.nationalities.fee_required' | translate }}</div>
+            }
+          </div>
+          <div class="form-group">
+            <label>{{ 'admin.nationalities.effective_from' | translate }}</label>
+            <input type="date" formControlName="effectiveFrom" class="form-control"
+              [class.is-invalid]="feeForm.controls.effectiveFrom.touched && feeForm.controls.effectiveFrom.invalid" />
+            @if (feeForm.controls.effectiveFrom.touched && feeForm.controls.effectiveFrom.hasError('required')) {
+              <div class="invalid-feedback">{{ 'admin.nationalities.date_required' | translate }}</div>
+            }
+          </div>
+          <div class="form-group">
+            <label>{{ 'admin.nationalities.effective_to' | translate }}</label>
+            <input type="date" formControlName="effectiveTo" class="form-control" />
+          </div>
+          <button type="submit" class="btn btn-primary" [disabled]="feeLoading()">
+            @if (feeLoading()) { <span class="spinner-border spinner-border-sm"></span> }
+            {{ 'admin.nationalities.save_fee' | translate }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Pricing History -->
+    <div class="history-section">
+      <h3>{{ 'admin.nationalities.pricing_history' | translate }}</h3>
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'admin.nationalities.fee' | translate }}</th>
+              <th>{{ 'admin.nationalities.currency' | translate }}</th>
+              <th>{{ 'admin.nationalities.effective_from' | translate }}</th>
+              <th>{{ 'admin.nationalities.effective_to' | translate }}</th>
+              <th>{{ 'admin.common.status' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of nationality()!.pricingHistory; track p.id) {
+              <tr [class.active-row]="p.isActive">
+                <td class="fw-semibold">{{ p.fee | number:'1.2-2' }}</td>
+                <td>{{ p.currency }}</td>
+                <td>{{ p.effectiveFrom | date:'mediumDate' }}</td>
+                <td>{{ p.effectiveTo ? (p.effectiveTo | date:'mediumDate') : '—' }}</td>
+                <td>
+                  @if (p.isActive) {
+                    <span class="badge badge-success">{{ 'admin.nationalities.active' | translate }}</span>
+                  } @else {
+                    <span class="badge badge-secondary">{{ 'admin.nationalities.expired' | translate }}</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="text-center text-muted">{{ 'admin.common.no_data' | translate }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

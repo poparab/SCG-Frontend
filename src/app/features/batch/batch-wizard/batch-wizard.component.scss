@@ -1,0 +1,183 @@
+@use '../../../../styles/tokens' as *;
+
+// Inline mixin equivalents (avoids importing full Bootstrap via styles.scss)
+@mixin _card-base {
+  background: $color-bg-card;
+  border: 1.5px solid $color-border-card;
+  border-radius: $radius-lg;
+  transition: box-shadow .2s, border-color .2s;
+}
+
+// Component-specific overrides only — portal + wizard card classes are global
+:host { display: block; }
+
+/* ── Step Section Titles ─────────────────────────────────────────────── */
+.step-section-title { font-weight: 700; font-size: $font-size-2xl; color: $color-text-primary; margin-bottom: $space-1; }
+.step-section-desc { font-size: $font-size-lg; color: $color-text-muted; margin-bottom: $space-5; }
+.step1-form { display: flex; flex-direction: column; gap: $space-4; }
+
+/* ── Form Fields (ff-*) ──────────────────────────────────────────────── */
+.ff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: $space-4; margin-bottom: $space-4; }
+.ff-field { display: flex; flex-direction: column; gap: 4px;
+  label { font-size: $font-size-md; font-weight: 600; color: $color-text-secondary; }
+  input, select, textarea { width: 100%; height: 40px; padding: 0 $space-3;
+    border: 1px solid #d1d5db; border-radius: $radius-md; font-family: $font-family;
+    font-size: $font-size-lg; color: $color-text-primary; background: $color-bg-alt;
+    transition: border-color .15s ease;
+    &:focus { outline: none; border-color: $color-primary; box-shadow: 0 0 0 3px rgba(0,95,204,.1); }
+  }
+  textarea { height: auto; padding: $space-3; }
+  .ff-req { color: $color-danger; }
+}
+.ff-field-spaced { margin-bottom: $space-4; }
+.ff-field-lg input { height: 48px; font-size: $font-size-xl; }
+
+/* ── Wizard Card (structure from mockup) ──────────────────────────────── */
+.wizard-card { @include _card-base; padding: 0; overflow: hidden; }
+.wizard-card-header { display: flex; align-items: center; gap: $space-3;
+  padding: $space-5; border-bottom: 1px solid $color-border;
+}
+.wch-icon { font-size: $font-size-3xl; color: $color-primary; }
+.wch-title { font-size: $font-size-2xl; font-weight: 700; color: $color-text-primary; flex: 1; }
+.wch-nav-btn { width: 36px; height: 36px; border-radius: $radius-sm; border: 1px solid $color-border;
+  background: $color-bg-card; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: $color-text-secondary; transition: all .2s ease;
+  &:hover { background: $color-bg-alt; color: $color-primary; }
+}
+.wizard-card-body { padding: $space-5; }
+.wizard-card-footer { display: flex; justify-content: space-between; align-items: center;
+  padding: $space-4 $space-5; border-top: 1px solid $color-border; gap: $space-3;
+}
+
+/* ── Wizard Buttons ──────────────────────────────────────────────────── */
+.wz-btn { display: inline-flex; align-items: center; gap: 6px; padding: $space-2 $space-5;
+  border: none; border-radius: $radius-md; font-family: $font-family; font-weight: 600;
+  font-size: $font-size-lg; cursor: pointer; transition: all .2s ease; text-decoration: none;
+}
+.wz-btn-primary { background: $color-primary; color: #fff;
+  &:hover { background: $color-primary-mid; color: #fff; }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+.wz-btn-secondary { background: transparent; color: $color-text-secondary;
+  border: 1px solid $color-border;
+  &:hover { background: $color-bg-alt; color: $color-text-primary; }
+}
+.wz-btn-success { background: $color-success; color: #fff;
+  &:hover { background: $color-success-dark; color: #fff; }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+.wz-btn-lg { padding: $space-3 $space-6; font-size: $font-size-xl; }
+
+/* ── Form Section Dividers ───────────────────────────────────────────── */
+.form-section-label { font-size: $font-size-lg; font-weight: 700; color: $color-text-secondary;
+  margin-top: $space-4; margin-bottom: $space-3;
+  padding-bottom: $space-2; border-bottom: 1px solid $color-border;
+  i { margin-inline-end: $space-2; color: $color-primary; }
+}
+.form-actions { display: flex; gap: $space-3; margin-top: $space-3; }
+
+/* ── Traveler Form Section ───────────────────────────────────────────── */
+.traveler-form-section { @include _card-base; padding: $space-5; margin-bottom: $space-5; background: $color-bg-alt; }
+.form-section-title { font-size: $font-size-lg; font-weight: 700; color: $color-text-primary; margin-bottom: $space-3; }
+.travelers-table-section { margin-top: $space-5; }
+
+/* ── Add Traveler Button ─────────────────────────────────────────────── */
+.add-traveler-wrap { margin: $space-4 0; }
+.step2-add-btn { display: inline-flex; align-items: center; gap: $space-2;
+  padding: $space-3 $space-5; background: $color-success; color: #fff; border: none;
+  border-radius: $radius-md; font-family: $font-family; font-weight: 600;
+  font-size: $font-size-lg; cursor: pointer; transition: all .2s ease;
+  &:hover { background: $color-success-dark; }
+  &:disabled { opacity: .4; cursor: not-allowed; }
+}
+
+/* ── Traveler Cards ──────────────────────────────────────────────────── */
+.traveler-card { @include _card-base; padding: $space-3; margin-bottom: $space-3;
+  border: 1px solid $color-border; border-radius: $radius-md;
+}
+.traveler-card-header { display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: $space-2;
+}
+.traveler-name { font-size: $font-size-lg; font-weight: 700; color: $color-text-primary; }
+.traveler-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: $color-primary; color: #fff;
+  font-size: $font-size-sm; font-weight: 700; margin-inline-end: $space-2;
+}
+.traveler-card-actions { display: flex; gap: $space-2; }
+.traveler-card-pills { display: flex; flex-wrap: wrap; gap: $space-2; }
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+  border-radius: 999px; font-size: $font-size-sm; font-weight: 600;
+  i { font-size: 11px; }
+}
+.pill-blue { background: rgba($color-primary, .1); color: $color-primary; }
+.pill-neutral { background: $color-bg-alt; color: $color-text-secondary; }
+
+/* ── Running Total Bar ───────────────────────────────────────────────── */
+.running-total-bar { display: flex; align-items: center; gap: $space-3;
+  padding: $space-3 $space-5; background: $color-primary-light; border-radius: $radius-md;
+  margin-top: $space-4;
+}
+.rtb-icon { font-size: $font-size-2xl; color: $color-primary; }
+.rtb-stat { display: flex; align-items: center; gap: $space-2;
+  font-weight: 700; font-size: $font-size-lg; color: $color-primary;
+}
+.rtb-val { font-weight: 500; color: $color-text-muted; }
+
+/* ── Footer Actions ──────────────────────────────────────────────────── */
+.footer-actions { display: flex; align-items: center; gap: $space-2; }
+
+/* ── Confirm / Summary Card ──────────────────────────────────────────── */
+.confirm-summary-card { @include _card-base; padding: $space-4; margin-bottom: $space-4; }
+.sect-title { font-weight: 700; font-size: $font-size-lg; color: $color-text-secondary;
+  margin-bottom: $space-3; i { margin-inline-end: $space-2; color: $color-primary; }
+}
+.sect-title-flush { margin-bottom: $space-3; }
+.summary-row { display: flex; justify-content: space-between; padding: $space-2 0;
+  border-bottom: 1px solid $color-bg-page;
+  &:last-child { border-bottom: none; }
+}
+.summary-label { font-size: $font-size-md; color: $color-text-muted; }
+.summary-value { font-size: $font-size-md; font-weight: 700; color: $color-text-primary; }
+
+/* ── Review Section ──────────────────────────────────────────────────── */
+.review-section { margin-bottom: $space-5; }
+.review-toggle-header { display: flex; align-items: center; justify-content: space-between; padding: $space-3 $space-4;
+  background: $color-bg-alt; border-radius: $radius-md; margin-bottom: $space-3;
+}
+.review-toggle-left { display: flex; align-items: center; gap: $space-2;
+  font-weight: 700; color: $color-text-primary;
+}
+.review-toggle-title { font-size: $font-size-lg; }
+.sect-count { background: $color-primary-light; color: $color-primary;
+  padding: 2px 10px; border-radius: 20px; font-size: $font-size-sm; font-weight: 700;
+}
+
+/* ── Irreversible Warning ────────────────────────────────────────────── */
+.irreversible-warning { background: $color-warning-bg; border: 1px solid $color-warning-border;
+  border-radius: $radius-md; padding: $space-4; margin: $space-5 0;
+  color: $color-warning-dark; font-size: $font-size-lg; line-height: 1.7;
+  i { color: $color-warning; margin-inline-end: $space-2; }
+}
+
+/* ── Confirm Actions Bar ─────────────────────────────────────────────── */
+.confirm-actions-bar { display: flex; justify-content: space-between; align-items: center;
+  padding-top: $space-4; border-top: 1px solid $color-border; gap: $space-3;
+}
+.confirm-actions-group { display: flex; align-items: center; gap: $space-2; }
+
+/* ── State Screens (success / error / loading) ───────────────────────── */
+.state-screen { text-align: center; padding: $space-8 $space-5; }
+.state-icon-wrap { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto $space-4;
+  display: flex; align-items: center; justify-content: center; font-size: 40px;
+}
+.state-icon-success { background: $color-success-light; color: $color-success; }
+.state-icon-error { background: $color-danger-light; color: $color-danger; }
+.state-title { font-size: $font-size-3xl; font-weight: 700; color: $color-text-primary; margin-bottom: $space-2; }
+.state-title-error { color: $color-danger-dark; }
+.state-subtitle { font-size: $font-size-lg; color: $color-text-muted; margin-bottom: $space-5; }
+.state-subtitle-muted { font-size: $font-size-lg; color: $color-text-muted; margin-bottom: $space-2; }
+.state-subtitle-last { font-size: $font-size-lg; color: $color-text-secondary; margin-bottom: $space-5; }
+.state-summary { max-width: 420px; margin: 0 auto $space-5; text-align: start; }
+.state-actions { display: flex; justify-content: center; gap: $space-3; }
+.state-loading-icon { font-size: 48px; color: $color-primary; margin-bottom: $space-4; }
+.state-loading-title { font-size: $font-size-2xl; font-weight: 700; color: $color-text-primary; margin-bottom: $space-2; }
+.state-loading-subtitle { font-size: $font-size-lg; color: $color-text-muted; }

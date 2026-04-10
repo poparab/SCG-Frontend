@@ -1,0 +1,123 @@
+@use '../../../../../../src/styles/tokens' as *;
+
+.list-page {
+  .page-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: $space-5;
+    h2 { font-size: $font-size-3xl; font-weight: 800; color: $color-text-primary; margin: 0; }
+    p { font-size: $font-size-md; color: $color-text-muted; margin-top: $space-1; }
+  }
+}
+
+.btn {
+  font-family: $font-family; font-size: $font-size-md; font-weight: 700;
+  border: none; border-radius: $radius-md; padding: 8px $space-5;
+  cursor: pointer; display: inline-flex; align-items: center; gap: $space-2;
+  transition: all 0.2s;
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+.btn-primary { background: $color-primary; color: #fff; &:hover:not(:disabled) { background: $color-primary-dark; } }
+.btn-secondary { background: $color-bg-alt; color: $color-text-secondary; border: 1.5px solid $color-border; &:hover:not(:disabled) { background: $color-border; } }
+
+.filters-bar {
+  display: flex; align-items: center; gap: $space-4;
+  margin-bottom: $space-5; flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex; align-items: center; gap: $space-2;
+  background: $color-bg-card; border: 1.5px solid $color-border;
+  border-radius: $radius-md; padding: 0 $space-3; height: 38px;
+  i { color: $color-text-placeholder; font-size: 13px; }
+  input { border: none; background: none; outline: none; font-family: $font-family; font-size: $font-size-md; color: $color-text-body; width: 220px; }
+}
+
+.filter-pills { display: flex; gap: $space-2; }
+
+.pill {
+  border: 1.5px solid $color-border; background: $color-bg-card;
+  border-radius: 20px; padding: 6px $space-4;
+  font-family: $font-family; font-size: $font-size-sm; font-weight: 600;
+  color: $color-text-secondary; cursor: pointer; transition: all 0.15s;
+  &:hover { border-color: $color-primary-muted; color: $color-primary; }
+  &.active { background: $color-primary; border-color: $color-primary; color: #fff; }
+}
+
+.table-card {
+  background: $color-bg-card; border-radius: $radius-lg;
+  border: 1px solid $color-border-card; box-shadow: $shadow-card; overflow: hidden;
+}
+
+.data-table {
+  width: 100%; border-collapse: collapse;
+  th { font-size: $font-size-sm; font-weight: 700; color: $color-text-muted; text-transform: uppercase; letter-spacing: 0.5px; padding: $space-3 $space-4; background: $color-bg-alt; border-bottom: 1.5px solid $color-border; white-space: nowrap; }
+  td { font-size: $font-size-md; color: $color-text-body; padding: $space-3 $space-4; border-bottom: 1px solid $color-border; }
+  tbody tr:hover { background: $color-bg-alt; }
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+.toggle-switch {
+  position: relative; display: inline-block; width: 40px; height: 22px;
+  input { opacity: 0; width: 0; height: 0; }
+}
+.toggle-slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: $color-border; border-radius: 22px; transition: 0.2s;
+  &::before {
+    content: ''; position: absolute; height: 16px; width: 16px;
+    inset-inline-start: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%; transition: 0.2s;
+  }
+}
+.toggle-switch input:checked + .toggle-slider { background: $color-success; }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+[dir="rtl"] .toggle-switch input:checked + .toggle-slider::before { transform: translateX(-18px); }
+
+.btn-action {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: $radius-sm;
+  color: $color-primary; text-decoration: none; transition: background 0.15s;
+  &:hover { background: $color-primary-light; }
+}
+
+.pagination-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: $space-3; padding: $space-4; border-top: 1px solid $color-border;
+}
+.page-btn {
+  border: 1.5px solid $color-border; background: $color-bg-card;
+  border-radius: $radius-sm; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: $color-text-secondary;
+  &:hover:not(:disabled) { border-color: $color-primary-muted; color: $color-primary; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+.page-info { font-size: $font-size-md; color: $color-text-muted; font-weight: 600; }
+
+.fw-semibold { font-weight: 600; }
+.text-center { text-align: center; }
+.text-muted { color: $color-text-muted; }
+
+// Modal
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-panel { background: $color-bg-card; border-radius: $radius-xl; box-shadow: $shadow-lg; width: 100%; max-width: 520px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: $space-5; border-bottom: 1px solid $color-border; h3 { font-size: $font-size-2xl; font-weight: 700; color: $color-text-primary; margin: 0; } }
+.modal-close { border: none; background: none; cursor: pointer; color: $color-text-muted; font-size: 16px; &:hover { color: $color-text-body; } }
+.modal-body { padding: $space-5; }
+.modal-footer { display: flex; justify-content: flex-end; gap: $space-3; padding: $space-4 $space-5; border-top: 1px solid $color-border; }
+
+.form-group {
+  margin-bottom: $space-4;
+  label { display: block; font-size: $font-size-md; font-weight: 600; color: $color-text-body; margin-bottom: $space-2; }
+  .form-control { width: 100%; font-family: $font-family; font-size: $font-size-md; border: 1.5px solid $color-border; border-radius: $radius-md; padding: 8px $space-3; &:focus { border-color: $color-primary; outline: none; box-shadow: 0 0 0 3px $color-primary-light; } }
+  .invalid-feedback { display: block; font-size: $font-size-sm; color: $color-danger; margin-top: $space-1; }
+  .is-invalid { border-color: $color-danger; }
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: $space-4; }
+
+.checkbox-label {
+  display: flex; align-items: center; gap: $space-2;
+  font-weight: 500; cursor: pointer;
+  input { width: 16px; height: 16px; accent-color: $color-primary; }
+}

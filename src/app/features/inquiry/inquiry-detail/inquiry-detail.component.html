@@ -1,0 +1,159 @@
+<!-- ════════════════ HERO ════════════════ -->
+<section class="portal-hero">
+  <div class="container">
+    <h1>{{ 'inquiry.detail.title' | translate }}</h1>
+    <p>{{ 'inquiry.detail.subtitle' | translate }}</p>
+  </div>
+</section>
+
+<!-- ════════════════ BREADCRUMB ════════════════ -->
+<div class="portal-breadcrumb">
+  <div class="container">
+    <nav>
+      <a routerLink="/dashboard"><i class="fa-solid fa-house"></i></a>
+      <i class="fa-solid fa-chevron-left separator"></i>
+      <a routerLink="/batches">{{ 'portal.batchList.breadcrumb' | translate }}</a>
+      <i class="fa-solid fa-chevron-left separator"></i>
+      <span class="current">{{ 'inquiry.detail.title' | translate }}</span>
+    </nav>
+  </div>
+</div>
+
+<!-- ════════════════ PAGE BODY ════════════════ -->
+<div class="container portal-body">
+
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">{{ 'common.loading' | translate }}</span>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-danger">{{ error()! | translate }}</div>
+  } @else {
+    @let inq = inquiry()!;
+
+    <!-- Back Button -->
+    <a class="btn-back" (click)="goBack()" style="cursor:pointer;">
+      <i class="fa-solid fa-arrow-right"></i> {{ 'inquiry.detail.back' | translate }}
+    </a>
+
+    <!-- Section Header -->
+    <div class="section-header">
+      <h2>
+        <span class="title-icon"><i class="fa-solid fa-file-lines"></i></span>
+        {{ 'inquiry.detail.title' | translate }}
+      </h2>
+      @if (inq.status === 'Approved' && inq.documentUrl) {
+        <a [href]="inq.documentUrl" target="_blank" rel="noopener noreferrer" class="btn-download">
+          <i class="fa-solid fa-file-pdf"></i> {{ 'inquiry.detail.downloadPdf' | translate }}
+        </a>
+      }
+    </div>
+
+    <!-- Traveler Detail Card -->
+    <div class="detail-card">
+      <div class="detail-header">
+        <h3><i class="fa-solid fa-user"></i> {{ 'inquiry.detail.travelerData' | translate }}</h3>
+        <span class="status-pill" [class]="getStatusPillClass(inq.status)" style="font-size:calc(0.8125rem + 0.02vw);">
+          <i [class]="getStatusIcon(inq.status)"></i> {{ getStatusKey(inq.status) | translate }}
+        </span>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-row">
+          <span class="detail-label">{{ 'inquiry.detail.referenceNumber' | translate }}</span>
+          <span class="detail-value" dir="ltr">{{ inq.referenceNumber }}</span>
+        </div>
+        @if (inq.batchName) {
+          <div class="detail-row">
+            <span class="detail-label">{{ 'inquiry.detail.batchNumber' | translate }}</span>
+            <span class="detail-value" dir="ltr">{{ inq.batchName }}</span>
+          </div>
+        }
+        <div class="detail-row">
+          <span class="detail-label">{{ 'inquiry.detail.submissionDate' | translate }}</span>
+          <span class="detail-value">{{ inq.createdAt | date:'yyyy/MM/dd — hh:mm a' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">{{ 'inquiry.detail.fullName' | translate }}</span>
+          <span class="detail-value">{{ fullName() }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">{{ 'inquiry.detail.nationality' | translate }}</span>
+          <span class="detail-value">{{ inq.traveler.nationalityCode }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">{{ 'inquiry.detail.passportNumber' | translate }}</span>
+          <span class="detail-value" dir="ltr">{{ inq.traveler.passportNumber }}</span>
+        </div>
+        @if (inq.traveler.purposeOfTravel) {
+          <div class="detail-row">
+            <span class="detail-label">{{ 'inquiry.detail.purposeOfVisit' | translate }}</span>
+            <span class="detail-value">{{ inq.traveler.purposeOfTravel }}</span>
+          </div>
+        }
+        <div class="detail-row">
+          <span class="detail-label">{{ 'inquiry.detail.arrivalDate' | translate }}</span>
+          <span class="detail-value">{{ inq.traveler.travelDate | date:'yyyy/MM/dd' }}</span>
+        </div>
+        @if (inq.traveler.departureCountry) {
+          <div class="detail-row">
+            <span class="detail-label">{{ 'inquiry.detail.departureCountry' | translate }}</span>
+            <span class="detail-value">{{ inq.traveler.departureCountry }}</span>
+          </div>
+        }
+        @if (inq.traveler.arrivalAirport) {
+          <div class="detail-row">
+            <span class="detail-label">{{ 'inquiry.detail.arrivalAirport' | translate }}</span>
+            <span class="detail-value">{{ inq.traveler.arrivalAirport }}</span>
+          </div>
+        }
+        @if (inq.traveler.flightNumber) {
+          <div class="detail-row">
+            <span class="detail-label">{{ 'inquiry.detail.flightNumber' | translate }}</span>
+            <span class="detail-value" dir="ltr">{{ inq.traveler.flightNumber }}</span>
+          </div>
+        }
+        @if (inq.traveler.passportExpiry) {
+          <div class="detail-row">
+            <span class="detail-label">{{ 'inquiry.detail.passportExpiry' | translate }}</span>
+            <span class="detail-value">{{ inq.traveler.passportExpiry | date:'yyyy/MM/dd' }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Status Tracking Section -->
+    <div class="status-tracker">
+      <h3><i class="fa-solid fa-route"></i> {{ 'inquiry.detail.statusTracking' | translate }}</h3>
+
+      <!-- Status Phase Cards -->
+      <div class="status-cards-row">
+        @for (phase of statusPhases(); track $index) {
+          <div class="status-phase-card" [ngClass]="'spc-' + phase.state">
+            <div class="spc-icon"><i [class]="phase.icon"></i></div>
+            <div class="spc-title">{{ phase.titleKey | translate }}</div>
+            <div class="spc-status"><i [class]="phase.statusIcon"></i> {{ phase.statusKey | translate }}</div>
+          </div>
+        }
+      </div>
+
+      <!-- Timeline Stepper -->
+      <div class="tracker-steps">
+        <div class="tracker-line">
+          <div class="line-fill" [style.width]="lineProgress()"
+               [style.background]="isRejected() ? '#ef4444' : ''"></div>
+        </div>
+        @for (step of timelineSteps(); track $index) {
+          <div class="tracker-step" [ngClass]="'ts-' + step.state">
+            <div class="step-icon"><i [class]="step.icon"></i></div>
+            <div class="step-title">{{ step.titleKey | translate }}</div>
+            @if (step.date) {
+              <div class="step-date">{{ step.date | date:'yyyy/MM/dd — hh:mm a' }}</div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

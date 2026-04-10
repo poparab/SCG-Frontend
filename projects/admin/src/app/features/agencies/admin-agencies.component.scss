@@ -1,0 +1,115 @@
+@use '../../../../../../src/styles/tokens' as *;
+
+.list-page {
+  .page-header {
+    margin-bottom: $space-5;
+    h2 { font-size: $font-size-3xl; font-weight: 800; color: $color-text-primary; margin: 0; }
+    p { font-size: $font-size-md; color: $color-text-muted; margin-top: $space-1; }
+  }
+}
+
+.filters-bar {
+  display: flex; align-items: center; gap: $space-4;
+  margin-bottom: $space-5; flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex; align-items: center; gap: $space-2;
+  background: $color-bg-card; border: 1.5px solid $color-border;
+  border-radius: $radius-md; padding: 0 $space-3; height: 38px;
+
+  i { color: $color-text-placeholder; font-size: 13px; }
+  input {
+    border: none; background: none; outline: none;
+    font-family: $font-family; font-size: $font-size-md;
+    color: $color-text-body; width: 220px;
+  }
+}
+
+.filter-pills {
+  display: flex; gap: $space-2;
+}
+
+.pill {
+  border: 1.5px solid $color-border;
+  background: $color-bg-card;
+  border-radius: 20px;
+  padding: 6px $space-4;
+  font-family: $font-family;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-text-secondary;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { border-color: $color-primary-muted; color: $color-primary; }
+  &.active {
+    background: $color-primary;
+    border-color: $color-primary;
+    color: #fff;
+  }
+}
+
+.table-card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  border: 1px solid $color-border-card;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%; border-collapse: collapse;
+
+  th {
+    font-size: $font-size-sm; font-weight: 700; color: $color-text-muted;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: $space-3 $space-4; background: $color-bg-alt;
+    border-bottom: 1.5px solid $color-border;
+    white-space: nowrap;
+  }
+  td {
+    font-size: $font-size-md; color: $color-text-body;
+    padding: $space-3 $space-4; border-bottom: 1px solid $color-border;
+  }
+  tbody tr:hover { background: $color-bg-alt; }
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+.badge {
+  display: inline-block; padding: 3px 10px;
+  border-radius: 20px; font-size: $font-size-xs; font-weight: 700;
+}
+.badge-success { background: $color-success-bg; color: $color-success-dark; }
+.badge-warning { background: $color-warning-bg; color: $color-warning-dark; }
+.badge-danger { background: $color-danger-bg; color: $color-danger-dark; }
+.badge-secondary { background: $color-bg-alt; color: $color-text-muted; }
+
+.btn-action {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: $radius-sm;
+  color: $color-primary; text-decoration: none;
+  transition: background 0.15s;
+  &:hover { background: $color-primary-light; }
+}
+
+.pagination-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: $space-3; padding: $space-4;
+  border-top: 1px solid $color-border;
+}
+
+.page-btn {
+  border: 1.5px solid $color-border; background: $color-bg-card;
+  border-radius: $radius-sm; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: $color-text-secondary;
+  &:hover:not(:disabled) { border-color: $color-primary-muted; color: $color-primary; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.page-info { font-size: $font-size-md; color: $color-text-muted; font-weight: 600; }
+
+.fw-semibold { font-weight: 600; }
+.text-center { text-align: center; }
+.text-muted { color: $color-text-muted; }

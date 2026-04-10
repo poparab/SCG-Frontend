@@ -1,0 +1,499 @@
+﻿<!-- ══ HERO ══ -->
+<section class="portal-hero">
+  <div class="container">
+    <h1>{{ 'portal.batchInquiry.title' | translate }}</h1>
+    <p>{{ 'portal.batchInquiry.subtitle' | translate }}</p>
+  </div>
+</section>
+
+<!-- ══ BREADCRUMB ══ -->
+<div class="portal-breadcrumb">
+  <div class="container">
+    <nav>
+      <a routerLink="/dashboard"><i class="fa-solid fa-house"></i></a>
+      <i class="fa-solid fa-chevron-left separator"></i>
+      <a routerLink="/batches">{{ 'portal.batchList.breadcrumb' | translate }}</a>
+      <i class="fa-solid fa-chevron-left separator"></i>
+      <span class="current">{{ 'portal.batchInquiry.breadcrumb' | translate }}</span>
+    </nav>
+  </div>
+</div>
+
+<!-- ══ PAGE BODY ══ -->
+<div class="container portal-body">
+
+  <!-- ══ SUCCESS RESULT ══ -->
+  @if (submitResult(); as result) {
+    <div class="wizard-card">
+      <div class="wizard-card-body state-screen">
+        <div class="state-icon-wrap state-icon-success">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 class="state-title">{{ 'batch.result.successTitle' | translate }}</h3>
+        <p class="state-subtitle">{{ 'batch.result.successDesc' | translate }}</p>
+        <div class="confirm-summary-card state-summary">
+          <div class="summary-row">
+            <span class="summary-label">{{ 'batch.batchReference' | translate }}</span>
+            <span class="summary-value" dir="ltr">{{ result.batchReference }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">{{ 'batch.totalTravelers' | translate }}</span>
+            <span class="summary-value">{{ result.totalTravelers }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">{{ 'batch.totalFee' | translate }}</span>
+            <span class="summary-value">${{ result.totalFee | number:'1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="state-actions">
+          <button class="wz-btn wz-btn-primary wz-btn-lg" (click)="goToBatchDetail()">
+            <i class="fa-solid fa-eye"></i> {{ 'batch.result.viewDetails' | translate }}
+          </button>
+          <a routerLink="/batches" class="wz-btn wz-btn-secondary">
+            <i class="fa-solid fa-layer-group"></i> {{ 'batch.result.backToList' | translate }}
+          </a>
+        </div>
+      </div>
+    </div>
+
+  <!-- ══ ERROR RESULT ══ -->
+  } @else if (error() && currentStep() === 3 && !submitting()) {
+    <div class="wizard-card">
+      <div class="wizard-card-body state-screen">
+        <div class="state-icon-wrap state-icon-error">
+          <i class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <h3 class="state-title state-title-error">{{ 'batch.result.failureTitle' | translate }}</h3>
+        <p class="state-subtitle-muted">{{ 'batch.result.failureDesc' | translate }}</p>
+        <div class="alert alert-danger mt-3 mb-3" style="display:inline-block; text-align:start;">
+          <i class="fa-solid fa-circle-exclamation"></i> {{ error()! | translate }}
+        </div>
+        <p class="state-subtitle-last">{{ 'batch.result.noDeduction' | translate }}</p>
+        <div class="state-actions">
+          <button class="wz-btn wz-btn-primary wz-btn-lg" (click)="submitBatch()">
+            <i class="fa-solid fa-rotate-right"></i> {{ 'batch.result.retry' | translate }}
+          </button>
+          <a routerLink="/dashboard" class="wz-btn wz-btn-secondary">
+            <i class="fa-solid fa-gauge-high"></i> {{ 'batch.result.toDashboard' | translate }}
+          </a>
+        </div>
+      </div>
+    </div>
+
+  } @else {
+
+    <!-- ══ STEP 1: Batch Name ══ -->
+    @if (currentStep() === 1) {
+      <div class="wizard-card">
+        <div class="wizard-card-header">
+          <div class="wch-icon"><i class="fa-solid fa-file-circle-plus"></i></div>
+          <div class="wch-title">{{ 'batch.wizard.addNewBatch' | translate }}</div>
+          <button class="wch-nav-btn" routerLink="/batches"><i class="fa-solid fa-arrow-left"></i></button>
+        </div>
+        <div class="wizard-card-body">
+          <div class="step-section-title">{{ 'batch.wizard.nameBatch' | translate }}</div>
+          <div class="step-section-desc">{{ 'batch.wizard.nameBatchDesc' | translate }}</div>
+
+          <form [formGroup]="batchForm" class="step1-form">
+            <div class="ff-field ff-field-spaced ff-field-lg">
+              <label>{{ 'batch.name' | translate }} <span class="ff-req">*</span></label>
+              <input type="text" formControlName="name"
+                     [placeholder]="'batch.namePlaceholder' | translate"
+                     maxlength="80">
+              @if (batchForm.get('name')?.touched && batchForm.get('name')?.hasError('required')) {
+                <small class="text-danger">{{ 'batch.nameRequired' | translate }}</small>
+              }
+            </div>
+            <div class="ff-field">
+              <label>{{ 'batch.wizard.notesLabel' | translate }}</label>
+              <textarea formControlName="notes" rows="3"
+                        [placeholder]="'batch.notesPlaceholder' | translate"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="wizard-card-footer">
+          <button class="wz-btn wz-btn-primary" (click)="nextStep()" [disabled]="submitting() || batchForm.invalid">
+            @if (submitting()) {
+              <span class="spinner-border spinner-border-sm"></span>
+            } @else {
+              {{ 'batch.next' | translate }} <i class="fa-solid fa-chevron-left"></i>
+            }
+          </button>
+          <a routerLink="/batches" class="wz-btn wz-btn-secondary">
+            <i class="fa-solid fa-times"></i> {{ 'common.cancel' | translate }}
+          </a>
+        </div>
+      </div>
+    }
+
+    <!-- ══ STEP 2: Add Travelers ══ -->
+    @if (currentStep() === 2) {
+      <div class="wizard-card">
+        <div class="wizard-card-header">
+          <div class="wch-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="wch-title">{{ 'batch.wizard.addTravelers' | translate }}</div>
+          <button class="wch-nav-btn" routerLink="/batches"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="wizard-card-body">
+
+          <!-- Batch info summary -->
+          <div class="confirm-summary-card">
+            <div class="sect-title sect-title-flush"><i class="fa-solid fa-gear"></i> {{ 'batch.batchInfo' | translate }}</div>
+            <div class="summary-row">
+              <span class="summary-label">{{ 'batch.name' | translate }}</span>
+              <span class="summary-value">{{ batchForm.value.name }}</span>
+            </div>
+            @if (batchForm.value.notes) {
+              <div class="summary-row">
+                <span class="summary-label">{{ 'batch.notes' | translate }}</span>
+                <span class="summary-value">{{ batchForm.value.notes }}</span>
+              </div>
+            }
+            <div class="summary-row">
+              <span class="summary-label">{{ 'batch.totalTravelers' | translate }}</span>
+              <span class="summary-value">{{ travelers().length }}</span>
+            </div>
+          </div>
+
+          <!-- Add traveler button -->
+          <div class="add-traveler-wrap">
+            <button class="step2-add-btn" (click)="showTravelerForm.set(true)" [disabled]="showTravelerForm()">
+              {{ 'batch.addTraveler' | translate }} <i class="fa-solid fa-user-plus"></i>
+            </button>
+          </div>
+
+          @if (error()) {
+            <div class="alert alert-danger mt-3">{{ error()! | translate }}</div>
+          }
+
+          <!-- Traveler Form (shown when adding/editing) -->
+          @if (showTravelerForm()) {
+            <div class="traveler-form-section">
+              <h4 class="form-section-title">
+                @if (editingTravelerId()) {
+                  <i class="fa-solid fa-user-pen"></i> {{ 'batch.editTraveler' | translate }}
+                } @else {
+                  <i class="fa-solid fa-user-plus"></i> {{ 'batch.addTraveler' | translate }}
+                }
+              </h4>
+              <form [formGroup]="travelerForm" (ngSubmit)="addTraveler()">
+
+                <!-- Personal Data -->
+                <div class="form-section-label">
+                  <i class="fa-solid fa-user"></i> {{ 'batch.personalData' | translate }}
+                </div>
+                <div class="ff-grid">
+                  <div class="ff-field">
+                    <label>{{ 'batch.firstNameEn' | translate }} <span class="ff-req">*</span></label>
+                    <input type="text" formControlName="firstNameEn">
+                    @if (travelerForm.get('firstNameEn')?.touched && travelerForm.get('firstNameEn')?.invalid) {
+                      <small class="text-danger">{{ 'batch.firstNameRequired' | translate }}</small>
+                    }
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.lastNameEn' | translate }} <span class="ff-req">*</span></label>
+                    <input type="text" formControlName="lastNameEn">
+                    @if (travelerForm.get('lastNameEn')?.touched && travelerForm.get('lastNameEn')?.invalid) {
+                      <small class="text-danger">{{ 'batch.lastNameRequired' | translate }}</small>
+                    }
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.nationality' | translate }} <span class="ff-req">*</span></label>
+                    <select formControlName="nationalityCode">
+                      <option value="">{{ 'batch.selectNationality' | translate }}</option>
+                      @for (nat of nationalities(); track nat.nationalityCode) {
+                        <option [value]="nat.nationalityCode">
+                          {{ translate.currentLang === 'ar' ? nat.nationalityNameAr : nat.nationalityNameEn }}
+                        </option>
+                      }
+                    </select>
+                    @if (travelerForm.get('nationalityCode')?.touched && travelerForm.get('nationalityCode')?.hasError('required')) {
+                      <small class="text-danger">{{ 'batch.nationalityRequired' | translate }}</small>
+                    }
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.passport' | translate }} <span class="ff-req">*</span></label>
+                    <input type="text" formControlName="passportNumber" dir="ltr">
+                    @if (travelerForm.get('passportNumber')?.touched && travelerForm.get('passportNumber')?.invalid) {
+                      <small class="text-danger">{{ 'batch.passportInvalid' | translate }}</small>
+                    }
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.passportExpiry' | translate }} <span class="ff-req">*</span></label>
+                    <input type="date" formControlName="passportExpiry">
+                    @if (travelerForm.get('passportExpiry')?.touched && travelerForm.get('passportExpiry')?.hasError('required')) {
+                      <small class="text-danger">{{ 'batch.passportExpiryRequired' | translate }}</small>
+                    }
+                    @if (travelerForm.get('passportExpiry')?.touched && travelerForm.get('passportExpiry')?.hasError('passportTooSoon')) {
+                      <small class="text-danger">{{ 'batch.passportExpiryTooSoon' | translate }}</small>
+                    }
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.dateOfBirth' | translate }} <span class="ff-req">*</span></label>
+                    <input type="date" formControlName="dateOfBirth">
+                    @if (travelerForm.get('dateOfBirth')?.touched && travelerForm.get('dateOfBirth')?.hasError('required')) {
+                      <small class="text-danger">{{ 'batch.dateOfBirthRequired' | translate }}</small>
+                    }
+                    @if (travelerForm.get('dateOfBirth')?.touched && travelerForm.get('dateOfBirth')?.hasError('futureDate')) {
+                      <small class="text-danger">{{ 'batch.dateOfBirthFuture' | translate }}</small>
+                    }
+                  </div>
+                </div>
+
+                <!-- Flight Data -->
+                <div class="form-section-label">
+                  <i class="fa-solid fa-plane"></i> {{ 'batch.flightData' | translate }}
+                </div>
+                <div class="ff-grid">
+                  <div class="ff-field">
+                    <label>{{ 'batch.flightNumber' | translate }}</label>
+                    <input type="text" formControlName="flightNumber" dir="ltr" placeholder="e.g. MS/14">
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.departureCountry' | translate }} <span class="ff-req">*</span></label>
+                    <app-searchable-select
+                      formControlName="departureCountry"
+                      [options]="countries"
+                      [placeholder]="'batch.selectDepartureCountry' | translate"
+                      [lang]="translate.currentLang">
+                    </app-searchable-select>
+                    @if (travelerForm.get('departureCountry')?.touched && travelerForm.get('departureCountry')?.hasError('required')) {
+                      <small class="text-danger">{{ 'batch.departureCountryRequired' | translate }}</small>
+                    }
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.arrivalAirport' | translate }}</label>
+                    <app-searchable-select
+                      formControlName="arrivalAirport"
+                      [options]="airports"
+                      [placeholder]="'batch.selectArrivalAirport' | translate"
+                      [lang]="translate.currentLang">
+                    </app-searchable-select>
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.travelDate' | translate }} <span class="ff-req">*</span></label>
+                    <input type="date" formControlName="travelDate">
+                    @if (travelerForm.get('travelDate')?.touched && travelerForm.get('travelDate')?.hasError('required')) {
+                      <small class="text-danger">{{ 'batch.travelDateRequired' | translate }}</small>
+                    }
+                    @if (travelerForm.get('travelDate')?.touched && travelerForm.get('travelDate')?.hasError('notFuture')) {
+                      <small class="text-danger">{{ 'batch.travelDateNotFuture' | translate }}</small>
+                    }
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.purposeOfTravel' | translate }} <span class="ff-req">*</span></label>
+                    <select formControlName="purposeOfTravel">
+                      <option value="">{{ 'batch.selectPurpose' | translate }}</option>
+                      <option value="Tourism">{{ 'batch.purpose.tourism' | translate }}</option>
+                      <option value="Business">{{ 'batch.purpose.business' | translate }}</option>
+                      <option value="Medical">{{ 'batch.purpose.medical' | translate }}</option>
+                      <option value="Family">{{ 'batch.purpose.family' | translate }}</option>
+                      <option value="Education">{{ 'batch.purpose.education' | translate }}</option>
+                      <option value="Conference">{{ 'batch.purpose.conference' | translate }}</option>
+                      <option value="Transit">{{ 'batch.purpose.transit' | translate }}</option>
+                    </select>
+                    @if (travelerForm.get('purposeOfTravel')?.touched && travelerForm.get('purposeOfTravel')?.hasError('required')) {
+                      <small class="text-danger">{{ 'batch.purposeRequired' | translate }}</small>
+                    }
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.gender' | translate }} <span class="ff-req">*</span></label>
+                    <select formControlName="gender">
+                      <option value="">{{ 'batch.selectGender' | translate }}</option>
+                      <option value="0">{{ 'batch.male' | translate }}</option>
+                      <option value="1">{{ 'batch.female' | translate }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="wz-btn wz-btn-success" [disabled]="submitting()">
+                    <i class="fa-solid fa-plus"></i>
+                    @if (editingTravelerId()) {
+                      {{ 'batch.updateTraveler' | translate }}
+                    } @else {
+                      {{ 'batch.wizard.saveAndAddAnother' | translate }}
+                    }
+                  </button>
+                  @if (editingTravelerId()) {
+                    <button type="button" class="wz-btn wz-btn-secondary" (click)="cancelEdit()">
+                      {{ 'common.cancel' | translate }}
+                    </button>
+                  }
+                </div>
+              </form>
+            </div>
+          }
+
+          <!-- Travelers List -->
+          @if (travelers().length > 0) {
+            <div class="travelers-table-section">
+              <h4 class="form-section-title">
+                <i class="fa-solid fa-users"></i> {{ 'batch.addedTravelers' | translate }} ({{ travelers().length }})
+              </h4>
+              @for (t of travelers(); track t.id; let i = $index) {
+                <div class="traveler-card">
+                  <div class="traveler-card-header">
+                    <span class="traveler-name">{{ t.firstNameEn }} {{ t.lastNameEn }}</span>
+                    <div class="traveler-card-actions">
+                      <button class="action-icon ai-edit" (click)="editTraveler(t)" [title]="'batch.edit' | translate">
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
+                      <button class="action-icon ai-delete" (click)="removeTraveler(t)" [title]="'batch.remove' | translate">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="traveler-card-pills">
+                    <span class="pill pill-blue"><i class="fa-solid fa-flag"></i> {{ t.nationalityCode }}</span>
+                    <span class="pill pill-neutral"><i class="fa-solid fa-passport"></i> {{ t.passportNumber }}</span>
+                    @if (t.arrivalAirport) {
+                      <span class="pill pill-neutral"><i class="fa-solid fa-plane-arrival"></i> {{ t.arrivalAirport }}</span>
+                    }
+                    <span class="pill pill-neutral"><i class="fa-solid fa-calendar-days"></i> {{ t.travelDate | date:'shortDate' }}</span>
+                    @if (t.purposeOfTravel) {
+                      <span class="pill pill-blue"><i class="fa-solid fa-bullseye"></i> {{ t.purposeOfTravel }}</span>
+                    }
+                    @if (t.flightNumber) {
+                      <span class="pill pill-neutral"><i class="fa-solid fa-hashtag"></i> {{ t.flightNumber }}</span>
+                    }
+                    @if (t.departureCountry) {
+                      <span class="pill pill-neutral"><i class="fa-solid fa-plane-departure"></i> {{ t.departureCountry }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Running total bar -->
+          @if (travelers().length > 0) {
+            <div class="running-total-bar">
+              <i class="fa-solid fa-users rtb-icon"></i>
+              <span class="rtb-stat">
+                <i class="fa-solid fa-user"></i>
+                <span>{{ travelers().length }}</span>
+                <span class="rtb-val">{{ 'batch.travelerUnit' | translate }}</span>
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="wizard-card-footer">
+          <button class="wz-btn wz-btn-secondary" (click)="prevStep()">
+            {{ 'batch.wizard.previous' | translate }} <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <div class="footer-actions">
+            <button class="wz-btn wz-btn-primary" (click)="nextStep()" [disabled]="travelers().length === 0">
+              {{ 'batch.next' | translate }} <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="action-icon ai-delete" routerLink="/batches" [title]="'batch.remove' | translate">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+            <button class="action-icon ai-edit" [title]="'batch.wizard.saveDraft' | translate">
+              <i class="fa-solid fa-floppy-disk"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ══ STEP 3: Review & Submit ══ -->
+    @if (currentStep() === 3) {
+      <div class="wizard-card">
+
+        @if (submitting()) {
+          <!-- Loading state -->
+          <div class="wizard-card-body state-screen">
+            <div class="state-loading-icon"><i class="fa-solid fa-spinner fa-spin"></i></div>
+            <h4 class="state-loading-title">{{ 'batch.wizard.processingTitle' | translate }}</h4>
+            <p class="state-loading-subtitle">{{ 'batch.wizard.processingDesc' | translate }}</p>
+          </div>
+        } @else {
+          <div class="wizard-card-header">
+            <div class="wch-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+            <div class="wch-title">{{ 'batch.stepReviewTitle' | translate }}</div>
+            <button class="wch-nav-btn" (click)="prevStep()"><i class="fa-solid fa-arrow-left"></i></button>
+          </div>
+          <div class="wizard-card-body">
+
+            <!-- Batch data summary -->
+            <div class="confirm-summary-card">
+              <div class="sect-title sect-title-flush"><i class="fa-solid fa-gear"></i> {{ 'batch.batchInfo' | translate }}</div>
+              <div class="summary-row">
+                <span class="summary-label">{{ 'batch.name' | translate }}</span>
+                <span class="summary-value">{{ batchForm.value.name }}</span>
+              </div>
+              @if (batchForm.value.notes) {
+                <div class="summary-row">
+                  <span class="summary-label">{{ 'batch.notes' | translate }}</span>
+                  <span class="summary-value">{{ batchForm.value.notes }}</span>
+                </div>
+              }
+              <div class="summary-row">
+                <span class="summary-label">{{ 'batch.totalTravelers' | translate }}</span>
+                <span class="summary-value">{{ travelers().length }}</span>
+              </div>
+            </div>
+
+            <!-- Traveler list (review) -->
+            <div class="review-section">
+              <div class="review-toggle-header">
+                <div class="review-toggle-left">
+                  <i class="fa-solid fa-users"></i>
+                  <span class="review-toggle-title">{{ 'batch.wizard.travelerList' | translate }}</span>
+                  <span class="sect-count">{{ travelers().length }}</span>
+                </div>
+              </div>
+              <div class="review-toggle-body">
+                @for (t of travelers(); track t.id; let i = $index) {
+                  <div class="traveler-card">
+                    <div class="traveler-card-header">
+                      <span class="traveler-num">{{ i + 1 }}</span>
+                      <span class="traveler-name">{{ t.firstNameEn }} {{ t.lastNameEn }}</span>
+                    </div>
+                    <div class="traveler-card-pills">
+                      <span class="pill pill-blue"><i class="fa-solid fa-flag"></i> {{ t.nationalityCode }}</span>
+                      <span class="pill pill-neutral"><i class="fa-solid fa-passport"></i> {{ t.passportNumber }}</span>
+                      <span class="pill pill-neutral"><i class="fa-solid fa-calendar-days"></i> {{ t.travelDate | date:'shortDate' }}</span>
+                      @if (t.purposeOfTravel) {
+                        <span class="pill pill-blue"><i class="fa-solid fa-bullseye"></i> {{ t.purposeOfTravel }}</span>
+                      }
+                      @if (t.departureCountry) {
+                        <span class="pill pill-neutral"><i class="fa-solid fa-plane-departure"></i> {{ t.departureCountry }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Irreversibility warning -->
+            <div class="irreversible-warning">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              {{ 'batch.wizard.irreversibleWarning' | translate }}
+            </div>
+
+            <div class="confirm-actions-bar">
+              <div class="confirm-actions-group">
+                <button class="wz-btn wz-btn-primary wz-btn-lg" (click)="submitBatch()">
+                  <i class="fa-solid fa-paper-plane"></i> {{ 'batch.wizard.confirmAndSubmit' | translate }}
+                </button>
+                <button class="action-icon ai-delete" routerLink="/batches" [title]="'batch.remove' | translate">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+                <button class="action-icon ai-edit" [title]="'batch.wizard.saveDraft' | translate">
+                  <i class="fa-solid fa-floppy-disk"></i>
+                </button>
+              </div>
+              <button class="wz-btn wz-btn-secondary" (click)="prevStep()">
+                <i class="fa-solid fa-arrow-right"></i> {{ 'batch.wizard.backToEdit' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+  }
+</div>

@@ -1,0 +1,195 @@
+<!-- ════════════════ HERO ════════════════ -->
+<section class="portal-hero">
+  <div class="container">
+    <h1>{{ 'portal.wallet.title' | translate }}</h1>
+    <p>{{ 'portal.wallet.subtitle' | translate }}</p>
+  </div>
+</section>
+
+<!-- ════════════════ BREADCRUMB ════════════════ -->
+<div class="portal-breadcrumb">
+  <div class="container">
+    <nav>
+      <a routerLink="/dashboard"><i class="fa-solid fa-house"></i></a>
+      <i class="fa-solid fa-chevron-left separator"></i>
+      <span class="current">{{ 'portal.wallet.breadcrumb' | translate }}</span>
+    </nav>
+  </div>
+</div>
+
+<!-- ════════════════ PAGE BODY ════════════════ -->
+<div class="container portal-body">
+
+  <!-- Wallet Stat Cards -->
+  @if (wallet(); as w) {
+    <div class="wallet-stats">
+      <div class="wallet-stat-card wsc-green">
+        <div class="ws-badge"><i class="fa-solid fa-wallet"></i></div>
+        <div class="ws-amount" dir="ltr">{{ w.balance | number:'1.2-2' }}</div>
+        <div class="ws-label">{{ 'wallet.currentBalance' | translate }}</div>
+        <div class="ws-sub">{{ w.currency }}</div>
+      </div>
+      <div class="wallet-stat-card wsc-blue">
+        <div class="ws-badge"><i class="fa-solid fa-arrow-trend-up"></i></div>
+        <div class="ws-amount" dir="ltr">{{ totalDeposits() }}</div>
+        <div class="ws-label">{{ 'wallet.totalDeposits' | translate }}</div>
+        <div class="ws-sub">{{ 'wallet.depositTransactions' | translate }}</div>
+      </div>
+      <div class="wallet-stat-card wsc-red">
+        <div class="ws-badge"><i class="fa-solid fa-arrow-trend-down"></i></div>
+        <div class="ws-amount" dir="ltr">{{ totalDeductions() }}</div>
+        <div class="ws-label">{{ 'wallet.totalDeductions' | translate }}</div>
+        <div class="ws-sub">{{ 'wallet.deductionTransactions' | translate }}</div>
+      </div>
+    </div>
+
+    @if (isLowBalance) {
+      <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        {{ 'wallet.lowBalanceWarning' | translate }}
+      </div>
+    }
+  }
+
+  <!-- Quick Stats -->
+  <div class="section-header">
+    <h2><span class="title-icon"><i class="fa-solid fa-chart-simple"></i></span> {{ 'wallet.quickStats' | translate }}</h2>
+  </div>
+
+  <div class="quick-stats">
+    <div class="quick-stat qs-blue">
+      <div class="qs-badge"><i class="fa-solid fa-file-lines"></i></div>
+      <div class="qs-number">{{ totalDeposits() + totalDeductions() }}</div>
+      <div class="qs-label">{{ 'wallet.totalTransactions' | translate }}</div>
+    </div>
+    <div class="quick-stat qs-green">
+      <div class="qs-badge"><i class="fa-solid fa-arrow-trend-up"></i></div>
+      <div class="qs-number">{{ totalDeposits() }}</div>
+      <div class="qs-label">{{ 'wallet.depositOps' | translate }}</div>
+    </div>
+    <div class="quick-stat qs-red">
+      <div class="qs-badge"><i class="fa-solid fa-arrow-trend-down"></i></div>
+      <div class="qs-number">{{ totalDeductions() }}</div>
+      <div class="qs-label">{{ 'wallet.deductionOps' | translate }}</div>
+    </div>
+  </div>
+
+  <!-- Transaction History -->
+  <div class="section-header">
+    <h2><span class="title-icon"><i class="fa-solid fa-clock-rotate-left"></i></span> {{ 'wallet.transactionHistory' | translate }}</h2>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>{{ 'common.search' | translate }}</label>
+      <div class="search-input-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" [(ngModel)]="searchTerm"
+               [placeholder]="'wallet.searchPlaceholder' | translate">
+      </div>
+    </div>
+    <div class="filter-group">
+      <label>{{ 'wallet.type' | translate }}</label>
+      <select [(ngModel)]="filterType">
+        <option value="">{{ 'wallet.allTypes' | translate }}</option>
+        <option value="Credit">{{ 'wallet.credit' | translate }}</option>
+        <option value="Debit">{{ 'wallet.debit' | translate }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>{{ 'wallet.date' | translate }}</label>
+      <input type="date" [(ngModel)]="filterDateFrom">
+    </div>
+    <div class="filter-actions">
+      <button class="btn-filter btn-search" (click)="applyFilters()">
+        <i class="fa-solid fa-magnifying-glass"></i> {{ 'common.search' | translate }}
+      </button>
+      <button class="btn-filter btn-reset" (click)="resetFilters()">
+        <i class="fa-solid fa-rotate-right"></i> {{ 'common.reset' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Transactions Table -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">{{ 'common.loading' | translate }}</span>
+      </div>
+    </div>
+  } @else {
+    <div class="data-table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'wallet.transactionNumber' | translate }}</th>
+            <th>{{ 'wallet.date' | translate }}</th>
+            <th>{{ 'wallet.type' | translate }}</th>
+            <th>{{ 'wallet.amount' | translate }}</th>
+            <th>{{ 'wallet.balanceAfter' | translate }}</th>
+            <th>{{ 'wallet.description' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of transactions(); track t.id) {
+            <tr>
+              <td class="ref-cell" dir="ltr">{{ t.reference }}</td>
+              <td>{{ t.createdAt | date:'yyyy/MM/dd' }}</td>
+              <td>
+                @if (t.type === 'Credit') {
+                  <span class="txn-badge txn-credit"><i class="fa-solid fa-arrow-up"></i> {{ 'wallet.credit' | translate }}</span>
+                } @else {
+                  <span class="txn-badge txn-debit"><i class="fa-solid fa-arrow-down"></i> {{ 'wallet.debit' | translate }}</span>
+                }
+              </td>
+              <td dir="ltr" [style.color]="t.type === 'Credit' ? '#2e7d32' : '#dc2626'" style="font-weight:600;">
+                {{ t.type === 'Credit' ? '+' : '–' }}{{ t.amount | number:'1.2-2' }}
+              </td>
+              <td dir="ltr" style="text-align:center;">{{ t.balanceAfter | number:'1.2-2' }}</td>
+              <td>{{ t.notes || '—' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">{{ 'wallet.noTransactions' | translate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="table-pagination">
+          <div class="pagination-pages">
+            <a class="page-btn" [class.disabled]="currentPage() === 1"
+               (click)="goToPage(currentPage() - 1)">
+              <i class="fa-solid fa-chevron-right"></i>
+            </a>
+            @for (p of pages(); track $index) {
+              @if (p === '...') {
+                <span class="page-btn disabled">...</span>
+              } @else {
+                <a class="page-btn" [class.active]="p === currentPage()"
+                   (click)="goToPage(p)">{{ p }}</a>
+              }
+            }
+            <a class="page-btn" [class.disabled]="currentPage() === totalPages()"
+               (click)="goToPage(currentPage() + 1)">
+              <i class="fa-solid fa-chevron-left"></i>
+            </a>
+          </div>
+          <div class="pagination-info">
+            <span>{{ 'wallet.show' | translate }}</span>
+            <select [ngModel]="pageSize" (ngModelChange)="changePageSize($event)">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+            <span>{{ 'wallet.rows' | translate }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+</div>

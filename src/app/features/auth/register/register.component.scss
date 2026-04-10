@@ -1,0 +1,215 @@
+@use '../../../../styles/tokens' as *;
+
+:host {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+}
+
+.auth-card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: 36px 32px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.auth-logo {
+  margin-bottom: $space-4;
+}
+
+.logo-icon {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, $color-primary, $color-primary-dark);
+  border-radius: $radius-lg;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 22px;
+  box-shadow: 0 4px 14px rgba($color-primary, 0.3);
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: $color-text-primary;
+  margin-bottom: $space-1;
+}
+
+.auth-subtitle {
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+  margin-bottom: $space-5;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-3 $space-4;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  margin-bottom: $space-5;
+  text-align: start;
+}
+
+.alert-danger {
+  background: $color-danger-bg;
+  color: $color-danger;
+  border: 1px solid $color-danger-border;
+}
+
+.alert-success {
+  background: $color-success-bg;
+  color: $color-success-dark;
+  border: 1px solid $color-success-border;
+}
+
+.form-group {
+  margin-bottom: $space-4;
+  text-align: start;
+}
+
+label {
+  display: block;
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $color-text-body;
+  margin-bottom: $space-1;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.input-icon {
+  position: absolute;
+  inset-inline-start: 14px;
+  color: $color-text-placeholder;
+  font-size: $font-size-md;
+  pointer-events: none;
+}
+
+.form-control {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px 0 38px;
+  border: 1.5px solid $color-border;
+  border-radius: $radius-md;
+  font-family: $font-family;
+  font-size: $font-size-md;
+  color: $color-text-body;
+  background: $color-bg-card;
+  transition: border-color 0.2s;
+
+  &::placeholder {
+    color: $color-text-placeholder;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+  }
+
+  &.is-invalid {
+    border-color: $color-danger;
+  }
+}
+
+[dir='rtl'] .form-control,
+:host-context([dir='rtl']) .form-control {
+  padding: 0 38px 0 14px;
+}
+
+.toggle-password {
+  position: absolute;
+  inset-inline-end: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $color-text-placeholder;
+  font-size: $font-size-md;
+  padding: $space-1;
+
+  &:hover {
+    color: $color-text-secondary;
+  }
+}
+
+.invalid-feedback {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-danger;
+  margin-top: $space-1;
+}
+
+.phone-row {
+  display: flex;
+  gap: $space-2;
+}
+
+.country-code-select {
+  width: 140px;
+  flex-shrink: 0;
+  padding: 0 $space-3;
+  font-size: $font-size-base;
+}
+
+.phone-input {
+  flex: 1;
+
+  .form-control {
+    padding: 0 14px;
+  }
+}
+
+.btn-primary {
+  width: 100%;
+  height: 44px;
+  margin-top: $space-2;
+  background: $color-primary;
+  color: #fff;
+  border: none;
+  border-radius: $radius-md;
+  font-family: $font-family;
+  font-size: $font-size-lg;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-dark;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.auth-footer {
+  margin-top: $space-5;
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+
+  a {
+    color: $color-primary;
+    font-weight: 600;
+    text-decoration: none;
+    margin-inline-start: $space-1;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

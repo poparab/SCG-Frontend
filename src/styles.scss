@@ -1,1 +1,63 @@
-/* You can add global styles to this file, and also import other style files */
+// ── SCG Global Styles ─────────────────────────────────────────────────
+// Bootstrap RTL
+@import 'bootstrap/scss/bootstrap';
+
+// Font Awesome
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+// Design System
+@import 'styles/tokens';
+@import 'styles/reset';
+@import 'styles/mixins';
+@import 'styles/layout';
+@import 'styles/components';
+@import 'styles/portal';
+@import 'styles/utilities';
+
+// ── Tajawal Font ─────────────────────────────────────────────────────────
+@font-face {
+  font-family: 'Tajawal';
+  src: url('assets/fonts/Tajawal/Tajawal-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tajawal';
+  src: url('assets/fonts/Tajawal/Tajawal-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tajawal';
+  src: url('assets/fonts/Tajawal/Tajawal-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tajawal';
+  src: url('assets/fonts/Tajawal/Tajawal-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+// ── Global base ──────────────────────────────────────────────────────────
+html {
+  direction: rtl;
+}
+
+body {
+  font-family: $font-family;
+  background-color: $color-bg-page;
+  color: $color-text-body;
+  font-size: $font-size-base;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

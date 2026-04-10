@@ -1,0 +1,300 @@
+<div class="detail-page">
+  <a routerLink="/agencies" class="back-link">
+    <i class="fas fa-arrow-left"></i>
+    {{ 'admin.common.back' | translate }}
+  </a>
+
+  @if (loading()) {
+    <div class="loading-state"><span class="spinner-border"></span></div>
+  } @else if (agency()) {
+    <div class="page-header">
+      <div>
+        <h2>{{ agency()!.nameEn }}</h2>
+        <p class="name-ar">{{ agency()!.nameAr }}</p>
+      </div>
+      <span class="badge" [class]="getStatusClass(agency()!.status)">{{ agency()!.status }}</span>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="info-grid">
+      <!-- Profile -->
+      <div class="info-card">
+        <div class="info-card-title">
+          <i class="fas fa-building"></i>
+          {{ 'admin.agencies.profile' | translate }}
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.agencies.email' | translate }}</span>
+          <span class="info-value">{{ agency()!.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.agencies.phone' | translate }}</span>
+          <span class="info-value">{{ agency()!.phone || '—' }}</span>
+        </div>
+        @if (agency()!.address) {
+          <div class="info-row">
+            <span class="info-label">{{ 'admin.agencies.address' | translate }}</span>
+            <span class="info-value">{{ agency()!.address }}</span>
+          </div>
+        }
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.common.date' | translate }}</span>
+          <span class="info-value">{{ agency()!.createdAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <!-- License -->
+      <div class="info-card">
+        <div class="info-card-title">
+          <i class="fas fa-id-card"></i>
+          {{ 'admin.agencies.license_info' | translate }}
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.agencies.license' | translate }}</span>
+          <span class="info-value">{{ agency()!.commercialLicenseNumber }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.agencies.license_expiry' | translate }}</span>
+          <span class="info-value">{{ agency()!.commercialLicenseExpiry | date:'mediumDate' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.agencies.total_batches' | translate }}</span>
+          <span class="info-value">{{ agency()!.totalBatches }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'admin.agencies.total_inquiries' | translate }}</span>
+          <span class="info-value">{{ agency()!.totalInquiries }}</span>
+        </div>
+      </div>
+
+      <!-- Wallet -->
+      <div class="info-card">
+        <div class="info-card-title">
+          <i class="fas fa-wallet"></i>
+          {{ 'admin.agencies.wallet' | translate }}
+        </div>
+        <div class="wallet-balance">
+          <span class="balance-amount">{{ agency()!.walletBalance | number:'1.2-2' }}</span>
+          <span class="balance-currency">{{ agency()!.currency || 'EGP' }}</span>
+        </div>
+        <button class="btn btn-primary btn-sm mt-3" (click)="showCreditModal.set(true)">
+          <i class="fas fa-plus"></i>
+          {{ 'admin.agencies.credit_wallet' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Nationality Management -->
+    <div class="section-card mt-6">
+      <div class="section-header">
+        <h3><i class="fas fa-globe"></i> {{ 'agency.nationalities.title' | translate }}</h3>
+      </div>
+      <div class="table-responsive">
+        @if (natLoading()) {
+          <div class="text-center py-4"><span class="spinner-border spinner-border-sm"></span></div>
+        } @else if (agencyNationalities().length === 0) {
+          <div class="text-center text-muted py-4">{{ 'agency.nationalities.noNationalities' | translate }}</div>
+        } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'agency.nationalities.nationality' | translate }}</th>
+                <th>{{ 'agency.nationalities.defaultFee' | translate }}</th>
+                <th>{{ 'agency.nationalities.customFee' | translate }}</th>
+                <th>{{ 'agency.nationalities.effectiveFee' | translate }}</th>
+                <th>{{ 'agency.nationalities.enabled' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (nat of agencyNationalities(); track nat.id) {
+                <tr>
+                  <td class="fw-semibold">{{ nat.nationalityNameAr }} - {{ nat.nationalityNameEn }} ({{ nat.nationalityCode }})</td>
+                  <td>{{ nat.defaultFee | number:'1.2-2' }}</td>
+                  <td>
+                    @if (editingFeeId() === nat.id) {
+                      <div class="inline-edit">
+                        <input
+                          type="number"
+                          class="form-control form-control-sm"
+                          [value]="editingFeeValue()"
+                          (input)="editingFeeValue.set($any($event.target).value)"
+                          (keyup.enter)="saveCustomFee(nat)"
+                          (keyup.escape)="cancelEditFee()"
+                          (blur)="saveCustomFee(nat)"
+                          [placeholder]="'agency.nationalities.useDefault' | translate"
+                        />
+                      </div>
+                    } @else {
+                      <span class="editable-value" (click)="startEditFee(nat)">
+                        {{ nat.customFee !== null ? (nat.customFee | number:'1.2-2') : ('agency.nationalities.useDefault' | translate) }}
+                        <i class="fas fa-pen-to-square edit-icon"></i>
+                      </span>
+                    }
+                  </td>
+                  <td class="fw-semibold">{{ nat.effectiveFee | number:'1.2-2' }}</td>
+                  <td>
+                    <label class="toggle-switch">
+                      <input type="checkbox" [checked]="nat.isEnabled" (change)="toggleNationalityEnabled(nat)" />
+                      <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">{{ nat.isEnabled ? ('agency.nationalities.enabled' | translate) : ('agency.nationalities.disabled' | translate) }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+
+    @if (agency()!.rejectionReason) {
+      <div class="rejection-notice">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+          <strong>{{ 'admin.agencies.rejection_reason' | translate }}</strong>
+          <p>{{ agency()!.rejectionReason }}</p>
+        </div>
+      </div>
+    }
+
+    <!-- Action Feedback -->
+    @if (actionError()) {
+      <div class="alert alert-danger mt-3">{{ actionError() | translate }}</div>
+    }
+    @if (actionSuccess()) {
+      <div class="alert alert-success mt-3">{{ actionSuccess() | translate }}</div>
+    }
+
+    <!-- Actions -->
+    @if (agency()!.status === 'PendingReview') {
+      <div class="action-bar">
+        <button class="btn btn-success" (click)="approveAgency()" [disabled]="actionLoading()">
+          @if (actionLoading()) { <span class="spinner-border spinner-border-sm"></span> }
+          <i class="fas fa-check"></i>
+          {{ 'admin.agencies.approve' | translate }}
+        </button>
+        <button class="btn btn-danger" (click)="showRejectModal.set(true)" [disabled]="actionLoading()">
+          <i class="fas fa-times"></i>
+          {{ 'admin.agencies.reject' | translate }}
+        </button>
+      </div>
+    }
+  }
+</div>
+
+<!-- Reject Modal -->
+@if (showRejectModal()) {
+  <div class="modal-backdrop" (click)="showRejectModal.set(false)">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ 'admin.agencies.reject_agency' | translate }}</h3>
+        <button class="modal-close" (click)="showRejectModal.set(false)"><i class="fas fa-times"></i></button>
+      </div>
+      <form [formGroup]="rejectForm" (ngSubmit)="submitReject()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>{{ 'admin.agencies.rejection_reason' | translate }}</label>
+            <textarea
+              formControlName="reason"
+              class="form-control"
+              rows="4"
+              [placeholder]="'admin.agencies.rejection_reason_placeholder' | translate"
+              [class.is-invalid]="rejectForm.controls.reason.touched && rejectForm.controls.reason.invalid"
+            ></textarea>
+            @if (rejectForm.controls.reason.touched && rejectForm.controls.reason.hasError('required')) {
+              <div class="invalid-feedback">{{ 'admin.agencies.reason_required' | translate }}</div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="showRejectModal.set(false)">
+            {{ 'admin.common.cancel' | translate }}
+          </button>
+          <button type="submit" class="btn btn-danger" [disabled]="actionLoading()">
+            @if (actionLoading()) { <span class="spinner-border spinner-border-sm"></span> }
+            {{ 'admin.agencies.confirm_reject' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Credit Wallet Modal -->
+@if (showCreditModal()) {
+  <div class="modal-backdrop" (click)="showCreditModal.set(false)">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ 'admin.agencies.credit_wallet' | translate }}</h3>
+        <button class="modal-close" (click)="showCreditModal.set(false)"><i class="fas fa-times"></i></button>
+      </div>
+      <form [formGroup]="creditForm" (ngSubmit)="submitCredit()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>{{ 'admin.agencies.credit_amount' | translate }}</label>
+            <input
+              type="number"
+              formControlName="amount"
+              class="form-control"
+              [placeholder]="'admin.agencies.credit_amount_placeholder' | translate"
+              [class.is-invalid]="creditForm.controls.amount.touched && creditForm.controls.amount.invalid"
+            />
+            @if (creditForm.controls.amount.touched && creditForm.controls.amount.hasError('required')) {
+              <div class="invalid-feedback">{{ 'admin.agencies.amount_required' | translate }}</div>
+            }
+          </div>
+          <div class="form-group">
+            <label>{{ 'admin.agencies.payment_method' | translate }}</label>
+            <select
+              formControlName="paymentMethod"
+              class="form-control"
+              [class.is-invalid]="creditForm.controls.paymentMethod.touched && creditForm.controls.paymentMethod.invalid"
+            >
+              <option value="">{{ 'admin.agencies.payment_method_placeholder' | translate }}</option>
+              <option value="Cash">{{ 'admin.agencies.payment_cash' | translate }}</option>
+              <option value="BankTransfer">{{ 'admin.agencies.payment_bank_transfer' | translate }}</option>
+              <option value="Cheque">{{ 'admin.agencies.payment_cheque' | translate }}</option>
+            </select>
+            @if (creditForm.controls.paymentMethod.touched && creditForm.controls.paymentMethod.hasError('required')) {
+              <div class="invalid-feedback">{{ 'admin.agencies.payment_method_required' | translate }}</div>
+            }
+          </div>
+          <div class="form-group">
+            <label>
+              {{ 'admin.agencies.payment_evidence' | translate }}
+              <span class="text-muted small">({{ 'admin.agencies.payment_evidence_hint' | translate }})</span>
+            </label>
+            <input
+              type="file"
+              class="form-control"
+              accept=".pdf,.jpg,.jpeg,.png"
+              (change)="onEvidenceSelected($event)"
+            />
+          </div>
+          <div class="form-group">
+            <label>{{ 'admin.agencies.credit_reference' | translate }}</label>
+            <input
+              type="text"
+              formControlName="reference"
+              class="form-control"
+              [placeholder]="'admin.agencies.credit_reference_placeholder' | translate"
+            />
+          </div>
+          <div class="form-group">
+            <label>{{ 'admin.agencies.credit_notes' | translate }}</label>
+            <textarea formControlName="notes" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="showCreditModal.set(false)">
+            {{ 'admin.common.cancel' | translate }}
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="actionLoading()">
+            @if (actionLoading()) { <span class="spinner-border spinner-border-sm"></span> }
+            {{ 'admin.agencies.confirm_credit' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

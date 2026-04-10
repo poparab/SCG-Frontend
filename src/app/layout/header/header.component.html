@@ -1,0 +1,62 @@
+<header class="top-header">
+  <div class="top-header-inner">
+    <!-- Logo -->
+    <a routerLink="/dashboard" class="logo-wrap">
+      <div class="logo-icon">
+        <img src="assets/img/logo-light.png" alt="نظام الموافقات الأمنية" class="header-logo-img" />
+      </div>
+      <div class="logo-text">
+        <h1>{{ 'common.brand.name' | translate }}</h1>
+        <p>{{ 'common.brand.subtitle' | translate }}</p>
+      </div>
+    </a>
+
+    <!-- Navigation -->
+    <nav class="top-nav">
+      <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
+        <i class="fas fa-table-cells-large"></i>
+        <span>{{ 'portal.nav.dashboard' | translate }}</span>
+      </a>
+      <a class="nav-link" routerLink="/inquiries" routerLinkActive="active">
+        <i class="fas fa-file-lines"></i>
+        <span>{{ 'portal.nav.inquiries' | translate }}</span>
+      </a>
+      <a class="nav-link" routerLink="/batches" routerLinkActive="active">
+        <i class="fas fa-layer-group"></i>
+        <span>{{ 'portal.nav.batch' | translate }}</span>
+      </a>
+      <a class="nav-link" routerLink="/wallet" routerLinkActive="active">
+        <i class="fas fa-gear"></i>
+        <span>{{ 'portal.nav.settings' | translate }}</span>
+      </a>
+    </nav>
+
+    <!-- Right utilities -->
+    <div class="top-right">
+      <button class="notif-btn" type="button" [attr.aria-label]="'portal.notifications.title' | translate">
+        <i class="fas fa-bell"></i>
+      </button>
+
+      <div class="lang-toggle">
+        <button [class.active]="currentLang === 'ar'" (click)="switchLang('ar')">عربي</button>
+        <button [class.active]="currentLang === 'en'" (click)="switchLang('en')">EN</button>
+      </div>
+
+      <div class="user-chip" (click)="toggleDropdown()">
+        <div class="user-avatar"><i class="fas fa-user"></i></div>
+        <div class="user-info">
+          <div class="uname">{{ userName }}</div>
+          <div class="urole">{{ userRole }}</div>
+        </div>
+        <i class="fas fa-chevron-down chevron"></i>
+        @if (showDropdown) {
+          <div class="user-dropdown">
+            <a class="dropdown-item" (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i> {{ 'portal.user.logout' | translate }}
+            </a>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</header>

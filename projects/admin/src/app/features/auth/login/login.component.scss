@@ -1,0 +1,107 @@
+@use '../../../../../../../src/styles/tokens' as *;
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $hero-gradient;
+  padding: $space-6;
+}
+
+.login-card {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-lg;
+  padding: $space-8;
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: $space-6;
+
+  .admin-login-logo {
+    height: 72px;
+    width: auto;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: $font-size-2xl;
+    font-weight: 800;
+    color: $color-text-primary;
+    margin-top: $space-3;
+  }
+
+  p {
+    font-size: $font-size-md;
+    color: $color-text-muted;
+    margin-top: $space-1;
+  }
+}
+
+.form-group {
+  margin-bottom: $space-5;
+
+  label {
+    display: block;
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: $color-text-body;
+    margin-bottom: $space-2;
+  }
+
+  .form-control {
+    font-family: $font-family;
+    font-size: $font-size-md;
+    border: 1.5px solid $color-border;
+    border-radius: $radius-md;
+    padding: 10px $space-3;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: $color-primary;
+      box-shadow: 0 0 0 3px $color-primary-light;
+    }
+  }
+
+  .invalid-feedback {
+    display: block;
+    font-size: $font-size-sm;
+    color: $color-danger;
+    margin-top: $space-1;
+  }
+}
+
+.btn-login {
+  width: 100%;
+  padding: 10px;
+  font-family: $font-family;
+  font-size: $font-size-lg;
+  font-weight: 700;
+  border-radius: $radius-md;
+  background: $color-primary;
+  border: none;
+  color: #fff;
+  transition: background 0.2s;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-dark;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+  }
+}
+
+.alert-danger {
+  font-size: $font-size-md;
+  border-radius: $radius-md;
+  padding: $space-3;
+  margin-bottom: $space-5;
+  background: $color-danger-bg;
+  color: $color-danger;
+  border: 1px solid $color-danger-border;
+}

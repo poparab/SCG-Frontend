@@ -1,0 +1,183 @@
+<!-- Hero Banner -->
+<section class="portal-hero">
+  <div class="container">
+    <h1>{{ 'portal.dashboard.title' | translate }}</h1>
+    <p>{{ 'portal.dashboard.subtitle' | translate }}</p>
+  </div>
+</section>
+
+<!-- Breadcrumb -->
+<div class="portal-breadcrumb">
+  <div class="container">
+    <nav>
+      <a routerLink="/dashboard"><i class="fa-solid fa-house"></i></a>
+      <i class="fa-solid fa-chevron-left separator"></i>
+      <span class="current">{{ 'portal.dashboard.breadcrumb' | translate }}</span>
+    </nav>
+  </div>
+</div>
+
+<!-- Page Body -->
+<div class="container portal-body">
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">{{ 'common.loading' | translate }}</span>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-danger">{{ error()! | translate }}</div>
+  } @else if (data()) {
+    @let d = data()!;
+
+    <!-- Agency Info Bar -->
+    <div class="section-header">
+      <h2><span class="title-icon"><i class="fa-solid fa-building"></i></span> {{ 'dashboard.agencyInfo' | translate }}</h2>
+    </div>
+
+    <div class="agency-bar">
+      <div class="agency-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <div class="agency-name">{{ agencyName() }}</div>
+      <div class="agency-details">
+        <div class="agency-detail">
+          <span class="ad-label">{{ 'dashboard.registrationDate' | translate }}</span>
+          <span class="ad-value">{{ d.registeredAt | date:'yyyy/MM/dd' }}</span>
+        </div>
+        <div class="agency-detail">
+          <span class="ad-label">{{ 'dashboard.lastActivity' | translate }}</span>
+          <span class="ad-value">{{ d.lastActivityAt ? (d.lastActivityAt | date:'yyyy/MM/dd') : '—' }}</span>
+        </div>
+        <div class="agency-detail">
+          <span class="ad-label">{{ 'dashboard.status' | translate }}</span>
+          <span class="ad-value">
+            <span class="status-pill" [ngClass]="getAgencyStatusClass(d.agencyStatus)">
+              <i [class]="getAgencyStatusIcon(d.agencyStatus)"></i> {{ getAgencyStatusLabel(d.agencyStatus) | translate }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Actions -->
+    <div class="section-header">
+      <h2><span class="title-icon"><i class="fa-solid fa-bolt"></i></span> {{ 'dashboard.mainActions' | translate }}</h2>
+    </div>
+
+    <div class="dash-actions">
+      <!-- Inquiry Log -->
+      <div class="dash-action-card dac-teal">
+        <div class="dac-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+        <div class="dac-title">{{ 'dashboard.inquiryLog' | translate }}</div>
+        <div class="dac-desc">{{ 'dashboard.inquiryLogDesc' | translate }}</div>
+        <a routerLink="/inquiries" class="dac-btn"><i class="fa-solid fa-eye"></i> {{ 'dashboard.viewLog' | translate }}</a>
+      </div>
+      <!-- New Request -->
+      <div class="dash-action-card dac-green">
+        <div class="dac-icon"><i class="fa-solid fa-file-circle-plus"></i></div>
+        <div class="dac-title">{{ 'dashboard.newRequest' | translate }}</div>
+        <div class="dac-desc">{{ 'dashboard.newRequestDesc' | translate }}</div>
+        <a routerLink="/batches/new" class="dac-btn"><i class="fa-solid fa-plus"></i> {{ 'dashboard.createRequest' | translate }}</a>
+      </div>
+      <!-- Wallet Balance -->
+      <div class="dash-action-card dac-wallet">
+        <div class="dac-icon"><i class="fa-solid fa-coins"></i></div>
+        <div class="dac-balance">{{ d.currency }} {{ d.walletBalance | number:'1.2-2' }}</div>
+        <div class="dac-balance-label">{{ 'dashboard.availableBalance' | translate }}</div>
+        <a routerLink="/wallet" class="dac-btn" style="background:#4FB848"><i class="fa-solid fa-plus"></i> {{ 'dashboard.topUpWallet' | translate }}</a>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="section-header">
+      <h2><span class="title-icon"><i class="fa-solid fa-chart-simple"></i></span> {{ 'dashboard.quickStats' | translate }}</h2>
+    </div>
+
+    <div class="stat-cards" style="grid-template-columns: repeat(3, 1fr)">
+      <div class="stat-card sc-blue">
+        <div class="stat-badge"><i class="fa-solid fa-paper-plane"></i></div>
+        <div class="stat-number">{{ d.submittedBatches }}</div>
+        <div class="stat-label">{{ 'dashboard.sentThisMonth' | translate }}</div>
+        <div class="stat-sub">{{ 'dashboard.thisMonth' | translate }}</div>
+      </div>
+      <div class="stat-card sc-blue">
+        <div class="stat-badge"><i class="fa-solid fa-file-lines"></i></div>
+        <div class="stat-number">{{ d.totalInquiries | number }}</div>
+        <div class="stat-label">{{ 'dashboard.totalInquiries' | translate }}</div>
+        <div class="stat-sub">{{ 'dashboard.sinceStart' | translate }}</div>
+      </div>
+      <div class="stat-card sc-green">
+        <div class="stat-badge"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="stat-number">{{ approvalRate() }}%</div>
+        <div class="stat-label">{{ 'dashboard.approvalRate' | translate }}</div>
+        <div class="stat-sub">{{ 'dashboard.lastMonth' | translate }}</div>
+      </div>
+    </div>
+
+    <div class="stat-cards" style="grid-template-columns: repeat(3, 1fr)">
+      <div class="stat-card sc-red">
+        <div class="stat-badge"><i class="fa-solid fa-circle-xmark"></i></div>
+        <div class="stat-number">{{ d.rejectedInquiries }}</div>
+        <div class="stat-label">{{ 'dashboard.rejectedInquiries' | translate }}</div>
+        <div class="stat-sub">{{ 'dashboard.thisMonth' | translate }}</div>
+      </div>
+      <div class="stat-card sc-green">
+        <div class="stat-badge"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="stat-number">{{ d.approvedInquiries }}</div>
+        <div class="stat-label">{{ 'dashboard.approvedInquiries' | translate }}</div>
+        <div class="stat-sub">{{ 'dashboard.thisMonth' | translate }}</div>
+      </div>
+      <div class="stat-card sc-orange">
+        <div class="stat-badge"><i class="fa-solid fa-gear"></i></div>
+        <div class="stat-number">{{ d.pendingInquiries }}</div>
+        <div class="stat-label">{{ 'dashboard.processingInquiries' | translate }}</div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="section-header">
+      <h2><span class="title-icon"><i class="fa-solid fa-clock-rotate-left"></i></span> {{ 'dashboard.recentActivity' | translate }}</h2>
+    </div>
+
+    <div class="data-table-card">
+      @if (d.recentBatches.length === 0) {
+        <p class="text-center py-4" style="color:#64748b">{{ 'dashboard.noBatches' | translate }}</p>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'dashboard.batchNumber' | translate }}</th>
+              <th>{{ 'dashboard.batchTitle' | translate }}</th>
+              <th>{{ 'dashboard.travelerCount' | translate }}</th>
+              <th>{{ 'dashboard.submissionDate' | translate }}</th>
+              <th>{{ 'dashboard.status' | translate }}</th>
+              <th>{{ 'dashboard.action' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of d.recentBatches; track b.id) {
+              <tr>
+                <td class="ref-cell" dir="ltr">{{ b.id }}</td>
+                <td>{{ b.name }}</td>
+                <td>{{ b.travelerCount }}</td>
+                <td>{{ b.createdAt | date:'mediumDate' }}</td>
+                <td>
+                  <span class="status-pill" [ngClass]="getStatusClass(b.status)">
+                    <i [class]="getStatusIcon(b.status)"></i>
+                    {{ getStatusLabel(b.status) | translate }}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-icons">
+                    <a [routerLink]="['/batches', b.id]" class="action-icon ai-view" [title]="'dashboard.show' | translate">
+                      <i class="fa-solid fa-eye"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  }
+</div>

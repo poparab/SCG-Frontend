@@ -1,0 +1,118 @@
+// ══════════════════════════════════════════════════════════════════════════
+// MIXINS — Reusable patterns across the portal design system
+// ══════════════════════════════════════════════════════════════════════════
+
+// ── Layout ───────────────────────────────────────────────────────────────
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-gap($gap: $space-3) {
+  display: flex;
+  align-items: center;
+  gap: $gap;
+}
+
+// ── Breakpoints ──────────────────────────────────────────────────────────
+$bp-xl:   1200px;
+$bp-lg:   1024px;
+$bp-md:   768px;
+$bp-sm:   576px;
+
+@mixin respond-below($bp) {
+  @media (max-width: $bp) { @content; }
+}
+
+@mixin respond-above($bp) {
+  @media (min-width: ($bp + 1px)) { @content; }
+}
+
+// ── Cards ────────────────────────────────────────────────────────────────
+@mixin card-base {
+  background: $color-bg-card;
+  border: 1.5px solid $color-border-card;
+  border-radius: $radius-lg;
+  transition: box-shadow .2s, border-color .2s;
+}
+
+@mixin card-hover {
+  &:hover {
+    box-shadow: $shadow-hover;
+    border-color: $color-border-strong;
+  }
+}
+
+// ── Icons ────────────────────────────────────────────────────────────────
+@mixin icon-box($size: 42px, $radius: $radius-lg) {
+  width: $size;
+  height: $size;
+  border-radius: $radius;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+// ── Transitions ──────────────────────────────────────────────────────────
+$ease-default:  .2s ease;
+$ease-fast:     .15s ease;
+$ease-spring:   .25s cubic-bezier(.4, 0, .2, 1);
+
+@mixin transition-default($props: all) {
+  transition: $props $ease-default;
+}
+
+@mixin transition-fast($props: all) {
+  transition: $props $ease-fast;
+}
+
+// ── Pill / Badge ─────────────────────────────────────────────────────────
+@mixin pill-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+// ── Inputs ───────────────────────────────────────────────────────────────
+@mixin input-base {
+  border: 1.5px solid $color-border;
+  border-radius: $radius-md;
+  padding: 0 12px;
+  font-family: $font-family;
+  font-size: $font-size-md;
+  color: $color-text-body;
+  background: $color-bg-card;
+  outline: none;
+  @include transition-default(border-color, box-shadow);
+
+  &:focus {
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px rgba(0, 95, 204, .08);
+  }
+
+  &::placeholder {
+    color: $color-text-placeholder;
+  }
+}
+
+// ── Truncate ─────────────────────────────────────────────────────────────
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ── Z-Index layers ───────────────────────────────────────────────────────
+$z-dropdown:    100;
+$z-sticky:      200;
+$z-overlay:     500;
+$z-modal:       9999;

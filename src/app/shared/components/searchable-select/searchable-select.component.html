@@ -1,0 +1,40 @@
+<div class="searchable-select" [class.is-open]="isOpen()">
+  <!-- Trigger -->
+  <div class="ss-trigger" (click)="toggleDropdown()">
+    @if (selectedValue()) {
+      <span class="ss-selected-text">{{ selectedLabel() }}</span>
+      <button type="button" class="ss-clear" (click)="clearSelection($event)" aria-label="Clear">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    } @else {
+      <span class="ss-placeholder">{{ placeholder }}</span>
+    }
+    <i class="fa-solid fa-chevron-down ss-arrow" [class.ss-arrow-up]="isOpen()"></i>
+  </div>
+
+  <!-- Dropdown -->
+  @if (isOpen()) {
+    <div class="ss-dropdown">
+      <div class="ss-search-wrap">
+        <i class="fa-solid fa-magnifying-glass ss-search-icon"></i>
+        <input
+          type="text"
+          class="ss-search-input"
+          [value]="searchText()"
+          (input)="onSearchInput($event)"
+          (click)="$event.stopPropagation()"
+          autofocus
+        />
+      </div>
+      <ul class="ss-options">
+        @for (opt of filteredOptions(); track opt.value) {
+          <li class="ss-option" [class.ss-option-selected]="opt.value === selectedValue()" (click)="selectOption(opt)">
+            {{ lang === 'ar' ? opt.labelAr : opt.labelEn }}
+          </li>
+        } @empty {
+          <li class="ss-no-results">—</li>
+        }
+      </ul>
+    </div>
+  }
+</div>

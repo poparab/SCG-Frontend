@@ -1,0 +1,115 @@
+<div class="login-right-side">
+  <img class="login-logo" src="assets/img/logo.png" alt="نظام الموافقات الأمنية" />
+  <h2>{{ 'auth.login.title' | translate }}</h2>
+  <p class="mb-4">{{ 'auth.login.subtitle' | translate }}</p>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ errorMessage() | translate }}</span>
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <!-- Login type selector -->
+    <div class="d-inline-flex selector-container">
+      <input type="radio" class="btn-check" name="loginType" id="individualLogin"
+             [value]="'individual'" formControlName="loginType">
+      <label class="btn col-6" for="individualLogin">
+        <img class="icon" src="assets/icons/user.svg" alt=""> {{ 'auth.login.individual' | translate }}
+      </label>
+
+      <input type="radio" class="btn-check" name="loginType" id="agencyLogin"
+             [value]="'agency'" formControlName="loginType">
+      <label class="btn col-6" for="agencyLogin">
+        <img class="icon" src="assets/icons/agency.svg" alt=""> {{ 'auth.login.agency' | translate }}
+      </label>
+    </div>
+
+    <!-- Email -->
+    <div class="input-group">
+      <input
+        id="email"
+        type="email"
+        class="form-control"
+        formControlName="email"
+        [placeholder]="'auth.login.emailPlaceholder' | translate"
+        [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid"
+      />
+      <img class="input-icon" src="assets/icons/mail.svg" alt="">
+    </div>
+    @if (form.controls.email.touched && form.controls.email.errors) {
+      <div class="field-error">
+        @if (form.controls.email.errors['required']) {
+          {{ 'auth.validation.emailRequired' | translate }}
+        } @else if (form.controls.email.errors['email']) {
+          {{ 'auth.validation.emailInvalid' | translate }}
+        }
+      </div>
+    }
+
+    <!-- Password -->
+    <div class="input-group" id="show_hide_password">
+      <input
+        id="password"
+        [type]="showPassword() ? 'text' : 'password'"
+        class="form-control password"
+        formControlName="password"
+        [placeholder]="'auth.login.passwordPlaceholder' | translate"
+        [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid"
+      />
+      <img class="input-icon" src="assets/icons/lock2.svg" alt="">
+      <button class="show-hide-icon" type="button" (click)="togglePassword()"
+              [attr.aria-label]="'auth.login.togglePassword' | translate">
+        <i [class]="showPassword() ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
+      </button>
+    </div>
+    @if (form.controls.password.touched && form.controls.password.errors?.['required']) {
+      <div class="field-error">
+        {{ 'auth.validation.passwordRequired' | translate }}
+      </div>
+    }
+
+    <!-- Remember me & Forgot password -->
+    <div class="col mb-5">
+      <div class="form-check float-start">
+        <input class="form-check-input" type="checkbox" id="rememberMe" formControlName="rememberMe">
+        <label class="form-check-label" for="rememberMe">{{ 'auth.login.rememberMe' | translate }}</label>
+      </div>
+      <a class="tertiary-link float-end" routerLink="/forgot-password">{{ 'auth.login.forgotPassword' | translate }}</a>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-primary btn-submit" [disabled]="loading()">
+      @if (loading()) {
+        <span class="spinner-border spinner-border-sm" role="status"></span>
+      }
+      {{ 'auth.login.submit' | translate }}
+    </button>
+  </form>
+
+  <!-- Divider -->
+  <div class="row align-content-center mb-4">
+    <div class="col"><hr class="line"/></div>
+    <div class="col-auto">{{ 'auth.login.or' | translate }}</div>
+    <div class="col"><hr class="line"/></div>
+  </div>
+
+  <!-- Social login -->
+  <div class="row row-cols-md-2 gx-4">
+    <div class="col">
+      <a class="btn btn-login-with" href="javascript:void(0)">Apple <i class="fa-brands fa-apple"></i></a>
+    </div>
+    <div class="col">
+      <a class="btn btn-login-with" href="javascript:void(0)">google <img class="icon" src="assets/icons/google.svg" alt=""></a>
+    </div>
+  </div>
+
+  <!-- Register link -->
+  <div class="row row-cols-1 mt-4 mb-2">
+    <div class="col text-center">
+      {{ 'auth.login.noAccount' | translate }}
+      <a class="tertiary-link" routerLink="/register">{{ 'auth.login.registerLink' | translate }}</a>
+    </div>
+  </div>
+</div>

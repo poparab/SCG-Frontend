@@ -1,0 +1,132 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <h2>{{ 'admin.dashboard.title' | translate }}</h2>
+    <p>{{ 'admin.dashboard.subtitle' | translate }}</p>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-grid">
+    <div class="stat-card stat-blue">
+      <div class="stat-icon"><i class="fas fa-file-lines"></i></div>
+      <div class="stat-meta">
+        <div class="stat-num">{{ totalInquiries() }}</div>
+        <div class="stat-label">{{ 'admin.dashboard.total_inquiries' | translate }}</div>
+      </div>
+    </div>
+    <div class="stat-card stat-green">
+      <div class="stat-icon"><i class="fas fa-building"></i></div>
+      <div class="stat-meta">
+        <div class="stat-num">{{ approvedAgencies() }}</div>
+        <div class="stat-label">{{ 'admin.dashboard.approved_agencies' | translate }}</div>
+      </div>
+    </div>
+    <div class="stat-card stat-amber">
+      <div class="stat-icon"><i class="fas fa-user-clock"></i></div>
+      <div class="stat-meta">
+        <div class="stat-num">{{ pendingAgencies() }}</div>
+        <div class="stat-label">{{ 'admin.dashboard.pending_agencies' | translate }}</div>
+      </div>
+    </div>
+    <div class="stat-card stat-purple">
+      <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+      <div class="stat-meta">
+        <div class="stat-num">{{ totalWalletBalance() | number:'1.2-2' }}</div>
+        <div class="stat-label">{{ 'admin.dashboard.total_wallet' | translate }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inquiry Breakdown -->
+  <div class="stats-grid stats-secondary">
+    <div class="stat-card-sm">
+      <span class="badge badge-warning">{{ pendingInquiries() }}</span>
+      <span class="stat-sm-label">{{ 'admin.dashboard.pending_inquiries' | translate }}</span>
+    </div>
+    <div class="stat-card-sm">
+      <span class="badge badge-success">{{ approvedInquiries() }}</span>
+      <span class="stat-sm-label">{{ 'admin.dashboard.approved_inquiries' | translate }}</span>
+    </div>
+    <div class="stat-card-sm">
+      <span class="badge badge-danger">{{ rejectedInquiries() }}</span>
+      <span class="stat-sm-label">{{ 'admin.dashboard.rejected_inquiries' | translate }}</span>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <a class="action-card" routerLink="/agencies">
+      <i class="fas fa-building"></i>
+      <span>{{ 'admin.dashboard.manage_agencies' | translate }}</span>
+    </a>
+    <a class="action-card" routerLink="/nationalities">
+      <i class="fas fa-globe"></i>
+      <span>{{ 'admin.dashboard.manage_nationalities' | translate }}</span>
+    </a>
+    <a class="action-card" routerLink="/inquiries">
+      <i class="fas fa-file-lines"></i>
+      <span>{{ 'admin.dashboard.monitor_inquiries' | translate }}</span>
+    </a>
+  </div>
+
+  <div class="tables-grid">
+    <!-- Recent Agencies -->
+    <div class="table-card">
+      <div class="table-card-header">
+        <h3>{{ 'admin.dashboard.recent_agencies' | translate }}</h3>
+        <a routerLink="/agencies" class="view-all">{{ 'admin.common.view_all' | translate }}</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{{ 'admin.agencies.name' | translate }}</th>
+              <th>{{ 'admin.common.status' | translate }}</th>
+              <th>{{ 'admin.common.date' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (agency of recentAgencies(); track agency.id) {
+              <tr>
+                <td>{{ agency.nameEn }}</td>
+                <td><span class="badge" [class]="getStatusClass(agency.status)">{{ agency.status }}</span></td>
+                <td>{{ agency.createdAt | date:'shortDate' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="3" class="text-center text-muted">{{ 'admin.common.no_data' | translate }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Inquiries -->
+    <div class="table-card">
+      <div class="table-card-header">
+        <h3>{{ 'admin.dashboard.recent_inquiries' | translate }}</h3>
+        <a routerLink="/inquiries" class="view-all">{{ 'admin.common.view_all' | translate }}</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{{ 'admin.inquiries.reference' | translate }}</th>
+              <th>{{ 'admin.inquiries.traveler' | translate }}</th>
+              <th>{{ 'admin.common.status' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (inq of recentInquiries(); track inq.id) {
+              <tr>
+                <td>{{ inq.referenceNumber }}</td>
+                <td>{{ inq.travelerName }}</td>
+                <td><span class="badge" [class]="getStatusClass(inq.status)">{{ inq.status }}</span></td>
+              </tr>
+            } @empty {
+              <tr><td colspan="3" class="text-center text-muted">{{ 'admin.common.no_data' | translate }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

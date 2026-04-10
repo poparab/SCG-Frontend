@@ -1,0 +1,490 @@
+// ══════════════════════════════════════════════════════════════════════════
+// PORTAL — Agency-facing portal component styles (matches client mockup)
+// ══════════════════════════════════════════════════════════════════════════
+
+// ── PORTAL HERO (overrides page-hero for portal context) ────────────────
+.portal-hero { background: $hero-gradient; position: relative; overflow: hidden;
+  padding: $space-8 0 $space-6; text-align: center;
+  &::before { content: ''; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(50,120,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(50,120,255,.06) 1px, transparent 1px);
+    background-size: 44px 44px; pointer-events: none;
+  }
+  &::after { content: ''; position: absolute; bottom: -80px; inset-inline-start: -80px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(0,100,255,.15) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+  }
+  h1 { position: relative; z-index: 1; color: #fff; font-weight: 700;
+    font-size: $font-size-3xl; margin-bottom: $space-1;
+  }
+  p { position: relative; z-index: 1; color: rgba(180,210,255,.7);
+    font-size: $font-size-lg; max-width: 600px; margin: 0 auto;
+  }
+}
+
+// ── BREADCRUMB ──────────────────────────────────────────────────────────
+.portal-breadcrumb { background: $color-bg-card; border-bottom: 1px solid $color-border-alt;
+  padding: $space-2 0; font-size: $font-size-base;
+  nav { display: flex; align-items: center; gap: $space-2; }
+  a { color: $color-primary; text-decoration: none;
+    &:hover { text-decoration: underline; color: $color-primary-mid; }
+  }
+  .separator { color: $color-text-subtle; font-size: $font-size-xs; }
+  .current { color: $color-text-muted; font-weight: 500; }
+}
+
+// ── PORTAL BODY ─────────────────────────────────────────────────────────
+.portal-body { padding: $space-7 0 $space-8; }
+
+// ── SECTION HEADER ──────────────────────────────────────────────────────
+.section-header { @include flex-between; margin-bottom: $space-4;
+  h2 { font-weight: 700; font-size: $font-size-2xl; color: $color-primary-mid; margin: 0;
+    display: flex; align-items: center; gap: $space-2;
+    .title-icon { width: 36px; height: 36px; border-radius: $radius-md;
+      background: $color-primary-light; @include flex-center;
+      color: $color-primary; font-size: $font-size-xl;
+    }
+  }
+}
+
+// ── STAT CARDS ──────────────────────────────────────────────────────────
+.stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $space-4; margin-bottom: $space-6;
+}
+.stat-card { background: $color-bg-card; border-radius: $radius-lg;
+  border: 1px solid $color-border-alt; border-top: 3px solid $color-border-alt;
+  padding: $space-6; position: relative; text-align: center;
+  @include transition-default;
+  &:hover { box-shadow: $shadow-hover; transform: translateY(-2px); }
+  .stat-badge { position: absolute; top: $space-4; inset-inline-start: $space-4;
+    @include icon-box(40px, $radius-lg); font-size: $font-size-2xl; color: #fff;
+  }
+  .stat-number { font-weight: 800; font-size: $font-size-3xl; line-height: 1;
+    margin-bottom: $space-1; margin-top: $space-2;
+  }
+  .stat-label { font-weight: 500; font-size: $font-size-lg; color: $color-text-secondary; }
+  .stat-sub { font-size: $font-size-base; color: $color-text-placeholder; margin-top: $space-1; }
+  // Color variants
+  &.sc-green  { border-top-color: $color-success;
+    .stat-badge { background: $color-success; } .stat-number { color: $color-success-dark; }
+  }
+  &.sc-orange { border-top-color: $color-warning;
+    .stat-badge { background: $color-warning; } .stat-number { color: $color-warning-dark; }
+  }
+  &.sc-blue   { border-top-color: $color-primary;
+    .stat-badge { background: $color-primary; } .stat-number { color: $color-primary-mid; }
+  }
+  &.sc-red    { border-top-color: $color-danger;
+    .stat-badge { background: $color-danger; } .stat-number { color: $color-danger-dark; }
+  }
+  &.sc-teal   { border-top-color: $color-tertiary;
+    .stat-badge { background: $color-tertiary; } .stat-number { color: #0088cc; }
+  }
+}
+
+// ── DATA TABLE ──────────────────────────────────────────────────────────
+.data-table-card { background: $color-bg-card; border: 1px solid $color-border-alt;
+  border-radius: $radius-lg; overflow: hidden; margin-bottom: $space-6;
+}
+.data-table-header { @include flex-between; padding: $space-4 $space-5;
+  border-bottom: 1px solid $color-bg-page;
+  h3 { font-weight: 700; font-size: $font-size-xl; color: $color-primary-mid; margin: 0; }
+}
+.data-table { width: 100%; border-collapse: collapse;
+  thead tr { background: $color-primary-mid; }
+  th { padding: $space-3 $space-4; text-align: center; font-weight: 500;
+    font-size: $font-size-md; color: #fff; white-space: nowrap; border: none;
+  }
+  td { padding: $space-3 $space-4; font-size: $font-size-lg; color: #374151;
+    border-bottom: 1px solid $color-bg-page; vertical-align: middle; text-align: center;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { @include transition-fast(background); }
+  tbody tr:hover { background: $color-bg-alt; }
+  .ref-cell { font-weight: 700; color: $color-text-primary; }
+}
+
+// ── STATUS PILLS ────────────────────────────────────────────────────────
+.status-pill { display: inline-flex; align-items: center; gap: 6px;
+  padding: $space-1 $space-3; border-radius: 20px; font-weight: 500;
+  font-size: $font-size-base; white-space: nowrap;
+  i { font-size: $font-size-xs; }
+}
+.sp-green  { background: $color-success-light; color: #2e7d32; }
+.sp-orange { background: $color-warning-light; color: $color-warning-dark; }
+.sp-blue   { background: $color-primary-subtle; color: $color-primary-mid; }
+.sp-red    { background: $color-danger-light; color: $color-danger-dark; }
+.sp-gray   { background: $color-bg-page; color: $color-text-muted; }
+
+// ── ACTION ICONS ────────────────────────────────────────────────────────
+.action-icons { display: flex; gap: 6px; align-items: center; justify-content: center; }
+.action-icon { width: 32px; height: 32px; border-radius: $radius-sm; border: none;
+  @include flex-center; font-size: $font-size-base; cursor: pointer;
+  @include transition-default; text-decoration: none;
+  &.ai-view, &.ai-edit, &.ai-delete { background: $color-primary-light; color: $color-primary; }
+  &.ai-view:hover, &.ai-edit:hover, &.ai-delete:hover { background: $color-primary; color: #fff; }
+}
+
+// ── TABLE PAGINATION ────────────────────────────────────────────────────
+.table-pagination { @include flex-between; padding: $space-3 $space-5;
+  border-top: 1px solid $color-bg-page;
+}
+.pagination-pages { display: flex; align-items: center; gap: $space-1; }
+.page-btn { min-width: 32px; height: 32px; border: 1px solid $color-border;
+  background: $color-bg-card; border-radius: $radius-sm; @include flex-center;
+  font-weight: 500; font-size: $font-size-md; color: $color-text-secondary;
+  cursor: pointer; @include transition-default; text-decoration: none;
+  &:hover { background: $color-primary-light; border-color: $color-primary; color: $color-primary; }
+  &.active { background: $color-primary; border-color: $color-primary; color: #fff; }
+  &.disabled { opacity: .4; cursor: not-allowed; }
+}
+.pagination-info { display: flex; align-items: center; gap: $space-2;
+  font-size: $font-size-md; color: $color-text-muted;
+  select { height: 32px; padding: 0 $space-2; border: 1px solid $color-border;
+    border-radius: $radius-sm; font-family: $font-family; font-size: $font-size-md;
+    color: $color-text-secondary; background: $color-bg-card;
+  }
+}
+
+// ── AGENCY BAR (Dashboard) ──────────────────────────────────────────────
+.agency-bar { background: $color-bg-card; border-radius: $radius-lg;
+  border: 1px solid $color-border-alt; padding: $space-5 $space-6;
+  display: flex; align-items: center; gap: $space-4; margin-bottom: $space-8;
+  box-shadow: 0 2px 8px rgba(0,36,77,.04);
+  .agency-icon { width: 56px; height: 56px;
+    background: linear-gradient(135deg, $color-primary, $color-success);
+    border-radius: $radius-xl; @include flex-center; color: #fff;
+    font-size: $font-size-3xl; flex-shrink: 0;
+  }
+  .agency-name { font-weight: 700; font-size: $font-size-2xl;
+    color: $color-primary-mid; white-space: nowrap;
+  }
+  .agency-details { display: flex; gap: $space-3; flex-wrap: wrap;
+    margin-inline-start: auto;
+  }
+  .agency-detail { display: flex; flex-direction: column; align-items: center;
+    background: $color-bg-page; padding: $space-2 $space-4; border-radius: $radius-md;
+    min-width: 120px;
+    .ad-label { font-size: $font-size-sm; color: $color-text-muted; margin-bottom: 2px; }
+    .ad-value { font-weight: 700; font-size: $font-size-md; color: $color-text-primary; }
+  }
+}
+
+// ── DASHBOARD ACTION CARDS ──────────────────────────────────────────────
+.dash-actions { display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: $space-5; margin-bottom: $space-8;
+}
+.dash-action-card { background: $color-bg-card; border: 2px solid $color-border;
+  border-radius: $radius-lg; padding: $space-6; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: $space-3;
+  @include transition-default;
+  &:hover { box-shadow: $shadow-hover; }
+  .dac-icon { width: 52px; height: 52px; border-radius: $radius-xl;
+    @include flex-center; font-size: $font-size-3xl; color: #fff;
+  }
+  .dac-title { font-weight: 700; font-size: $font-size-xl; color: $color-text-primary; }
+  .dac-desc { font-size: $font-size-md; color: $color-text-muted; line-height: 1.6; }
+  .dac-btn { margin-top: auto; display: inline-flex; align-items: center; gap: 6px;
+    padding: $space-2 $space-5; border-radius: $radius-md; font-weight: 700;
+    font-size: $font-size-lg; text-decoration: none; color: #fff; border: none;
+    cursor: pointer; @include transition-fast(filter);
+    &:hover { filter: brightness(.92); color: #fff; }
+  }
+  .dac-balance { font-weight: 800; font-size: $font-size-3xl;
+    color: $color-primary-mid; line-height: 1; direction: ltr;
+  }
+  .dac-balance-label { font-size: $font-size-lg; color: $color-text-muted; }
+  // Variants
+  &.dac-teal  { border-color: $color-tertiary;
+    .dac-icon { background: $color-tertiary; } .dac-btn { background: $color-tertiary; }
+  }
+  &.dac-green { border-color: $color-success;
+    .dac-icon { background: $color-success; } .dac-btn { background: $color-success; }
+  }
+  &.dac-blue  { border-color: $color-primary;
+    .dac-icon { background: $color-primary; } .dac-btn { background: $color-primary; }
+  }
+  &.dac-wallet { border-color: $color-success;
+    .dac-icon { background: linear-gradient(135deg, $color-success, $color-success-dark); }
+  }
+}
+
+// ── WALLET STAT CARDS (large) ───────────────────────────────────────────
+.wallet-stats { display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: $space-4; margin-bottom: $space-6;
+}
+.wallet-stat-card { background: $color-bg-card; border-radius: $radius-lg;
+  border: 1px solid $color-border-alt; border-top: 3px solid $color-border-alt;
+  padding: $space-6; position: relative; text-align: center;
+  @include transition-default(box-shadow);
+  &:hover { box-shadow: $shadow-hover; }
+  .ws-badge { position: absolute; top: $space-4; inset-inline-start: $space-4;
+    @include icon-box(44px, $radius-lg); font-size: $font-size-2xl; color: #fff;
+  }
+  .ws-amount { font-weight: 800; font-size: $font-size-3xl; line-height: 1;
+    margin-bottom: 6px; margin-top: $space-3; direction: ltr;
+  }
+  .ws-label { font-weight: 500; font-size: $font-size-lg; color: $color-text-secondary; }
+  .ws-sub { font-size: $font-size-base; color: $color-text-placeholder; margin-top: $space-1; }
+  &.wsc-green { border-top-color: $color-success;
+    .ws-badge { background: $color-success; } .ws-amount { color: #2e7d32; }
+  }
+  &.wsc-blue  { border-top-color: $color-primary;
+    .ws-badge { background: $color-primary; } .ws-amount { color: $color-primary-mid; }
+  }
+  &.wsc-red   { border-top-color: $color-danger;
+    .ws-badge { background: $color-danger; } .ws-amount { color: $color-danger-dark; }
+  }
+}
+
+// ── QUICK STATS (small info cards) ──────────────────────────────────────
+.quick-stats { display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: $space-4; margin-bottom: $space-6;
+}
+.quick-stat { background: $color-bg-card; border: 1px solid $color-border-alt;
+  border-radius: $radius-lg; border-inline-end: 3px solid $color-border-alt;
+  padding: $space-4 $space-5; position: relative;
+  .qs-badge { position: absolute; top: $space-3; inset-inline-start: $space-3;
+    @include icon-box(32px, $radius-md); font-size: $font-size-base; color: #fff;
+  }
+  .qs-number { font-weight: 800; font-size: $font-size-3xl; line-height: 1; margin-bottom: 2px; }
+  .qs-label { font-weight: 500; font-size: $font-size-md; color: $color-text-secondary; }
+  .qs-date { font-size: $font-size-base; color: $color-text-placeholder; margin-top: $space-1; }
+  &.qs-blue   { border-inline-end-color: $color-primary;
+    .qs-badge { background: $color-primary; } .qs-number { color: $color-primary-mid; }
+  }
+  &.qs-green  { border-inline-end-color: $color-success;
+    .qs-badge { background: $color-success; } .qs-number { color: $color-success-dark; }
+  }
+  &.qs-teal   { border-inline-end-color: $color-tertiary;
+    .qs-badge { background: $color-tertiary; } .qs-number { color: #0088cc; }
+  }
+  &.qs-red    { border-inline-end-color: $color-danger;
+    .qs-badge { background: $color-danger; } .qs-number { color: $color-danger-dark; }
+  }
+  &.qs-orange { border-inline-end-color: $color-warning;
+    .qs-badge { background: $color-warning; } .qs-number { color: $color-warning-dark; }
+  }
+}
+
+// ── FILTER BAR ──────────────────────────────────────────────────────────
+.filter-bar { background: $color-bg-card; border: 1px solid $color-border-alt;
+  border-radius: $radius-lg; padding: $space-5; margin-bottom: $space-6;
+  display: flex; align-items: flex-end; gap: $space-4; flex-wrap: wrap;
+  .filter-group { flex: 1; min-width: 160px; display: flex; flex-direction: column;
+    label { font-weight: 500; font-size: $font-size-md; color: $color-text-secondary;
+      margin-bottom: $space-1;
+    }
+    input, select { width: 100%; height: 40px; padding: 0 $space-3;
+      border: 1px solid #d1d5db; border-radius: $radius-md;
+      font-family: $font-family; font-size: $font-size-lg; color: $color-text-primary;
+      background: $color-bg-alt; @include transition-fast(border-color);
+      &:focus { outline: none; border-color: $color-primary;
+        box-shadow: 0 0 0 3px rgba(0,95,204,.1);
+      }
+    }
+    .search-input-wrap { position: relative;
+      input { padding-inline-end: 2.5rem; }
+      i { position: absolute; inset-inline-end: $space-3; top: 50%;
+        transform: translateY(-50%); color: $color-text-placeholder;
+        font-size: $font-size-lg; pointer-events: none;
+      }
+    }
+  }
+  .filter-actions { display: flex; gap: $space-2; align-items: flex-end; padding-bottom: 1px; }
+}
+.btn-filter { height: 40px; padding: 0 $space-5; border: none; border-radius: $radius-md;
+  font-family: $font-family; font-size: $font-size-lg; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; @include transition-default;
+  white-space: nowrap;
+}
+.btn-search { background: $color-primary; color: #fff;
+  &:hover { background: $color-primary-mid; }
+}
+.btn-reset { background: transparent; color: $color-success;
+  border: 1px solid $color-success !important;
+  &:hover { background: $color-success-bg; }
+}
+
+// ── BATCH METADATA ──────────────────────────────────────────────────────
+.batch-meta { background: $color-bg-card; border: 1px solid $color-border-alt;
+  border-radius: $radius-lg; padding: $space-5; margin-bottom: $space-6;
+}
+.batch-meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: $space-4 $space-8; }
+.batch-meta-item { display: flex; flex-direction: column;
+  .bm-label { font-size: $font-size-md; color: $color-text-muted; margin-bottom: $space-1; }
+  .bm-value { font-weight: 700; font-size: $font-size-xl; color: $color-text-primary; }
+}
+
+// ── DETAIL CARD ─────────────────────────────────────────────────────────
+.detail-card { background: $color-bg-card; border: 1px solid $color-border-alt;
+  border-radius: $radius-lg; overflow: hidden; margin-bottom: $space-6;
+  .detail-header { @include flex-between; padding: $space-4 $space-5;
+    border-bottom: 1px solid $color-bg-page;
+    h3 { font-weight: 700; font-size: $font-size-xl; color: $color-primary-mid; margin: 0; }
+  }
+}
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.detail-row { display: flex; align-items: center; padding: $space-3 $space-5;
+  border-bottom: 1px solid $color-bg-page;
+  &:nth-child(odd) { background: $color-bg-alt; }
+  .detail-label { font-weight: 500; font-size: $font-size-md;
+    color: $color-text-muted; min-width: 140px; flex-shrink: 0;
+  }
+  .detail-value { font-weight: 500; font-size: $font-size-lg; color: $color-text-primary; flex: 1; }
+}
+
+// ── STATUS TRACKER ──────────────────────────────────────────────────────
+.status-tracker { background: $color-bg-card; border: 1px solid $color-border-alt;
+  border-radius: $radius-lg; padding: $space-6; margin-bottom: $space-6;
+  h3 { font-weight: 700; font-size: $font-size-2xl; color: $color-primary-mid;
+    margin-bottom: $space-6; display: flex; align-items: center; gap: $space-2;
+  }
+}
+.tracker-steps { display: flex; align-items: flex-start; margin-bottom: $space-6;
+  position: relative;
+}
+.tracker-step { flex: 1; text-align: center; position: relative; z-index: 1;
+  .step-icon { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto $space-3;
+    @include flex-center; font-size: $font-size-3xl; position: relative; z-index: 2;
+  }
+  .step-title { font-weight: 500; font-size: $font-size-md; color: $color-text-secondary; }
+  .step-date { font-size: $font-size-base; color: $color-text-placeholder; margin-top: $space-1; }
+}
+.tracker-line { position: absolute; top: 28px; inset-inline-start: 0; inset-inline-end: 0;
+  height: 3px; background: $color-border; z-index: 0; margin: 0 $space-8;
+  .line-fill { height: 100%; background: $color-success; @include transition-default(width); }
+}
+.tracker-step.ts-completed .step-icon { background: $color-success-light; color: #2e7d32;
+  border: 2px solid $color-success;
+}
+.tracker-step.ts-active .step-icon { background: $color-primary; color: #fff;
+  border: 2px solid $color-primary; box-shadow: 0 0 0 4px rgba(0,95,204,.15);
+}
+.tracker-step.ts-pending .step-icon { background: $color-bg-page; color: $color-text-placeholder;
+  border: 2px solid $color-border;
+}
+.tracker-step.ts-rejected .step-icon { background: $color-danger-light; color: $color-danger;
+  border: 2px solid $color-danger;
+}
+
+// Status Cards Row
+.status-cards-row { display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: $space-3; margin-bottom: $space-6;
+}
+.status-phase-card { background: $color-bg-alt; border: 1px solid $color-border-alt;
+  border-radius: $radius-lg; padding: $space-4; text-align: center;
+  .spc-icon { width: 40px; height: 40px; border-radius: 50%;
+    margin: 0 auto $space-2; @include flex-center; font-size: $font-size-2xl;
+  }
+  .spc-title { font-weight: 500; font-size: $font-size-md; color: $color-text-secondary;
+    margin-bottom: $space-1;
+  }
+  .spc-status { font-weight: 700; font-size: $font-size-base; }
+  &.spc-done { border-color: $color-success-border;
+    .spc-icon { background: $color-success-light; color: #2e7d32; }
+    .spc-status { color: #2e7d32; }
+  }
+  &.spc-active { border-color: $color-primary-muted;
+    .spc-icon { background: $color-primary-subtle; color: $color-primary; }
+    .spc-status { color: $color-primary; }
+  }
+  &.spc-pending {
+    .spc-icon { background: $color-bg-page; color: $color-text-placeholder; }
+    .spc-status { color: $color-text-placeholder; }
+  }
+  &.spc-rejected { border-color: $color-danger-border;
+    .spc-icon { background: $color-danger-light; color: $color-danger; }
+    .spc-status { color: $color-danger; }
+  }
+}
+
+// ── TRANSACTION BADGES ──────────────────────────────────────────────────
+.txn-badge { display: inline-flex; align-items: center; gap: $space-1;
+  padding: 2px $space-2; border-radius: $space-1; font-weight: 500; font-size: $font-size-base;
+}
+.txn-debit  { background: $color-danger-light; color: $color-danger-dark; }
+.txn-credit { background: $color-success-light; color: #2e7d32; }
+
+// ── BUTTONS ─────────────────────────────────────────────────────────────
+.btn-back { display: inline-flex; align-items: center; gap: $space-2;
+  padding: $space-2 $space-4; background: $color-bg-card; border: 1px solid $color-border;
+  border-radius: $radius-md; color: $color-text-secondary; font-weight: 500;
+  font-size: $font-size-lg; cursor: pointer; @include transition-default;
+  text-decoration: none; margin-bottom: $space-4;
+  &:hover { background: $color-bg-alt; color: $color-text-primary; border-color: $color-primary; }
+}
+.btn-download { display: inline-flex; align-items: center; gap: $space-2;
+  padding: $space-3 $space-5; background: $color-primary; color: #fff; border: none;
+  border-radius: $radius-md; font-weight: 500; font-size: $font-size-lg;
+  cursor: pointer; @include transition-default(background); text-decoration: none;
+  &:hover { background: $color-primary-mid; color: #fff; }
+}
+.btn-add-new { display: inline-flex; align-items: center; gap: $space-2;
+  padding: $space-3 $space-5; background: $color-success; color: #fff; border: none;
+  border-radius: $radius-md; font-weight: 500; font-size: $font-size-lg;
+  cursor: pointer; @include transition-default(background); text-decoration: none;
+  &:hover { background: $color-success-dark; color: #fff; }
+}
+
+// ── HEADER CTA BUTTON ───────────────────────────────────────────────────
+.header-cta { display: inline-flex; align-items: center; gap: 6px;
+  padding: $space-2 $space-5; background: $color-success; color: #fff !important;
+  border-radius: 32px; font-size: $font-size-lg; font-weight: 500;
+  text-decoration: none !important; @include transition-default; white-space: nowrap;
+  margin-inline-end: $space-4;
+  &:hover { background: $color-success-dark; color: #fff !important; }
+  i { font-size: $font-size-base; }
+}
+
+// ── NAV DISABLED STATE ──────────────────────────────────────────────────
+.nav-link.nav-disabled { opacity: .5; cursor: not-allowed; pointer-events: none; }
+
+// ── NAV ACTIVE GREEN UNDERLINE (mockup override) ────────────────────────
+.nav-link.active-link { color: $color-success !important; font-weight: 700;
+  &::after { content: ''; position: absolute; bottom: -1px;
+    inset-inline-start: 14px; inset-inline-end: 14px;
+    height: 2px; background: $color-success; border-radius: 2px 2px 0 0;
+  }
+}
+
+// ── PORTAL RESPONSIVE ───────────────────────────────────────────────────
+@include respond-below(991px) {
+  .stat-cards { grid-template-columns: repeat(2, 1fr) !important; }
+  .quick-stats { grid-template-columns: repeat(2, 1fr); }
+  .wallet-stats { grid-template-columns: repeat(2, 1fr); }
+  .detail-grid { grid-template-columns: 1fr; }
+  .batch-meta-grid { grid-template-columns: 1fr 1fr; }
+  .status-cards-row { grid-template-columns: repeat(2, 1fr); }
+  .dash-actions { grid-template-columns: repeat(2, 1fr); }
+  .agency-bar { flex-wrap: wrap;
+    .agency-details { width: 100%; margin-inline-start: 0; }
+  }
+  .data-table-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .data-table { min-width: 640px; }
+}
+@include respond-below($bp-md) {
+  .portal-hero { padding: $space-5 0;
+    h1 { font-size: $font-size-3xl; }
+    p { font-size: $font-size-md; }
+  }
+  .agency-bar { flex-direction: column; align-items: flex-start; gap: $space-3; padding: $space-4;
+    .agency-details { flex-direction: column; gap: $space-2; }
+    .agency-detail { min-width: auto; }
+  }
+  .section-header h2 { font-size: $font-size-2xl; }
+  .dash-action-card .dac-icon { width: 44px; height: 44px; font-size: $font-size-2xl; }
+  .stat-card .stat-number { font-size: $font-size-3xl; }
+}
+@include respond-below($bp-sm) {
+  .stat-cards { grid-template-columns: 1fr !important; }
+  .quick-stats { grid-template-columns: 1fr 1fr; }
+  .wallet-stats { grid-template-columns: 1fr; }
+  .batch-meta-grid { grid-template-columns: 1fr; }
+  .table-pagination { flex-direction: column; gap: $space-3; }
+  .status-cards-row { grid-template-columns: 1fr 1fr; }
+  .dash-actions { grid-template-columns: 1fr; }
+  .data-table th, .data-table td { padding: $space-2 $space-3; font-size: $font-size-base; }
+  .portal-breadcrumb { font-size: $font-size-base; }
+}

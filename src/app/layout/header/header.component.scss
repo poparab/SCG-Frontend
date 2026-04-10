@@ -1,0 +1,41 @@
+:host { display: block; }
+
+.user-chip {
+  position: relative;
+  cursor: pointer;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  inset-inline-end: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  min-width: 160px;
+  z-index: 1000;
+  margin-top: 4px;
+  padding: 4px 0;
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    color: #334155;
+    font-size: 0.875rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover {
+      background: #f1f5f9;
+      color: #dc2626;
+    }
+
+    i {
+      font-size: 0.9rem;
+    }
+  }
+}
