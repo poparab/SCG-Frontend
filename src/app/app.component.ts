@@ -13,7 +13,6 @@ export class AppComponent implements OnInit {
   private translate = inject(TranslateService);
 
   ngOnInit(): void {
-    fetch('/_debug_app_oninit').catch(() => {});
     const savedLang = localStorage.getItem('scg_lang') || 'ar';
     this.translate.use(savedLang);
     document.documentElement.lang = savedLang;
