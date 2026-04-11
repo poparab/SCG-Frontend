@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/helpers';
+import { test, expect, API_BASE } from '../fixtures/helpers';
 
 function unwrap<T>(body: { data: T }): T {
   return body.data;
@@ -24,7 +24,7 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
     await api.creditWallet(adminToken, agencyId, 10000);
 
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
-    const batchRes = await page.request.post('http://localhost:5155/api/batches', {
+    const batchRes = await page.request.post(`${API_BASE}/batches`, {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
         agencyId,
@@ -36,7 +36,7 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
 
     const batch = unwrap<{ id: string }>(await batchRes.json());
 
-    const addTravelerRes = await page.request.post(`http://localhost:5155/api/batches/${batch.id}/travelers`, {
+    const addTravelerRes = await page.request.post(`${API_BASE}/batches/${batch.id}/travelers`, {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
         firstNameEn: 'Nasser',
@@ -58,12 +58,12 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
     });
     expect(addTravelerRes.ok()).toBeTruthy();
 
-    const submitRes = await page.request.post(`http://localhost:5155/api/batches/${batch.id}/submit`, {
+    const submitRes = await page.request.post(`${API_BASE}/batches/${batch.id}/submit`, {
       headers: { Authorization: `Bearer ${agencyToken}` }
     });
     expect(submitRes.ok()).toBeTruthy();
 
-    const inqRes = await page.request.get(`http://localhost:5155/api/inquiries?agencyId=${agencyId}`, {
+    const inqRes = await page.request.get(`${API_BASE}/inquiries?agencyId=${agencyId}`, {
       headers: { Authorization: `Bearer ${agencyToken}` }
     });
     expect(inqRes.ok()).toBeTruthy();

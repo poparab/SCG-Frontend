@@ -1,9 +1,9 @@
-import { test, expect } from '../fixtures/helpers';
+import { test, expect, API_BASE, ADMIN_PREFIX } from '../fixtures/helpers';
 
 test.describe('Admin Agency Management', () => {
   test.beforeEach(async ({ page }) => {
     // Login as admin
-    await page.goto('/auth/login');
+    await page.goto(`${ADMIN_PREFIX}/auth/login`);
     await page.fill('#email', 'admin@scg.gov.eg');
     await page.fill('#password', 'Admin@1234');
     await page.click('button[type="submit"]');
@@ -11,7 +11,7 @@ test.describe('Admin Agency Management', () => {
   });
 
   test('should navigate to agencies list', async ({ page }) => {
-    await page.goto('/agencies');
+    await page.goto(`${ADMIN_PREFIX}/agencies`);
     await expect(page).toHaveURL(/\/agencies/);
     // Should show a table or list
     await expect(page.locator('table, .agency-list, [class*="agencies"]').first()).toBeVisible({ timeout: 5_000 });
@@ -23,7 +23,7 @@ test.describe('Admin Agency Management', () => {
     await apiHelpers.registerAgency(email);
 
     // Navigate to agencies
-    await page.goto('/agencies');
+    await page.goto(`${ADMIN_PREFIX}/agencies`);
     await page.waitForTimeout(1000);
 
     // Look for the agency in the list (or search for it)
@@ -49,7 +49,7 @@ test.describe('Admin Agency Management', () => {
     const adminToken = await apiHelpers.loginAdmin();
     const agencyId = await apiHelpers.approveAgency(email, adminToken);
 
-    await page.goto(`/agencies/${agencyId}`);
+    await page.goto(`${ADMIN_PREFIX}/agencies/${agencyId}`);
     await expect(page).toHaveURL(new RegExp(`/agencies/${agencyId}`));
   });
 
@@ -60,14 +60,14 @@ test.describe('Admin Agency Management', () => {
     // Find agency via API to get ID
     const adminToken = await apiHelpers.loginAdmin();
     const listRes = await page.request.get(
-      `http://localhost:5155/api/agencies?searchTerm=${email}`,
+      `${API_BASE}/agencies?searchTerm=${email}`,
       { headers: { Authorization: `Bearer ${adminToken}` } }
     );
     const list = await listRes.json();
     const agencyId = list.data.items[0].id;
 
     // Navigate to agency detail
-    await page.goto(`/agencies/${agencyId}`);
+    await page.goto(`${ADMIN_PREFIX}/agencies/${agencyId}`);
     await expect(page).toHaveURL(new RegExp(`/agencies/${agencyId}`));
 
     // Should show Approve button for pending agency
@@ -100,7 +100,7 @@ test.describe('Admin Agency Management', () => {
     const adminToken = await apiHelpers.loginAdmin();
     const agencyId = await apiHelpers.approveAgency(email, adminToken);
 
-    await page.goto(`/agencies/${agencyId}`);
+    await page.goto(`${ADMIN_PREFIX}/agencies/${agencyId}`);
 
     // Wallet section should be visible (last info-card contains wallet)
     const walletSection = page.locator('.info-card').last();
@@ -117,7 +117,7 @@ test.describe('Admin Agency Management', () => {
     const adminToken = await apiHelpers.loginAdmin();
     const agencyId = await apiHelpers.approveAgency(email, adminToken);
 
-    await page.goto(`/agencies/${agencyId}`);
+    await page.goto(`${ADMIN_PREFIX}/agencies/${agencyId}`);
 
     // Click credit wallet button
     const creditBtn = page.locator('button').filter({ hasText: /Credit|إيداع/i }).first();
@@ -157,7 +157,7 @@ test.describe('Admin Agency Management', () => {
     const adminToken = await apiHelpers.loginAdmin();
     const agencyId = await apiHelpers.approveAgency(email, adminToken);
 
-    await page.goto(`/agencies/${agencyId}`);
+    await page.goto(`${ADMIN_PREFIX}/agencies/${agencyId}`);
 
     const creditBtn = page.locator('button').filter({ hasText: /Credit|إيداع/i }).first();
     await creditBtn.click();

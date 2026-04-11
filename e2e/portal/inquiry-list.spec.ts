@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/helpers';
+import { test, expect, API_BASE } from '../fixtures/helpers';
 
 test.describe('Portal Inquiry List (US-IL-01)', () => {
   let agencyEmail: string;
@@ -19,7 +19,7 @@ test.describe('Portal Inquiry List (US-IL-01)', () => {
 
     // Create and submit a batch to generate inquiries
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
-    const batchRes = await page.request.post('http://localhost:5155/api/batches', {
+    const batchRes = await page.request.post(`${API_BASE}/batches`, {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
         name: `InqList Batch ${Date.now()}`,
@@ -34,7 +34,7 @@ test.describe('Portal Inquiry List (US-IL-01)', () => {
     if (batchRes.ok()) {
       const batch = await batchRes.json();
       if (batch.id) {
-        await page.request.post(`http://localhost:5155/api/batches/${batch.id}/submit`, {
+        await page.request.post(`${API_BASE}/batches/${batch.id}/submit`, {
           headers: { Authorization: `Bearer ${agencyToken}` }
         });
       }

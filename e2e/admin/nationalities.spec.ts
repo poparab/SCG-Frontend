@@ -1,8 +1,8 @@
-import { test, expect } from '../fixtures/helpers';
+import { test, expect, ADMIN_PREFIX } from '../fixtures/helpers';
 
 test.describe('Admin Nationality Management', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto(`${ADMIN_PREFIX}/auth/login`);
     await page.fill('#email', 'admin@scg.gov.eg');
     await page.fill('#password', 'Admin@1234');
     await page.click('button[type="submit"]');
@@ -10,7 +10,7 @@ test.describe('Admin Nationality Management', () => {
   });
 
   test('should navigate to nationalities list', async ({ page }) => {
-    await page.goto('/nationalities');
+    await page.goto(`${ADMIN_PREFIX}/nationalities`);
     await expect(page).toHaveURL(/\/nationalities/);
     await expect(page.locator('table, .nationality-list, [class*="nationalities"]').first()).toBeVisible({ timeout: 5_000 });
   });
@@ -23,17 +23,17 @@ test.describe('Admin Nationality Management', () => {
 
     // Only proceed if we got a valid GUID ID
     if (typeof nationalityId === 'string' && nationalityId.length > 8) {
-      await page.goto(`/nationalities/${nationalityId}`);
+      await page.goto(`${ADMIN_PREFIX}/nationalities/${nationalityId}`);
       await expect(page).toHaveURL(new RegExp(`/nationalities/${nationalityId}`));
     } else {
       // Nationality may already exist from a prior run — just verify list page works
-      await page.goto('/nationalities');
+      await page.goto(`${ADMIN_PREFIX}/nationalities`);
       await expect(page).toHaveURL(/\/nationalities/);
     }
   });
 
   test('US-M2-06 AC1: should add nationality via UI modal', async ({ page }) => {
-    await page.goto('/nationalities');
+    await page.goto(`${ADMIN_PREFIX}/nationalities`);
 
     // Click Add Nationality button
     const addBtn = page.locator('button.btn-primary').filter({ hasText: /Add|إضافة/i });
@@ -73,7 +73,7 @@ test.describe('Admin Nationality Management', () => {
   });
 
   test('US-M2-06 AC2: should require fee when adding nationality', async ({ page }) => {
-    await page.goto('/nationalities');
+    await page.goto(`${ADMIN_PREFIX}/nationalities`);
 
     const addBtn = page.locator('button.btn-primary').filter({ hasText: /Add|إضافة/i });
     await addBtn.click();
@@ -108,7 +108,7 @@ test.describe('Admin Nationality Management', () => {
     const code = `${c1}${c2}`;
     await apiHelpers.createNationality(adminToken, code, 100);
 
-    await page.goto('/nationalities');
+    await page.goto(`${ADMIN_PREFIX}/nationalities`);
 
     const addBtn = page.locator('button.btn-primary').filter({ hasText: /Add|إضافة/i });
     await addBtn.click();
@@ -128,7 +128,7 @@ test.describe('Admin Nationality Management', () => {
   });
 
   test('US-M2-06: nationality selection is required', async ({ page }) => {
-    await page.goto('/nationalities');
+    await page.goto(`${ADMIN_PREFIX}/nationalities`);
 
     const addBtn = page.locator('button.btn-primary').filter({ hasText: /Add|إضافة/i });
     await addBtn.click();

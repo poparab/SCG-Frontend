@@ -1,6 +1,7 @@
 import { test as base, expect, Page } from '@playwright/test';
 
-const API_BASE = 'http://localhost:5155/api';
+export const API_BASE = process.env.API_BASE || 'http://localhost:5155/api';
+export const ADMIN_PREFIX = process.env.ADMIN_PREFIX || '';
 
 /** Unwrap the ApiResponse<T> envelope — returns the `data` field. */
 function unwrap<T = unknown>(body: { success: boolean; data: T; error: unknown }): T {

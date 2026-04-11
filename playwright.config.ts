@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const portalBaseURL = process.env.BASE_URL_PORTAL || 'http://localhost:4200';
+const adminBaseURL = process.env.BASE_URL_ADMIN || 'http://localhost:4201';
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -21,7 +24,7 @@ export default defineConfig({
       name: 'portal',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:4200',
+        baseURL: portalBaseURL,
       },
       testMatch: /portal\/.+\.spec\.ts$/,
     },
@@ -29,7 +32,7 @@ export default defineConfig({
       name: 'admin',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:4201',
+        baseURL: adminBaseURL,
       },
       testMatch: /admin\/.+\.spec\.ts$/,
     },

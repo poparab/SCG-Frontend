@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/helpers';
+import { test, expect, API_BASE } from '../fixtures/helpers';
 
 function unwrap<T>(body: { data: T }): T {
   return body.data;
@@ -25,7 +25,7 @@ test.describe('Portal Batch Detail (US-40, US-40A)', () => {
 
     // Create and submit a batch using the current API contract.
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
-    const batchRes = await page.request.post('http://localhost:5155/api/batches', {
+    const batchRes = await page.request.post(`${API_BASE}/batches`, {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
         agencyId,
@@ -48,7 +48,7 @@ test.describe('Portal Batch Detail (US-40, US-40A)', () => {
         dateOfBirth: '1992-08-10', gender: 1, travelDate: '2026-07-01'
       }
     ]) {
-      const addTravelerRes = await page.request.post(`http://localhost:5155/api/batches/${batchId}/travelers`, {
+      const addTravelerRes = await page.request.post(`${API_BASE}/batches/${batchId}/travelers`, {
         headers: { Authorization: `Bearer ${agencyToken}` },
         data: {
           ...traveler,
@@ -65,7 +65,7 @@ test.describe('Portal Batch Detail (US-40, US-40A)', () => {
       expect(addTravelerRes.ok()).toBeTruthy();
     }
 
-    const submitRes = await page.request.post(`http://localhost:5155/api/batches/${batchId}/submit`, {
+    const submitRes = await page.request.post(`${API_BASE}/batches/${batchId}/submit`, {
       headers: { Authorization: `Bearer ${agencyToken}` }
     });
     expect(submitRes.ok()).toBeTruthy();

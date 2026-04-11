@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/helpers';
+import { test, expect, API_BASE, ADMIN_PREFIX } from '../fixtures/helpers';
 
 test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
   let agencyEmail: string;
@@ -18,7 +18,7 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
     await api.createNationality(adminToken, 'SO', 100);
 
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
-    const batchRes = await page.request.post('http://localhost:5155/api/batches', {
+    const batchRes = await page.request.post(`${API_BASE}/batches`, {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
         name: `Admin InqTest ${Date.now()}`,
@@ -33,7 +33,7 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
     if (batchRes.ok()) {
       const batch = await batchRes.json();
       if (batch.id) {
-        await page.request.post(`http://localhost:5155/api/batches/${batch.id}/submit`, {
+        await page.request.post(`${API_BASE}/batches/${batch.id}/submit`, {
           headers: { Authorization: `Bearer ${agencyToken}` }
         });
       }
@@ -42,7 +42,7 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto(`${ADMIN_PREFIX}/auth/login`);
     await page.fill('#email', 'admin@scg.gov.eg');
     await page.fill('#password', 'Admin@1234');
     await page.click('button[type="submit"]');
@@ -50,7 +50,7 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
   });
 
   test('US-M2-15 AC1: should display inquiry list with data columns', async ({ page }) => {
-    await page.goto('/inquiries');
+    await page.goto(`${ADMIN_PREFIX}/inquiries`);
     await expect(page).toHaveURL(/\/inquiries/);
 
     const table = page.locator('table.data-table, .table-card table').first();
@@ -62,7 +62,7 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
   });
 
   test('US-M2-15 AC1: should show at least one inquiry', async ({ page }) => {
-    await page.goto('/inquiries');
+    await page.goto(`${ADMIN_PREFIX}/inquiries`);
 
     const table = page.locator('table.data-table, .table-card table').first();
     await expect(table).toBeVisible({ timeout: 5_000 });
@@ -73,7 +73,7 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
   });
 
   test('US-M2-15 AC2: should have search and filter controls', async ({ page }) => {
-    await page.goto('/inquiries');
+    await page.goto(`${ADMIN_PREFIX}/inquiries`);
 
     // Search box
     const searchBox = page.locator('.search-box input, input[type="search"]').first();
@@ -86,7 +86,7 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
   });
 
   test('US-M2-15 AC2: should filter inquiries by status', async ({ page }) => {
-    await page.goto('/inquiries');
+    await page.goto(`${ADMIN_PREFIX}/inquiries`);
 
     // Click a status filter pill
     const submittedPill = page.locator('button.pill').filter({ hasText: /Submitted|Under/ }).first();
@@ -100,7 +100,7 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
   });
 
   test('US-M2-16 AC1: should navigate to inquiry detail', async ({ page }) => {
-    await page.goto('/inquiries');
+    await page.goto(`${ADMIN_PREFIX}/inquiries`);
 
     const viewBtn = page.locator('a.btn-action').first();
     if (await viewBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -114,7 +114,7 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
   });
 
   test('US-M2-15 AC2: should search inquiries by text', async ({ page }) => {
-    await page.goto('/inquiries');
+    await page.goto(`${ADMIN_PREFIX}/inquiries`);
 
     const searchBox = page.locator('.search-box input').first();
     await expect(searchBox).toBeVisible({ timeout: 5_000 });

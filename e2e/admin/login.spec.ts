@@ -1,8 +1,8 @@
-import { test, expect } from '../fixtures/helpers';
+import { test, expect, ADMIN_PREFIX } from '../fixtures/helpers';
 
 test.describe('Admin Login', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto(`${ADMIN_PREFIX}/auth/login`);
   });
 
   test('should display admin login form', async ({ page }) => {
