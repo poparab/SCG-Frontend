@@ -9,8 +9,10 @@ import { authInterceptor, correlationIdInterceptor } from './core/interceptors/h
 const savedLang = typeof localStorage !== 'undefined' ? localStorage.getItem('scg_lang') || 'ar' : 'ar';
 
 export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
+  fetch('/_debug_factory_called').catch(() => {});
   return {
     getTranslation(lang: string) {
+      fetch(`/_debug_get_translation_${lang}`).catch(() => {});
       return http.get(`./assets/i18n/${lang}.json`);
     }
   } as TranslateLoader;
