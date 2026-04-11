@@ -22,6 +22,7 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);
     await api.creditWallet(adminToken, agencyId, 10000);
+    await api.createNationality(adminToken, 'AF', 100);
 
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
     const batchRes = await page.request.post(`${API_BASE}/batches`, {

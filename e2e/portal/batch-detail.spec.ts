@@ -22,6 +22,7 @@ test.describe('Portal Batch Detail (US-40, US-40A)', () => {
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);
     await api.creditWallet(adminToken, agencyId, 10000);
+    await api.createNationality(adminToken, 'AF', 100);
 
     // Create and submit a batch using the current API contract.
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
