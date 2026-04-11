@@ -1,7 +1,8 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InquiryService } from '../../../core/services/inquiry.service';
 import { InquiryDetail } from '../../../core/models/inquiry.models';
 
@@ -34,6 +35,7 @@ export class InquiryDetailComponent implements OnInit {
   private readonly inquiryService = inject(InquiryService);
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
+  private readonly destroyRef = inject(DestroyRef);
 
   inquiry = signal<InquiryDetail | null>(null);
   loading = signal(true);
@@ -108,7 +110,9 @@ export class InquiryDetailComponent implements OnInit {
       this.loading.set(false);
       return;
     }
-    this.inquiryService.getInquiry(id).subscribe({
+    this.inquiryService.getInquiry(id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (data) => {
         this.inquiry.set(data);
         this.loading.set(false);

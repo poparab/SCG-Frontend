@@ -7,6 +7,7 @@ import { AdminUserInfo, LoginRequest, LoginResponse } from '../models/admin.mode
 export class AuthService {
   private readonly TOKEN_KEY = 'scg_admin_token';
   private readonly USER_KEY = 'scg_admin_user';
+  private readonly REFRESH_TOKEN_KEY = 'scg_admin_refresh_token';
 
   readonly isAuthenticated = signal(this.hasToken());
 
@@ -16,10 +17,14 @@ export class AuthService {
     const body: LoginRequest = { email, password, loginType: 'admin' };
     return this.api.post<LoginResponse>('/auth/login', body).pipe(
       tap(response => {
-        localStorage.setItem(this.TOKEN_KEY, response.token);
+        // JWT is now stored in HttpOnly cookie by the server.
+        // Decode the token from the response body only for user info.
         const user = this.decodeToken(response.token);
         if (user) {
           localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+        }
+        if (response.refreshToken) {
+          localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
         }
         this.isAuthenticated.set(true);
       })
@@ -27,9 +32,30 @@ export class AuthService {
   }
 
   logout(): void {
+    const refreshToken = this.getRefreshToken();
+    if (refreshToken) {
+      this.api.post('/auth/revoke', { refreshToken }).subscribe();
+    }
+    this.api.post('/auth/logout', {}).subscribe();
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     this.isAuthenticated.set(false);
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+  }
+
+  setRefreshToken(token: string): void {
+    localStorage.setItem(this.REFRESH_TOKEN_KEY, token);
+  }
+
+  updateUserFromToken(token: string): void {
+    const user = this.decodeToken(token);
+    if (user) {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    }
   }
 
   getToken(): string | null {
@@ -49,7 +75,7 @@ export class AuthService {
   }
 
   private hasToken(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+    return !!localStorage.getItem(this.USER_KEY) || !!localStorage.getItem(this.REFRESH_TOKEN_KEY);
   }
 
   private decodeToken(token: string | null): AdminUserInfo | null {

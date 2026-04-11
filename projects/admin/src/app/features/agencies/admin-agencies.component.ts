@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AgencyService } from '../../core/services/agency.service';
 import { AgencyListItem } from '../../core/models/admin.models';
 
@@ -15,6 +16,7 @@ import { AgencyListItem } from '../../core/models/admin.models';
 })
 export class AdminAgenciesComponent implements OnInit {
   private agencyService = inject(AgencyService);
+  private readonly destroyRef = inject(DestroyRef);
 
   agencies = signal<AgencyListItem[]>([]);
   loading = signal(true);
@@ -37,7 +39,9 @@ export class AdminAgenciesComponent implements OnInit {
     if (this.searchTerm) params['search'] = this.searchTerm;
     if (this.statusFilter) params['status'] = this.statusFilter;
 
-    this.agencyService.getAgencies(params).subscribe({
+    this.agencyService.getAgencies(params).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (result) => {
         this.agencies.set(result.items);
         this.totalCount.set(result.totalCount);

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   // Auth routes
@@ -16,7 +17,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./layout/portal-layout/portal-layout.component').then(m => m.PortalLayoutComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard(['Agency', 'AgencyRepresentative'])],
     children: [
       { path: 'dashboard', loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES) },
       { path: 'batches', loadChildren: () => import('./features/batch/batch.routes').then(m => m.BATCH_ROUTES) },

@@ -1,8 +1,9 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BatchService } from '../../../core/services/batch.service';
 import { BatchDetail, BatchTraveler } from '../../../core/models/batch.models';
 
@@ -16,6 +17,7 @@ import { BatchDetail, BatchTraveler } from '../../../core/models/batch.models';
 export class BatchDetailComponent implements OnInit {
   private readonly batchService = inject(BatchService);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
   batch = signal<BatchDetail | null>(null);
   loading = signal(true);
@@ -88,7 +90,9 @@ export class BatchDetailComponent implements OnInit {
       this.loading.set(false);
       return;
     }
-    this.batchService.getBatch(id).subscribe({
+    this.batchService.getBatch(id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (data) => {
         this.batch.set(data);
         this.loading.set(false);

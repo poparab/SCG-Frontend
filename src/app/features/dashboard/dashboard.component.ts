@@ -1,7 +1,8 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { AuthService } from '../../core/services/auth.service';
 import { AgencyDashboardData } from '../../core/models/dashboard.models';
@@ -17,6 +18,7 @@ export class DashboardComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);
   private readonly authService = inject(AuthService);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   data = signal<AgencyDashboardData | null>(null);
   loading = signal(true);
@@ -41,7 +43,9 @@ export class DashboardComponent implements OnInit {
       this.loading.set(false);
       return;
     }
-    this.dashboardService.getAgencyDashboard(agencyId).subscribe({
+    this.dashboardService.getAgencyDashboard(agencyId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (result) => {
         this.data.set(result);
         this.loading.set(false);

@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NationalityService } from '../../core/services/nationality.service';
 import { MasterNationalityItem, NationalityListItem } from '../../core/models/admin.models';
 import { mapApiError } from '../../core/utils/error-mapper';
@@ -17,6 +18,7 @@ import { mapApiError } from '../../core/utils/error-mapper';
 export class AdminNationalitiesComponent implements OnInit {
   private nationalityService = inject(NationalityService);
   private fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   nationalities = signal<NationalityListItem[]>([]);
   loading = signal(true);
@@ -53,7 +55,9 @@ export class AdminNationalitiesComponent implements OnInit {
   }
 
   loadMasterList(): void {
-    this.nationalityService.getMasterList().subscribe({
+    this.nationalityService.getMasterList().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (list) => this.masterNationalities.set(list)
     });
   }
@@ -78,7 +82,9 @@ export class AdminNationalitiesComponent implements OnInit {
     if (this.inquiryFilter === 'yes') params['requiresInquiry'] = true;
     if (this.inquiryFilter === 'no') params['requiresInquiry'] = false;
 
-    this.nationalityService.getNationalities(params).subscribe({
+    this.nationalityService.getNationalities(params).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (result) => {
         this.nationalities.set(result.items);
         this.totalCount.set(result.totalCount);
@@ -100,7 +106,9 @@ export class AdminNationalitiesComponent implements OnInit {
   }
 
   toggleInquiry(item: NationalityListItem): void {
-    this.nationalityService.toggleInquiry(item.id, !item.requiresInquiry).subscribe({
+    this.nationalityService.toggleInquiry(item.id, !item.requiresInquiry).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => this.loadNationalities()
     });
   }
@@ -129,7 +137,9 @@ export class AdminNationalitiesComponent implements OnInit {
       nameEn: val.nameEn!,
       requiresInquiry: val.requiresInquiry!,
       defaultFee: val.defaultFee!
-    }).subscribe({
+    }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.addLoading.set(false);
         this.showAddModal.set(false);

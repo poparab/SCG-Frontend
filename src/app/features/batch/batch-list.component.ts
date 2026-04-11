@@ -1,8 +1,9 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BatchService } from '../../core/services/batch.service';
 import { AuthService } from '../../core/services/auth.service';
 import { BatchListItem } from '../../core/models/batch.models';
@@ -17,6 +18,7 @@ import { BatchListItem } from '../../core/models/batch.models';
 export class BatchListComponent implements OnInit {
   private readonly batchService = inject(BatchService);
   private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   batches = signal<BatchListItem[]>([]);
   loading = signal(true);
@@ -60,7 +62,9 @@ export class BatchListComponent implements OnInit {
     if (this.searchTerm) params['search'] = this.searchTerm;
     if (this.filterDate) params['date'] = this.filterDate;
 
-    this.batchService.getBatches(this.agencyId, params).subscribe({
+    this.batchService.getBatches(this.agencyId, params).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (result) => {
         this.batches.set(result.items);
         this.totalPages.set(result.totalPages);

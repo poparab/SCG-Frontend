@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NationalityService } from '../../../core/services/nationality.service';
 import { NationalityDetail, PricingItem } from '../../../core/models/admin.models';
 
@@ -18,6 +19,7 @@ export class NationalityDetailComponent implements OnInit {
   private router = inject(Router);
   private nationalityService = inject(NationalityService);
   private fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   nationality = signal<NationalityDetail | null>(null);
   loading = signal(true);
@@ -36,7 +38,9 @@ export class NationalityDetailComponent implements OnInit {
 
   loadNationality(id: string): void {
     this.loading.set(true);
-    this.nationalityService.getNationality(id).subscribe({
+    this.nationalityService.getNationality(id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (data) => {
         this.nationality.set(data);
         this.loading.set(false);
@@ -51,7 +55,9 @@ export class NationalityDetailComponent implements OnInit {
   toggleInquiry(): void {
     const nat = this.nationality();
     if (!nat) return;
-    this.nationalityService.toggleInquiry(nat.id, !nat.requiresInquiry).subscribe({
+    this.nationalityService.toggleInquiry(nat.id, !nat.requiresInquiry).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => this.loadNationality(nat.id)
     });
   }
@@ -65,7 +71,9 @@ export class NationalityDetailComponent implements OnInit {
     if (!nat) return;
     const { fee, effectiveFrom, effectiveTo } = this.feeForm.value;
     this.feeLoading.set(true);
-    this.nationalityService.updateFee(nat.id, fee!, effectiveFrom!, effectiveTo || undefined).subscribe({
+    this.nationalityService.updateFee(nat.id, fee!, effectiveFrom!, effectiveTo || undefined).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.feeLoading.set(false);
         this.feeForm.reset();

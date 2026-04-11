@@ -1,7 +1,8 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WalletService } from '../../core/services/wallet.service';
 import { AuthService } from '../../core/services/auth.service';
 import { WalletData, WalletTransactionItem } from '../../core/models/wallet.models';
@@ -16,6 +17,7 @@ import { WalletData, WalletTransactionItem } from '../../core/models/wallet.mode
 export class WalletComponent implements OnInit {
   private readonly walletService = inject(WalletService);
   private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   wallet = signal<WalletData | null>(null);
   transactions = signal<WalletTransactionItem[]>([]);
@@ -61,7 +63,9 @@ export class WalletComponent implements OnInit {
   }
 
   loadWallet(): void {
-    this.walletService.getWallet(this.agencyId).subscribe({
+    this.walletService.getWallet(this.agencyId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (data) => this.wallet.set(data),
       error: () => {}
     });
@@ -78,7 +82,9 @@ export class WalletComponent implements OnInit {
     if (this.filterDateTo) params['dateTo'] = this.filterDateTo;
     if (this.searchTerm) params['search'] = this.searchTerm;
 
-    this.walletService.getTransactions(this.agencyId, params).subscribe({
+    this.walletService.getTransactions(this.agencyId, params).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (result) => {
         this.transactions.set(result.items);
         this.totalPages.set(result.totalPages);
@@ -90,10 +96,14 @@ export class WalletComponent implements OnInit {
 
   loadTransactionStats(): void {
     // Load all Credit transactions to get total deposits count
-    this.walletService.getTransactions(this.agencyId, { page: 1, pageSize: 1, type: 'Credit' }).subscribe({
+    this.walletService.getTransactions(this.agencyId, { page: 1, pageSize: 1, type: 'Credit' }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (r) => this.totalDeposits.set(r.totalCount)
     });
-    this.walletService.getTransactions(this.agencyId, { page: 1, pageSize: 1, type: 'Debit' }).subscribe({
+    this.walletService.getTransactions(this.agencyId, { page: 1, pageSize: 1, type: 'Debit' }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (r) => this.totalDeductions.set(r.totalCount)
     });
   }

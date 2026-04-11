@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InquiryService } from '../../../core/services/inquiry.service';
 import { InquiryDetail } from '../../../core/models/admin.models';
 
@@ -16,13 +17,16 @@ export class InquiryDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private inquiryService = inject(InquiryService);
+  private readonly destroyRef = inject(DestroyRef);
 
   inquiry = signal<InquiryDetail | null>(null);
   loading = signal(true);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
-    this.inquiryService.getInquiry(id).subscribe({
+    this.inquiryService.getInquiry(id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (data) => {
         this.inquiry.set(data);
         this.loading.set(false);

@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AgencyService } from '../../../core/services/agency.service';
 import { AgencyDetail, AgencyNationalityItem } from '../../../core/models/admin.models';
 import { mapApiError } from '../../../core/utils/error-mapper';
@@ -19,6 +20,7 @@ export class AgencyDetailComponent implements OnInit {
   private router = inject(Router);
   private agencyService = inject(AgencyService);
   private fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   agency = signal<AgencyDetail | null>(null);
   loading = signal(true);
@@ -64,7 +66,9 @@ export class AgencyDetailComponent implements OnInit {
 
   loadAgency(id: string): void {
     this.loading.set(true);
-    this.agencyService.getAgency(id).subscribe({
+    this.agencyService.getAgency(id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (data) => {
         this.agency.set(data);
         this.loading.set(false);
@@ -78,7 +82,9 @@ export class AgencyDetailComponent implements OnInit {
 
   loadAgencyNationalities(agencyId: string): void {
     this.natLoading.set(true);
-    this.agencyService.getAgencyNationalities(agencyId).subscribe({
+    this.agencyService.getAgencyNationalities(agencyId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (data) => {
         this.agencyNationalities.set(data);
         this.natLoading.set(false);
@@ -103,7 +109,9 @@ export class AgencyDetailComponent implements OnInit {
     if (customFee !== null && (isNaN(customFee) || customFee < 0)) return;
     const a = this.agency();
     if (!a) return;
-    this.agencyService.updateAgencyNationality(a.id, item.nationalityId, { customFee, isEnabled: item.isEnabled }).subscribe({
+    this.agencyService.updateAgencyNationality(a.id, item.nationalityId, { customFee, isEnabled: item.isEnabled }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.editingFeeId.set(null);
         this.actionSuccess.set('agency.nationalities.updateSuccess');
@@ -118,7 +126,9 @@ export class AgencyDetailComponent implements OnInit {
   toggleNationalityEnabled(item: AgencyNationalityItem): void {
     const a = this.agency();
     if (!a) return;
-    this.agencyService.updateAgencyNationality(a.id, item.nationalityId, { customFee: item.customFee, isEnabled: !item.isEnabled }).subscribe({
+    this.agencyService.updateAgencyNationality(a.id, item.nationalityId, { customFee: item.customFee, isEnabled: !item.isEnabled }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.actionSuccess.set('agency.nationalities.updateSuccess');
         this.loadAgencyNationalities(a.id);
@@ -135,7 +145,9 @@ export class AgencyDetailComponent implements OnInit {
     this.actionLoading.set(true);
     this.actionError.set('');
     this.actionSuccess.set('');
-    this.agencyService.approveAgency(a.id).subscribe({
+    this.agencyService.approveAgency(a.id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.actionLoading.set(false);
         this.actionSuccess.set('admin.errors.approveSuccess');
@@ -158,7 +170,9 @@ export class AgencyDetailComponent implements OnInit {
     this.actionLoading.set(true);
     this.actionError.set('');
     this.actionSuccess.set('');
-    this.agencyService.rejectAgency(a.id, this.rejectForm.value.reason!).subscribe({
+    this.agencyService.rejectAgency(a.id, this.rejectForm.value.reason!).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.actionLoading.set(false);
         this.showRejectModal.set(false);
@@ -191,6 +205,8 @@ export class AgencyDetailComponent implements OnInit {
       reference || undefined,
       notes || undefined,
       this.selectedEvidence() || undefined
+    ).pipe(
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
         this.actionLoading.set(false);

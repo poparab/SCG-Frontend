@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { AdminDashboardData, RecentAgency, RecentInquiry } from '../../core/models/admin.models';
 
@@ -14,6 +15,7 @@ import { AdminDashboardData, RecentAgency, RecentInquiry } from '../../core/mode
 })
 export class AdminDashboardComponent implements OnInit {
   private dashboardService = inject(DashboardService);
+  private readonly destroyRef = inject(DestroyRef);
 
   loading = signal(true);
   totalAgencies = signal(0);
@@ -28,7 +30,9 @@ export class AdminDashboardComponent implements OnInit {
   recentInquiries = signal<RecentInquiry[]>([]);
 
   ngOnInit(): void {
-    this.dashboardService.getDashboard().subscribe({
+    this.dashboardService.getDashboard().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (data: AdminDashboardData) => {
         this.totalAgencies.set(data.totalAgencies);
         this.pendingAgencies.set(data.pendingAgencies);

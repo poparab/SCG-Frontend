@@ -1,8 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BatchService } from '../../../core/services/batch.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NationalityService, AgencyNationality } from '../../../core/services/nationality.service';
@@ -58,6 +59,7 @@ export class BatchWizardComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly nationalityService = inject(NationalityService);
   readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   currentStep = signal(1);
   batchId = signal<string | null>(null);
@@ -104,14 +106,18 @@ export class BatchWizardComponent implements OnInit {
 
     const agencyId = this.authService.getAgencyId();
     if (agencyId) {
-      this.nationalityService.getAgencyNationalities(agencyId).subscribe({
+      this.nationalityService.getAgencyNationalities(agencyId).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: (nats) => this.nationalities.set(nats)
       });
     }
   }
 
   private loadExistingBatch(id: string): void {
-    this.batchService.getBatch(id).subscribe({
+    this.batchService.getBatch(id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (batch) => {
         this.batchForm.patchValue({
           name: batch.name,
@@ -163,7 +169,9 @@ export class BatchWizardComponent implements OnInit {
       name: this.batchForm.value.name,
       inquiryTypeId: this.batchForm.value.inquiryTypeId,
       notes: this.batchForm.value.notes || undefined
-    }).subscribe({
+    }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (result) => {
         this.batchId.set(result.id);
         this.submitting.set(false);
@@ -194,7 +202,9 @@ export class BatchWizardComponent implements OnInit {
     const editing = this.editingTravelerId();
 
     if (editing) {
-      this.batchService.updateTraveler(batchId, editing, request).subscribe({
+      this.batchService.updateTraveler(batchId, editing, request).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: () => {
           this.refreshTravelers();
           this.editingTravelerId.set(null);
@@ -204,7 +214,9 @@ export class BatchWizardComponent implements OnInit {
         error: () => this.submitting.set(false)
       });
     } else {
-      this.batchService.addTraveler(batchId, request).subscribe({
+      this.batchService.addTraveler(batchId, request).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: () => {
           this.refreshTravelers();
           this.travelerForm.reset();
@@ -243,7 +255,9 @@ export class BatchWizardComponent implements OnInit {
   removeTraveler(t: BatchTraveler): void {
     const batchId = this.batchId();
     if (!batchId) return;
-    this.batchService.removeTraveler(batchId, t.id).subscribe({
+    this.batchService.removeTraveler(batchId, t.id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => this.refreshTravelers()
     });
   }
@@ -251,7 +265,9 @@ export class BatchWizardComponent implements OnInit {
   private refreshTravelers(): void {
     const batchId = this.batchId();
     if (!batchId) return;
-    this.batchService.getBatch(batchId).subscribe({
+    this.batchService.getBatch(batchId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (batch) => this.travelers.set(batch.travelers)
     });
   }
@@ -262,7 +278,9 @@ export class BatchWizardComponent implements OnInit {
 
     this.submitting.set(true);
     this.error.set(null);
-    this.batchService.submitBatch(batchId).subscribe({
+    this.batchService.submitBatch(batchId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (result) => {
         this.submitResult.set(result);
         this.submitting.set(false);

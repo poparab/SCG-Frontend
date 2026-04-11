@@ -1,29 +1,73 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs';
+import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { ApiService } from '../services/api.service';
+
+let isRefreshing = false;
+const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
+  const api = inject(ApiService);
   const router = inject(Router);
-  const token = auth.getToken();
 
-  const cloned = token
-    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
-    : req;
+  // Send HttpOnly cookie with every request
+  const cloned = req.clone({ withCredentials: true });
 
   return next(cloned).pipe(
-    tap({
-      error: (err) => {
-        if (err.status === 401) {
-          auth.logout();
-          router.navigate(['/login']);
-        }
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 && !req.url.includes('/auth/refresh') && !req.url.includes('/auth/login')) {
+        return handleTokenRefresh(req, next, auth, api, router);
       }
+      return throwError(() => error);
     })
   );
 };
+
+function handleTokenRefresh(
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  auth: AuthService,
+  api: ApiService,
+  router: Router
+) {
+  if (!isRefreshing) {
+    isRefreshing = true;
+    refreshTokenSubject.next(null);
+
+    const refreshToken = auth.getRefreshToken();
+    if (!refreshToken) {
+      isRefreshing = false;
+      auth.logout();
+      router.navigate(['/login']);
+      return throwError(() => new Error('No refresh token'));
+    }
+
+    return api.post<{ token: string; refreshToken: string }>('/auth/refresh', { refreshToken }).pipe(
+      switchMap(response => {
+        isRefreshing = false;
+        auth.setRefreshToken(response.refreshToken);
+        auth.updateUserFromToken(response.token);
+        refreshTokenSubject.next(response.token);
+        return next(req.clone({ withCredentials: true }));
+      }),
+      catchError(err => {
+        isRefreshing = false;
+        auth.logout();
+        router.navigate(['/login']);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  return refreshTokenSubject.pipe(
+    filter(token => token !== null),
+    take(1),
+    switchMap(() => next(req.clone({ withCredentials: true })))
+  );
+}
 
 function generateCorrelationId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {

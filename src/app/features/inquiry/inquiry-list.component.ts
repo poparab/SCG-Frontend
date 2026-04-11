@@ -1,8 +1,9 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InquiryService } from '../../core/services/inquiry.service';
 import { AuthService } from '../../core/services/auth.service';
 import { NationalityService, AgencyNationality } from '../../core/services/nationality.service';
@@ -19,6 +20,7 @@ export class InquiryListComponent implements OnInit {
   private readonly inquiryService = inject(InquiryService);
   private readonly authService = inject(AuthService);
   private readonly nationalityService = inject(NationalityService);
+  private readonly destroyRef = inject(DestroyRef);
 
   inquiries = signal<InquiryListItem[]>([]);
   loading = signal(true);
@@ -63,7 +65,9 @@ export class InquiryListComponent implements OnInit {
     this.loadInquiries();
     this.loadStats();
 
-    this.nationalityService.getAgencyNationalities(this.agencyId).subscribe({
+    this.nationalityService.getAgencyNationalities(this.agencyId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (nats) => this.nationalities.set(nats)
     });
   }
@@ -79,7 +83,9 @@ export class InquiryListComponent implements OnInit {
     if (this.searchTerm) params['search'] = this.searchTerm;
     if (this.filterDate) params['dateFrom'] = this.filterDate;
 
-    this.inquiryService.getInquiries(this.agencyId, params).subscribe({
+    this.inquiryService.getInquiries(this.agencyId, params).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (result) => {
         this.inquiries.set(result.items);
         this.totalPages.set(result.totalPages);
@@ -91,16 +97,24 @@ export class InquiryListComponent implements OnInit {
 
   loadStats(): void {
     const base = { page: 1, pageSize: 1 };
-    this.inquiryService.getInquiries(this.agencyId, base).subscribe({
+    this.inquiryService.getInquiries(this.agencyId, base).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (r) => this.totalCount.set(r.totalCount)
     });
-    this.inquiryService.getInquiries(this.agencyId, { ...base, status: 'Approved' }).subscribe({
+    this.inquiryService.getInquiries(this.agencyId, { ...base, status: 'Approved' }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (r) => this.approvedCount.set(r.totalCount)
     });
-    this.inquiryService.getInquiries(this.agencyId, { ...base, status: 'UnderProcessing' }).subscribe({
+    this.inquiryService.getInquiries(this.agencyId, { ...base, status: 'UnderProcessing' }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (r) => this.processingCount.set(r.totalCount)
     });
-    this.inquiryService.getInquiries(this.agencyId, { ...base, status: 'Rejected' }).subscribe({
+    this.inquiryService.getInquiries(this.agencyId, { ...base, status: 'Rejected' }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (r) => this.rejectedCount.set(r.totalCount)
     });
   }

@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InquiryService } from '../../core/services/inquiry.service';
 import { InquiryListItem } from '../../core/models/admin.models';
 
@@ -15,6 +16,7 @@ import { InquiryListItem } from '../../core/models/admin.models';
 })
 export class AdminInquiriesComponent implements OnInit {
   private inquiryService = inject(InquiryService);
+  private readonly destroyRef = inject(DestroyRef);
 
   inquiries = signal<InquiryListItem[]>([]);
   loading = signal(true);
@@ -37,7 +39,9 @@ export class AdminInquiriesComponent implements OnInit {
     if (this.searchTerm) params['search'] = this.searchTerm;
     if (this.statusFilter) params['status'] = this.statusFilter;
 
-    this.inquiryService.getInquiries(params).subscribe({
+    this.inquiryService.getInquiries(params).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (result) => {
         this.inquiries.set(result.items);
         this.totalCount.set(result.totalCount);
