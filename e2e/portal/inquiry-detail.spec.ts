@@ -1,5 +1,11 @@
 import { test, expect } from '../fixtures/helpers';
 
+function unwrap<T>(body: { data: T }): T {
+  return body.data;
+}
+
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Portal Inquiry Detail (US-IV-01)', () => {
   let agencyEmail: string;
   let agencyId: string;
@@ -16,40 +22,55 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);
     await api.creditWallet(adminToken, agencyId, 10000);
-    await api.createNationality(adminToken, 'YE', 100);
 
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
     const batchRes = await page.request.post('http://localhost:5155/api/batches', {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
+        agencyId,
         name: `InqDetail Batch ${Date.now()}`,
-        nationalityCode: 'YE',
-        travelers: [{
-          firstNameEn: 'Nasser', lastNameEn: 'Salem',
-          passportNumber: `YE${Date.now()}`, dateOfBirth: '1995-02-28',
-          gender: 0, travelDate: '2026-09-01'
-        }]
+        notes: 'E2E inquiry detail setup'
       }
     });
-    if (batchRes.ok()) {
-      const batch = await batchRes.json();
-      if (batch.id) {
-        await page.request.post(`http://localhost:5155/api/batches/${batch.id}/submit`, {
-          headers: { Authorization: `Bearer ${agencyToken}` }
-        });
+    expect(batchRes.ok()).toBeTruthy();
 
-        // Get inquiry list to find inquiry ID
-        const inqRes = await page.request.get('http://localhost:5155/api/inquiries', {
-          headers: { Authorization: `Bearer ${agencyToken}` }
-        });
-        if (inqRes.ok()) {
-          const inqData = await inqRes.json();
-          if (inqData.items && inqData.items.length > 0) {
-            inquiryId = inqData.items[0].id;
-          }
-        }
+    const batch = unwrap<{ id: string }>(await batchRes.json());
+
+    const addTravelerRes = await page.request.post(`http://localhost:5155/api/batches/${batch.id}/travelers`, {
+      headers: { Authorization: `Bearer ${agencyToken}` },
+      data: {
+        firstNameEn: 'Nasser',
+        lastNameEn: 'Salem',
+        firstNameAr: null,
+        lastNameAr: null,
+        passportNumber: `AF${Date.now()}`,
+        nationalityCode: 'AF',
+        dateOfBirth: '1995-02-28',
+        gender: 0,
+        travelDate: '2026-09-01',
+        arrivalAirport: null,
+        transitCountries: null,
+        passportExpiry: '2030-01-01',
+        departureCountry: 'AF',
+        purposeOfTravel: 'Tourism',
+        flightNumber: null
       }
-    }
+    });
+    expect(addTravelerRes.ok()).toBeTruthy();
+
+    const submitRes = await page.request.post(`http://localhost:5155/api/batches/${batch.id}/submit`, {
+      headers: { Authorization: `Bearer ${agencyToken}` }
+    });
+    expect(submitRes.ok()).toBeTruthy();
+
+    const inqRes = await page.request.get(`http://localhost:5155/api/inquiries?agencyId=${agencyId}`, {
+      headers: { Authorization: `Bearer ${agencyToken}` }
+    });
+    expect(inqRes.ok()).toBeTruthy();
+
+    const inqData = unwrap<{ items: Array<{ id: string }> }>(await inqRes.json());
+    inquiryId = inqData.items[0].id;
+
     await context.close();
   });
 

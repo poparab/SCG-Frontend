@@ -1,5 +1,11 @@
 import { test, expect } from '../fixtures/helpers';
 
+function unwrap<T>(body: { data: T }): T {
+  return body.data;
+}
+
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Portal Batch Detail (US-40, US-40A)', () => {
   let agencyEmail: string;
   let agencyId: string;
@@ -16,36 +22,54 @@ test.describe('Portal Batch Detail (US-40, US-40A)', () => {
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);
     await api.creditWallet(adminToken, agencyId, 10000);
-    await api.createNationality(adminToken, 'LY', 100);
 
-    // Create and submit a batch
+    // Create and submit a batch using the current API contract.
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
     const batchRes = await page.request.post('http://localhost:5155/api/batches', {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
+        agencyId,
         name: `Detail Test Batch ${Date.now()}`,
-        nationalityCode: 'LY',
-        travelers: [
-          {
-            firstNameEn: 'Omar', lastNameEn: 'Farouq',
-            passportNumber: `LY${Date.now()}A`, dateOfBirth: '1985-03-20',
-            gender: 0, travelDate: '2026-07-01'
-          },
-          {
-            firstNameEn: 'Sara', lastNameEn: 'Ahmed',
-            passportNumber: `LY${Date.now()}B`, dateOfBirth: '1992-08-10',
-            gender: 1, travelDate: '2026-07-01'
-          }
-        ]
+        notes: 'E2E batch detail setup'
       }
     });
-    if (batchRes.ok()) {
-      const batch = await batchRes.json();
-      batchId = batch.id;
-      await page.request.post(`http://localhost:5155/api/batches/${batchId}/submit`, {
-        headers: { Authorization: `Bearer ${agencyToken}` }
+    expect(batchRes.ok()).toBeTruthy();
+
+    const batch = unwrap<{ id: string }>(await batchRes.json());
+    batchId = batch.id;
+
+    for (const traveler of [
+      {
+        firstNameEn: 'Omar', lastNameEn: 'Farouq', passportNumber: `LY${Date.now()}A`,
+        dateOfBirth: '1985-03-20', gender: 0, travelDate: '2026-07-01'
+      },
+      {
+        firstNameEn: 'Sara', lastNameEn: 'Ahmed', passportNumber: `LY${Date.now()}B`,
+        dateOfBirth: '1992-08-10', gender: 1, travelDate: '2026-07-01'
+      }
+    ]) {
+      const addTravelerRes = await page.request.post(`http://localhost:5155/api/batches/${batchId}/travelers`, {
+        headers: { Authorization: `Bearer ${agencyToken}` },
+        data: {
+          ...traveler,
+          nationalityCode: 'AF',
+          passportExpiry: '2030-01-01',
+          departureCountry: 'AF',
+          purposeOfTravel: 'Tourism',
+          arrivalAirport: null,
+          transitCountries: null,
+          flightNumber: null
+        }
       });
+
+      expect(addTravelerRes.ok()).toBeTruthy();
     }
+
+    const submitRes = await page.request.post(`http://localhost:5155/api/batches/${batchId}/submit`, {
+      headers: { Authorization: `Bearer ${agencyToken}` }
+    });
+    expect(submitRes.ok()).toBeTruthy();
+
     await context.close();
   });
 

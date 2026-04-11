@@ -1,4 +1,20 @@
+import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/helpers';
+
+async function selectSearchableOption(page: Page, controlName: string, searchTerm: string) {
+  const select = page.locator(
+    `app-searchable-select[formcontrolname="${controlName}"], app-searchable-select[ng-reflect-name="${controlName}"]`
+  ).first();
+
+  await expect(select).toBeVisible({ timeout: 5_000 });
+  await select.locator('.ss-trigger').click();
+
+  const dropdown = select.locator('.ss-dropdown');
+  await expect(dropdown).toBeVisible({ timeout: 5_000 });
+
+  await dropdown.locator('.ss-search-input').fill(searchTerm);
+  await dropdown.locator('.ss-option').first().click();
+}
 
 test.describe('Batch Wizard', () => {
   let agencyEmail: string;
@@ -46,7 +62,7 @@ test.describe('Batch Wizard', () => {
     await page.fill('input[formControlName="passportExpiry"]', '2030-01-01');
     await page.fill('input[formControlName="dateOfBirth"]', '1990-05-15');
     await page.selectOption('select[formControlName="gender"]', '0');
-    await page.selectOption('select[formControlName="departureCountry"]', 'SY');
+    await selectSearchableOption(page, 'departureCountry', 'SY');
     await page.fill('input[formControlName="travelDate"]', '2026-06-01');
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.click('button[type="submit"].wz-btn-success');
@@ -106,7 +122,7 @@ test.describe('Batch Wizard', () => {
     await page.selectOption('select[formControlName="gender"]', '0');
     await page.selectOption('select[formControlName="nationalityCode"]', 'SY');
     await page.fill('input[formControlName="passportExpiry"]', '2030-01-01');
-    await page.selectOption('select[formControlName="departureCountry"]', 'SY');
+    await selectSearchableOption(page, 'departureCountry', 'SY');
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.fill('input[formControlName="travelDate"]', '2026-06-01');
     await page.click('button[type="submit"].wz-btn-success');
@@ -121,7 +137,7 @@ test.describe('Batch Wizard', () => {
     await page.selectOption('select[formControlName="gender"]', '1');
     await page.selectOption('select[formControlName="nationalityCode"]', 'SY');
     await page.fill('input[formControlName="passportExpiry"]', '2030-06-01');
-    await page.selectOption('select[formControlName="departureCountry"]', 'SY');
+    await selectSearchableOption(page, 'departureCountry', 'SY');
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.fill('input[formControlName="travelDate"]', '2026-06-01');
     await page.click('button[type="submit"].wz-btn-success');
@@ -157,7 +173,7 @@ test.describe('Batch Wizard', () => {
     await page.selectOption('select[formControlName="gender"]', '0');
     await page.selectOption('select[formControlName="nationalityCode"]', 'SY');
     await page.fill('input[formControlName="passportExpiry"]', '2030-01-01');
-    await page.selectOption('select[formControlName="departureCountry"]', 'SY');
+    await selectSearchableOption(page, 'departureCountry', 'SY');
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.fill('input[formControlName="travelDate"]', '2026-08-01');
     await page.click('button[type="submit"].wz-btn-success');
@@ -188,7 +204,7 @@ test.describe('Batch Wizard', () => {
     await page.selectOption('select[formControlName="gender"]', '0');
     await page.selectOption('select[formControlName="nationalityCode"]', 'SY');
     await page.fill('input[formControlName="passportExpiry"]', '2030-01-01');
-    await page.selectOption('select[formControlName="departureCountry"]', 'SY');
+    await selectSearchableOption(page, 'departureCountry', 'SY');
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.fill('input[formControlName="travelDate"]', '2026-06-01');
     await page.click('button[type="submit"].wz-btn-success');

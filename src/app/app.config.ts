@@ -4,7 +4,7 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
 import { routes } from './app.routes';
-import { authInterceptor, correlationIdInterceptor } from './core/interceptors/http.interceptors';
+import { apiResponseInterceptor, authInterceptor, correlationIdInterceptor } from './core/interceptors/http.interceptors';
 
 const savedLang = typeof localStorage !== 'undefined' ? localStorage.getItem('scg_lang') || 'ar' : 'ar';
 
@@ -21,7 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([correlationIdInterceptor, authInterceptor])
+      withInterceptors([apiResponseInterceptor, correlationIdInterceptor, authInterceptor])
     ),
     importProvidersFrom(
       TranslateModule.forRoot({

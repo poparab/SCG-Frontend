@@ -1,9 +1,27 @@
-import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, map, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
+
+/**
+ * Unwraps the backend ApiResponse<T> envelope ({ success, data, error })
+ * so services receive the `data` payload directly.
+ */
+export const apiResponseInterceptor: HttpInterceptorFn = (req, next) => {
+  return next(req).pipe(
+    map(event => {
+      if (event instanceof HttpResponse && event.body && typeof event.body === 'object') {
+        const body = event.body as Record<string, unknown>;
+        if ('success' in body && 'data' in body) {
+          return event.clone({ body: body['data'] });
+        }
+      }
+      return event;
+    })
+  );
+};
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);

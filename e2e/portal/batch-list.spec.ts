@@ -1,5 +1,7 @@
 import { test, expect } from '../fixtures/helpers';
 
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Portal Batch List (US-BL-01)', () => {
   let agencyEmail: string;
   let agencyId: string;

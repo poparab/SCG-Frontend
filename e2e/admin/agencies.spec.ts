@@ -64,7 +64,7 @@ test.describe('Admin Agency Management', () => {
       { headers: { Authorization: `Bearer ${adminToken}` } }
     );
     const list = await listRes.json();
-    const agencyId = list.items[0].id;
+    const agencyId = list.data.items[0].id;
 
     // Navigate to agency detail
     await page.goto(`/agencies/${agencyId}`);

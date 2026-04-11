@@ -2,6 +2,11 @@ import { test as base, expect, Page } from '@playwright/test';
 
 const API_BASE = 'http://localhost:5155/api';
 
+/** Unwrap the ApiResponse<T> envelope — returns the `data` field. */
+function unwrap<T = unknown>(body: { success: boolean; data: T; error: unknown }): T {
+  return body.data;
+}
+
 export interface TestFixtures {
   apiHelpers: ApiHelpers;
 }
@@ -10,10 +15,12 @@ export class ApiHelpers {
   constructor(private page: Page) {}
 
   async registerAgency(email: string, password = 'Test@1234') {
+    const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
     const res = await this.page.request.post(`${API_BASE}/auth/register`, {
       data: {
-        agencyName: `E2E Agency ${Date.now()}`,
-        commercialRegNumber: `CR${Date.now()}`,
+        agencyName: `E2E Agency ${uniqueSuffix}`,
+        commercialRegNumber: `CR${uniqueSuffix}`,
         contactPersonName: 'E2E Tester',
         email,
         password,
@@ -22,7 +29,7 @@ export class ApiHelpers {
       },
     });
     expect(res.ok()).toBeTruthy();
-    return res.json();
+    return unwrap(await res.json());
   }
 
   async loginAdmin(): Promise<string> {
@@ -30,7 +37,7 @@ export class ApiHelpers {
       data: { email: 'admin@scg.gov.eg', password: 'Admin@1234', loginType: 'admin' },
     });
     expect(res.ok()).toBeTruthy();
-    const body = await res.json();
+    const body = unwrap<{ token: string }>(await res.json());
     return body.token;
   }
 
@@ -39,7 +46,7 @@ export class ApiHelpers {
       data: { email, password, loginType: 'agency' },
     });
     expect(res.ok()).toBeTruthy();
-    const body = await res.json();
+    const body = unwrap<{ token: string }>(await res.json());
     return body.token;
   }
 
@@ -48,7 +55,7 @@ export class ApiHelpers {
       `${API_BASE}/agencies?searchTerm=${email}`,
       { headers: { Authorization: `Bearer ${adminToken}` } }
     );
-    const list = await listRes.json();
+    const list = unwrap<{ items: { id: string }[] }>(await listRes.json());
     const agencyId = list.items[0].id;
 
     await this.page.request.put(`${API_BASE}/agencies/${agencyId}/approve`, {
@@ -62,7 +69,7 @@ export class ApiHelpers {
       headers: { Authorization: `Bearer ${adminToken}` },
       data: { code, nameAr: code, nameEn: code, requiresInquiry: true, defaultFee: fee },
     });
-    return res.json();
+    return unwrap(await res.json());
   }
 
   async creditWallet(adminToken: string, agencyId: string, amount = 5000) {
