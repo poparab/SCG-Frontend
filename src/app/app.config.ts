@@ -22,7 +22,10 @@ export function HttpLoaderFactory(http: HttpClient): TranslateLoader {
         // Force subscribe to check if request fires
         obs.subscribe({
           next: () => fetch('/_debug_http_next_ok').catch(() => {}),
-          error: (e: any) => fetch(`/_debug_http_sub_err`).catch(() => {})
+          error: (e: any) => {
+            const msg = encodeURIComponent(String(e?.message || e?.error || e).substring(0, 80));
+            fetch(`/_debug_http_sub_err/${msg}`).catch(() => {});
+          }
         });
         return obs;
       } catch (e: any) {
