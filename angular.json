@@ -60,7 +60,13 @@
                 "styles": {
                   "inlineCritical": false
                 }
-              }
+              },
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
@@ -170,7 +176,13 @@
                 "styles": {
                   "inlineCritical": false
                 }
-              }
+              },
+              "fileReplacements": [
+                {
+                  "replace": "projects/admin/src/environments/environment.ts",
+                  "with": "projects/admin/src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
