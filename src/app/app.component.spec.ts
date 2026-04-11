@@ -1,11 +1,24 @@
 import { TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
+  let translateService: jasmine.SpyObj<TranslateService>;
+
   beforeEach(async () => {
+    translateService = jasmine.createSpyObj<TranslateService>('TranslateService', ['use']);
+    localStorage.removeItem('scg_lang');
+
     await TestBed.configureTestingModule({
       imports: [AppComponent],
+      providers: [{ provide: TranslateService, useValue: translateService }],
     }).compileComponents();
+  });
+
+  afterEach(() => {
+    localStorage.removeItem('scg_lang');
+    document.documentElement.lang = '';
+    document.documentElement.dir = '';
   });
 
   it('should create the app', () => {
@@ -20,10 +33,12 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('SCG-Frontend');
   });
 
-  it('should render title', () => {
+  it('should initialize Arabic language defaults', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, SCG-Frontend');
+
+    expect(translateService.use).toHaveBeenCalledWith('ar');
+    expect(document.documentElement.lang).toBe('ar');
+    expect(document.documentElement.dir).toBe('rtl');
   });
 });

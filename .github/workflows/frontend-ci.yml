@@ -115,14 +115,23 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     environment: staging
     steps:
+      - name: Validate SSH key
+        env:
+          STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+        run: |
+          if [ -z "$STAGING_SSH_KEY" ]; then
+            echo "Missing STAGING_SSH_KEY secret"
+            exit 1
+          fi
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         env:
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
+          host: ${{ vars.STAGING_HOST || '13.38.35.178' }}
+          username: ${{ vars.STAGING_USER || 'ubuntu' }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           envs: GHCR_USER,GHCR_TOKEN
           script: |
