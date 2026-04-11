@@ -7,7 +7,7 @@ RUN npm ci
 
 COPY . .
 RUN npx ng build --configuration production
-RUN npx ng build admin --configuration production
+RUN npx ng build admin --configuration production --base-href /admin/
 
 # Runtime stage
 FROM nginx:alpine AS runtime
