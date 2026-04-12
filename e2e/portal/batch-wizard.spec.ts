@@ -70,12 +70,12 @@ test.describe('Batch Wizard', () => {
     // Wait for traveler card to appear
     await expect(page.locator('.traveler-card')).toHaveCount(1, { timeout: 5_000 });
 
-    // Go to Step 3
+    // Click Submit on Step 2
     await page.click('.wizard-card-footer .wz-btn-primary');
 
-    // Step 3: Review & Submit
-    await expect(page.locator('.review-section').first()).toBeVisible();
-    await page.click('.confirm-actions-bar .wz-btn-primary');
+    // Confirmation modal should appear
+    await expect(page.locator('.confirm-modal')).toBeVisible({ timeout: 5_000 });
+    await page.click('.confirm-modal-footer .wz-btn-primary');
 
     // Should show success
     await expect(page.locator('.state-icon-success')).toBeVisible({ timeout: 15_000 });
@@ -158,11 +158,11 @@ test.describe('Batch Wizard', () => {
     await expect(nextBtn).toBeDisabled();
   });
 
-  test('should show review content in step 3', async ({ page }) => {
+  test('should show confirmation modal before submit', async ({ page }) => {
     await page.goto('/batches/new');
 
     // Step 1
-    await page.fill('input[formControlName="name"]', `Review Test ${Date.now()}`);
+    await page.fill('input[formControlName="name"]', `Confirm Test ${Date.now()}`);
     await page.click('.wizard-card-footer .wz-btn-primary');
 
     // Step 2 — add traveler
@@ -180,13 +180,17 @@ test.describe('Batch Wizard', () => {
 
     await expect(page.locator('.traveler-card')).toHaveCount(1, { timeout: 5_000 });
 
-    // Step 3
+    // Click Submit — modal should appear
     await page.click('.wizard-card-footer .wz-btn-primary');
 
-    // Review section should be visible with batch info
-    await expect(page.locator('.review-section').first()).toBeVisible({ timeout: 5_000 });
-    // Should show the traveler info in review
-    await expect(page.locator('body')).toContainText('Review');
+    // Confirmation modal should be visible with batch info and warning
+    await expect(page.locator('.confirm-modal')).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator('.confirm-modal .irreversible-warning')).toBeVisible();
+    await expect(page.locator('.confirm-modal .confirm-summary-card')).toBeVisible();
+
+    // Cancel should close the modal
+    await page.click('.confirm-modal-footer .wz-btn-secondary');
+    await expect(page.locator('.confirm-modal')).not.toBeVisible();
   });
 
   test('should remove a traveler from the list', async ({ page }) => {

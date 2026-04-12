@@ -58,7 +58,8 @@ export class AdminNationalitiesComponent implements OnInit {
     this.nationalityService.getMasterList().pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (list) => this.masterNationalities.set(list)
+      next: (list) => this.masterNationalities.set(list),
+      error: (err) => console.error('Failed to load master nationalities', err)
     });
   }
 
@@ -75,10 +76,10 @@ export class AdminNationalitiesComponent implements OnInit {
   loadNationalities(): void {
     this.loading.set(true);
     const params: Record<string, string | number | boolean> = {
-      pageNumber: this.currentPage(),
+      page: this.currentPage(),
       pageSize: this.pageSize
     };
-    if (this.searchTerm) params['search'] = this.searchTerm;
+    if (this.searchTerm) params['searchTerm'] = this.searchTerm;
     if (this.inquiryFilter === 'yes') params['requiresInquiry'] = true;
     if (this.inquiryFilter === 'no') params['requiresInquiry'] = false;
 

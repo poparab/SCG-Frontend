@@ -181,3 +181,37 @@
 .state-loading-icon { font-size: 48px; color: $color-primary; margin-bottom: $space-4; }
 .state-loading-title { font-size: $font-size-2xl; font-weight: 700; color: $color-text-primary; margin-bottom: $space-2; }
 .state-loading-subtitle { font-size: $font-size-lg; color: $color-text-muted; }
+
+/* ── Confirmation Modal ──────────────────────────────────────────────── */
+.confirm-modal-backdrop {
+  position: fixed; inset: 0; z-index: 1050;
+  background: rgba(0, 0, 0, .5); backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  padding: $space-4;
+}
+.confirm-modal {
+  @include _card-base;
+  width: 100%; max-width: 520px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .2);
+  animation: modalSlideIn .2s ease-out;
+}
+.confirm-modal-header {
+  display: flex; align-items: center; gap: $space-3;
+  padding: $space-4 $space-5; border-bottom: 1px solid $color-border;
+  font-size: $font-size-2xl; font-weight: 700; color: $color-text-primary;
+  i { color: $color-primary; font-size: $font-size-3xl; }
+}
+.confirm-modal-body {
+  padding: $space-5;
+  .confirm-summary-card { margin-bottom: $space-3; }
+  .irreversible-warning { margin: 0; }
+}
+.confirm-modal-footer {
+  display: flex; gap: $space-3; padding: $space-4 $space-5;
+  border-top: 1px solid $color-border;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

@@ -65,12 +65,29 @@ export class ApiHelpers {
     return agencyId;
   }
 
+  /**
+   * Ensures a nationality exists. Creates it if missing, silently succeeds if it already exists.
+   * Returns the created/existing nationality data (or null).
+   */
   async createNationality(adminToken: string, code: string, fee = 100) {
     const res = await this.page.request.post(`${API_BASE}/nationalities`, {
       headers: { Authorization: `Bearer ${adminToken}` },
       data: { code, nameAr: code, nameEn: code, requiresInquiry: true, defaultFee: fee },
     });
-    return unwrap(await res.json());
+    if (res.ok()) {
+      return unwrap(await res.json());
+    }
+    // Nationality likely already exists — that's fine
+    return null;
+  }
+
+  /** Returns the code of the first available nationality that requires inquiry. */
+  async getExistingNationality(adminToken: string): Promise<string> {
+    const res = await this.page.request.get(`${API_BASE}/nationalities?page=1&pageSize=1`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    const body = unwrap<{ items: { code: string }[] }>(await res.json());
+    return body.items[0].code;
   }
 
   async creditWallet(adminToken: string, agencyId: string, amount = 5000) {

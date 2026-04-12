@@ -69,6 +69,8 @@ export class BatchWizardComponent implements OnInit {
   editingTravelerId = signal<string | null>(null);
   error = signal<string | null>(null);
   showTravelerForm = signal(true);
+  showConfirmModal = signal(false);
+  submitFailed = signal(false);
   nationalities = signal<AgencyNationality[]>([]);
   readonly airports = EGYPT_AIRPORTS;
   readonly countries = WORLD_COUNTRIES;
@@ -148,7 +150,7 @@ export class BatchWizardComponent implements OnInit {
         return;
       }
       this.error.set(null);
-      this.currentStep.set(3);
+      this.showConfirmModal.set(true);
     }
   }
 
@@ -276,8 +278,10 @@ export class BatchWizardComponent implements OnInit {
     const batchId = this.batchId();
     if (!batchId) return;
 
+    this.showConfirmModal.set(false);
     this.submitting.set(true);
     this.error.set(null);
+    this.submitFailed.set(false);
     this.batchService.submitBatch(batchId).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
@@ -288,6 +292,7 @@ export class BatchWizardComponent implements OnInit {
       error: (err) => {
         this.error.set(mapApiError(err.error?.error, 'batch.errorSubmitting'));
         this.submitting.set(false);
+        this.submitFailed.set(true);
       }
     });
   }

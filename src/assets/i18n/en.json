@@ -390,6 +390,7 @@
       "travelerList": "Traveler List",
       "irreversibleWarning": "Once submitted, fees will be deducted from your wallet and this action cannot be undone. Please verify all traveler data before submitting.",
       "confirmAndSubmit": "Confirm & Submit",
+      "confirmTitle": "Confirm Batch Submission",
       "backToEdit": "Back to Edit",
       "processingTitle": "Submitting Batch...",
       "processingDesc": "Please wait while your batch is being processed and fees are deducted from your wallet."

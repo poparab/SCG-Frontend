@@ -57,7 +57,7 @@
     </div>
 
   <!-- ══ ERROR RESULT ══ -->
-  } @else if (error() && currentStep() === 3 && !submitting()) {
+  } @else if (submitFailed() && error() && !submitting()) {
     <div class="wizard-card">
       <div class="wizard-card-body state-screen">
         <div class="state-icon-wrap state-icon-error">
@@ -384,8 +384,8 @@
             {{ 'batch.wizard.previous' | translate }} <i class="fa-solid fa-chevron-right"></i>
           </button>
           <div class="footer-actions">
-            <button class="wz-btn wz-btn-primary" (click)="nextStep()" [disabled]="travelers().length === 0">
-              {{ 'batch.next' | translate }} <i class="fa-solid fa-chevron-left"></i>
+            <button class="wz-btn wz-btn-primary" (click)="nextStep()" [disabled]="travelers().length === 0 || submitting()">
+              <i class="fa-solid fa-paper-plane"></i> {{ 'batch.wizard.confirmAndSubmit' | translate }}
             </button>
             <button class="action-icon ai-delete" routerLink="/batches" [title]="'batch.remove' | translate">
               <i class="fa-solid fa-trash"></i>
@@ -396,103 +396,55 @@
           </div>
         </div>
       </div>
-    }
 
-    <!-- ══ STEP 3: Review & Submit ══ -->
-    @if (currentStep() === 3) {
-      <div class="wizard-card">
-
-        @if (submitting()) {
-          <!-- Loading state -->
-          <div class="wizard-card-body state-screen">
-            <div class="state-loading-icon"><i class="fa-solid fa-spinner fa-spin"></i></div>
-            <h4 class="state-loading-title">{{ 'batch.wizard.processingTitle' | translate }}</h4>
-            <p class="state-loading-subtitle">{{ 'batch.wizard.processingDesc' | translate }}</p>
+      <!-- ══ SUBMITTING OVERLAY ══ -->
+      @if (submitting()) {
+        <div class="confirm-modal-backdrop">
+          <div class="confirm-modal">
+            <div class="confirm-modal-body state-screen">
+              <div class="state-loading-icon"><i class="fa-solid fa-spinner fa-spin"></i></div>
+              <h4 class="state-loading-title">{{ 'batch.wizard.processingTitle' | translate }}</h4>
+              <p class="state-loading-subtitle">{{ 'batch.wizard.processingDesc' | translate }}</p>
+            </div>
           </div>
-        } @else {
-          <div class="wizard-card-header">
-            <div class="wch-icon"><i class="fa-solid fa-clipboard-check"></i></div>
-            <div class="wch-title">{{ 'batch.stepReviewTitle' | translate }}</div>
-            <button class="wch-nav-btn" (click)="prevStep()"><i class="fa-solid fa-arrow-left"></i></button>
-          </div>
-          <div class="wizard-card-body">
+        </div>
+      }
 
-            <!-- Batch data summary -->
-            <div class="confirm-summary-card">
-              <div class="sect-title sect-title-flush"><i class="fa-solid fa-gear"></i> {{ 'batch.batchInfo' | translate }}</div>
-              <div class="summary-row">
-                <span class="summary-label">{{ 'batch.name' | translate }}</span>
-                <span class="summary-value">{{ batchForm.value.name }}</span>
-              </div>
-              @if (batchForm.value.notes) {
+      <!-- ══ CONFIRMATION MODAL ══ -->
+      @if (showConfirmModal()) {
+        <div class="confirm-modal-backdrop" (click)="showConfirmModal.set(false)">
+          <div class="confirm-modal" (click)="$event.stopPropagation()">
+            <div class="confirm-modal-header">
+              <i class="fa-solid fa-clipboard-check"></i>
+              <span>{{ 'batch.wizard.confirmTitle' | translate }}</span>
+            </div>
+            <div class="confirm-modal-body">
+              <div class="confirm-summary-card">
                 <div class="summary-row">
-                  <span class="summary-label">{{ 'batch.notes' | translate }}</span>
-                  <span class="summary-value">{{ batchForm.value.notes }}</span>
+                  <span class="summary-label">{{ 'batch.name' | translate }}</span>
+                  <span class="summary-value">{{ batchForm.value.name }}</span>
                 </div>
-              }
-              <div class="summary-row">
-                <span class="summary-label">{{ 'batch.totalTravelers' | translate }}</span>
-                <span class="summary-value">{{ travelers().length }}</span>
-              </div>
-            </div>
-
-            <!-- Traveler list (review) -->
-            <div class="review-section">
-              <div class="review-toggle-header">
-                <div class="review-toggle-left">
-                  <i class="fa-solid fa-users"></i>
-                  <span class="review-toggle-title">{{ 'batch.wizard.travelerList' | translate }}</span>
-                  <span class="sect-count">{{ travelers().length }}</span>
+                <div class="summary-row">
+                  <span class="summary-label">{{ 'batch.totalTravelers' | translate }}</span>
+                  <span class="summary-value">{{ travelers().length }}</span>
                 </div>
               </div>
-              <div class="review-toggle-body">
-                @for (t of travelers(); track t.id; let i = $index) {
-                  <div class="traveler-card">
-                    <div class="traveler-card-header">
-                      <span class="traveler-num">{{ i + 1 }}</span>
-                      <span class="traveler-name">{{ t.firstNameEn }} {{ t.lastNameEn }}</span>
-                    </div>
-                    <div class="traveler-card-pills">
-                      <span class="pill pill-blue"><i class="fa-solid fa-flag"></i> {{ t.nationalityCode }}</span>
-                      <span class="pill pill-neutral"><i class="fa-solid fa-passport"></i> {{ t.passportNumber }}</span>
-                      <span class="pill pill-neutral"><i class="fa-solid fa-calendar-days"></i> {{ t.travelDate | date:'shortDate' }}</span>
-                      @if (t.purposeOfTravel) {
-                        <span class="pill pill-blue"><i class="fa-solid fa-bullseye"></i> {{ t.purposeOfTravel }}</span>
-                      }
-                      @if (t.departureCountry) {
-                        <span class="pill pill-neutral"><i class="fa-solid fa-plane-departure"></i> {{ t.departureCountry }}</span>
-                      }
-                    </div>
-                  </div>
-                }
+              <div class="irreversible-warning">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                {{ 'batch.wizard.irreversibleWarning' | translate }}
               </div>
             </div>
-
-            <!-- Irreversibility warning -->
-            <div class="irreversible-warning">
-              <i class="fa-solid fa-triangle-exclamation"></i>
-              {{ 'batch.wizard.irreversibleWarning' | translate }}
-            </div>
-
-            <div class="confirm-actions-bar">
-              <div class="confirm-actions-group">
-                <button class="wz-btn wz-btn-primary wz-btn-lg" (click)="submitBatch()">
-                  <i class="fa-solid fa-paper-plane"></i> {{ 'batch.wizard.confirmAndSubmit' | translate }}
-                </button>
-                <button class="action-icon ai-delete" routerLink="/batches" [title]="'batch.remove' | translate">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-                <button class="action-icon ai-edit" [title]="'batch.wizard.saveDraft' | translate">
-                  <i class="fa-solid fa-floppy-disk"></i>
-                </button>
-              </div>
-              <button class="wz-btn wz-btn-secondary" (click)="prevStep()">
-                <i class="fa-solid fa-arrow-right"></i> {{ 'batch.wizard.backToEdit' | translate }}
+            <div class="confirm-modal-footer">
+              <button class="wz-btn wz-btn-primary" (click)="submitBatch()">
+                <i class="fa-solid fa-paper-plane"></i> {{ 'batch.wizard.confirmAndSubmit' | translate }}
+              </button>
+              <button class="wz-btn wz-btn-secondary" (click)="showConfirmModal.set(false)">
+                {{ 'common.cancel' | translate }}
               </button>
             </div>
           </div>
-        }
-      </div>
+        </div>
+      }
     }
 
   }

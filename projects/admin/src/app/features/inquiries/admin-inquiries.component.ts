@@ -33,7 +33,7 @@ export class AdminInquiriesComponent implements OnInit {
   loadInquiries(): void {
     this.loading.set(true);
     const params: Record<string, string | number> = {
-      pageNumber: this.currentPage(),
+      page: this.currentPage(),
       pageSize: this.pageSize
     };
     if (this.searchTerm) params['search'] = this.searchTerm;
