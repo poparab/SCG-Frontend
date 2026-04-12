@@ -4,6 +4,7 @@
     "search": "Search here...",
     "user_name": "System Admin",
     "user_role": "Administrator",
+    "logout": "Sign out",
     "nav": {
       "dashboard": "Dashboard",
       "inquiries": "Inquiry Management",

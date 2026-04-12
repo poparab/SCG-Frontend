@@ -18,7 +18,6 @@ export class HeaderComponent implements OnInit {
   currentLang = localStorage.getItem('scg_lang') || this.translate.currentLang || 'ar';
   userName = '';
   userRole = '';
-  showDropdown = false;
 
   ngOnInit(): void {
     this.translate.use(this.currentLang);
@@ -44,12 +43,11 @@ export class HeaderComponent implements OnInit {
     return this.router.url.startsWith(route);
   }
 
-  toggleDropdown(): void {
-    this.showDropdown = !this.showDropdown;
-  }
-
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logout().subscribe({
+      complete: () => {
+        this.router.navigate(['/login'], { replaceUrl: true });
+      }
+    });
   }
 }

@@ -9,26 +9,26 @@
     <div class="search-box">
       <i class="fas fa-search"></i>
       <input
-        type="text"
-        [(ngModel)]="searchTerm"
-        (keyup.enter)="onSearch()"
+        type="search"
+        [formControl]="searchControl"
+        (keydown.enter)="onSearch()"
         [placeholder]="'admin.agencies.search_placeholder' | translate"
       />
     </div>
     <div class="filter-pills">
-      <button class="pill" [class.active]="statusFilter === ''" (click)="onFilterStatus('')">
+      <button class="pill" [class.active]="statusFilter() === ''" (click)="onFilterStatus('')">
         {{ 'admin.common.all' | translate }}
       </button>
-      <button class="pill" [class.active]="statusFilter === 'PendingReview'" (click)="onFilterStatus('PendingReview')">
+      <button class="pill" [class.active]="statusFilter() === 'PendingReview'" (click)="onFilterStatus('PendingReview')">
         {{ 'admin.agencies.status_pending' | translate }}
       </button>
-      <button class="pill" [class.active]="statusFilter === 'Approved'" (click)="onFilterStatus('Approved')">
+      <button class="pill" [class.active]="statusFilter() === 'Approved'" (click)="onFilterStatus('Approved')">
         {{ 'admin.agencies.status_approved' | translate }}
       </button>
-      <button class="pill" [class.active]="statusFilter === 'Rejected'" (click)="onFilterStatus('Rejected')">
+      <button class="pill" [class.active]="statusFilter() === 'Rejected'" (click)="onFilterStatus('Rejected')">
         {{ 'admin.agencies.status_rejected' | translate }}
       </button>
-      <button class="pill" [class.active]="statusFilter === 'Suspended'" (click)="onFilterStatus('Suspended')">
+      <button class="pill" [class.active]="statusFilter() === 'Suspended'" (click)="onFilterStatus('Suspended')">
         {{ 'admin.agencies.status_suspended' | translate }}
       </button>
     </div>

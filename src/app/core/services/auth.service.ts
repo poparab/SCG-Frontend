@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, concat, finalize, ignoreElements, of, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, UserInfo } from '../models/auth.models';
 
@@ -35,12 +35,27 @@ export class AuthService {
     return this.api.post<RegisterResponse>('/auth/register', request);
   }
 
-  logout(): void {
+  logout(): Observable<void> {
     const refreshToken = this.getRefreshToken();
+    const requests = [];
+
     if (refreshToken) {
-      this.api.post('/auth/revoke', { refreshToken }).subscribe();
+      requests.push(this.api.post('/auth/revoke', { refreshToken }).pipe(
+        catchError(() => of(null))
+      ));
     }
-    this.api.post('/auth/logout', {}).subscribe();
+
+    requests.push(this.api.post('/auth/logout', {}).pipe(
+      catchError(() => of(null))
+    ));
+
+    return concat(...requests).pipe(
+      ignoreElements(),
+      finalize(() => this.clearSession())
+    );
+  }
+
+  clearSession(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);

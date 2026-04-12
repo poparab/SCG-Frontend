@@ -32,4 +32,5 @@ test.describe('Admin Dashboard', () => {
     // Dashboard content should be visible
     await expect(page.locator('.dashboard, .card, [class*="dashboard"]').first()).toBeVisible();
   });
+
 });

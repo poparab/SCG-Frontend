@@ -56,12 +56,16 @@
           <button class="topbar-icon-btn" type="button" (click)="switchLang(currentLang === 'ar' ? 'en' : 'ar')">
             <span>{{ currentLang === 'ar' ? 'EN' : 'عربي' }}</span>
           </button>
+          <button class="topbar-logout-btn" type="button" (click)="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>{{ 'admin.logout' | translate }}</span>
+          </button>
         </div>
         <div class="topbar-user">
           <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
           <div class="user-meta">
-            <div class="name">{{ 'admin.user_name' | translate }}</div>
-            <div class="role">{{ 'admin.user_role' | translate }}</div>
+            <div class="name">{{ userName || ('admin.user_name' | translate) }}</div>
+            <div class="role">{{ userRole || ('admin.user_role' | translate) }}</div>
           </div>
         </div>
       </div>

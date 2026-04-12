@@ -1,5 +1,11 @@
 import { test, expect, API_BASE, ADMIN_PREFIX } from '../fixtures/helpers';
 
+const ADMIN_BASE_URL = process.env.BASE_URL_ADMIN || 'http://localhost:4201';
+
+function adminUrl(path: string): string {
+  return `${ADMIN_BASE_URL}${ADMIN_PREFIX}${path}`;
+}
+
 test.describe('Admin Agency Management', () => {
   test.beforeEach(async ({ page }) => {
     // Login as admin
@@ -15,6 +21,47 @@ test.describe('Admin Agency Management', () => {
     await expect(page).toHaveURL(/\/agencies/);
     // Should show a table or list
     await expect(page.locator('table, .agency-list, [class*="agencies"]').first()).toBeVisible({ timeout: 5_000 });
+  });
+
+  test('should search agencies by text and filter them by status', async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    const helpers = (await import('../fixtures/helpers')).ApiHelpers;
+    const apiHelpers = new helpers(page);
+
+    const pendingEmail = `pending-filter-${Date.now()}@test.com`;
+    const approvedEmail = `approved-filter-${Date.now()}@test.com`;
+
+    await apiHelpers.registerAgency(pendingEmail);
+    await apiHelpers.registerAgency(approvedEmail);
+
+    const adminToken = await apiHelpers.loginAdmin();
+    await apiHelpers.approveAgency(approvedEmail, adminToken);
+
+    await page.goto(adminUrl('/auth/login'));
+    await page.fill('#email', 'admin@scg.gov.eg');
+    await page.fill('#password', 'Admin@1234');
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/dashboard', { timeout: 10_000 });
+
+    await page.goto(adminUrl('/agencies'));
+
+    const searchInput = page.locator('input[type="search"], input[placeholder*="وكيل"], input[placeholder*="Agency"], input[placeholder*="Search"]').first();
+    const approvedPill = page.locator('button.pill').filter({ hasText: /Approved|معتمد/i });
+    const pendingRow = page.locator('tr', { has: page.locator(`text=${pendingEmail}`) });
+    const approvedRow = page.locator('tr', { has: page.locator(`text=${approvedEmail}`) });
+
+    await expect(searchInput).toBeVisible({ timeout: 10_000 });
+    await searchInput.fill(pendingEmail);
+    await expect(pendingRow.first()).toBeVisible({ timeout: 10_000 });
+
+    await approvedPill.click();
+    await expect(pendingRow).toHaveCount(0, { timeout: 10_000 });
+
+    await searchInput.fill(approvedEmail);
+    await expect(approvedRow.first()).toBeVisible({ timeout: 10_000 });
+
+    await context.close();
   });
 
   test('should approve a pending agency', async ({ page, apiHelpers }) => {

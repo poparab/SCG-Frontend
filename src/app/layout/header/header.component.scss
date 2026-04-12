@@ -1,41 +1,16 @@
+@use '../../../styles/tokens' as *;
+
 :host { display: block; }
 
-.user-chip {
-  position: relative;
-  cursor: pointer;
+.logout-btn {
+  display: inline-flex; align-items: center; gap: $space-2;
+  height: 38px; padding: 0 $space-3;
+  border: 1.5px solid $color-border; border-radius: $radius-md;
+  background: $color-bg-alt; color: $color-text-secondary;
+  font-family: $font-family; font-size: $font-size-sm; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+
+  &:hover { background: $color-primary-light; border-color: $color-primary-muted; color: $color-primary; }
 }
 
-.user-dropdown {
-  position: absolute;
-  top: 100%;
-  inset-inline-end: 0;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  min-width: 160px;
-  z-index: 1000;
-  margin-top: 4px;
-  padding: 4px 0;
-
-  .dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    color: #334155;
-    font-size: 0.875rem;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.15s;
-
-    &:hover {
-      background: #f1f5f9;
-      color: #dc2626;
-    }
-
-    i {
-      font-size: 0.9rem;
-    }
-  }
-}
+.user-chip { cursor: default; }

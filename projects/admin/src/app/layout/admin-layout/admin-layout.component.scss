@@ -88,6 +88,15 @@ $topbar-height: 56px;
 }
 .topbar-icon-btn:hover { background: $color-primary-light; border-color: $color-primary-muted; color: $color-primary; }
 .topbar-icon-btn span { font-family: $font-family; font-size: 12px; font-weight: 600; }
+.topbar-logout-btn {
+  display: inline-flex; align-items: center; gap: $space-2;
+  height: 36px; padding: 0 $space-3;
+  border: 1.5px solid $color-border; border-radius: $radius-md;
+  background: $color-bg-alt; color: $color-text-secondary;
+  font-family: $font-family; font-size: $font-size-sm; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.topbar-logout-btn:hover { background: $color-primary-light; border-color: $color-primary-muted; color: $color-primary; }
 .topbar-user {
   display: flex; align-items: center; gap: $space-2;
 }

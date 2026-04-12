@@ -42,20 +42,17 @@
         <button [class.active]="currentLang === 'en'" (click)="switchLang('en')">EN</button>
       </div>
 
-      <div class="user-chip" (click)="toggleDropdown()">
+      <button class="logout-btn" type="button" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>{{ 'portal.user.logout' | translate }}</span>
+      </button>
+
+      <div class="user-chip">
         <div class="user-avatar"><i class="fas fa-user"></i></div>
         <div class="user-info">
           <div class="uname">{{ userName }}</div>
           <div class="urole">{{ userRole }}</div>
         </div>
-        <i class="fas fa-chevron-down chevron"></i>
-        @if (showDropdown) {
-          <div class="user-dropdown">
-            <a class="dropdown-item" (click)="logout()">
-              <i class="fas fa-sign-out-alt"></i> {{ 'portal.user.logout' | translate }}
-            </a>
-          </div>
-        }
       </div>
     </div>
   </div>

@@ -58,7 +58,7 @@ function handleTokenRefresh(
     const refreshToken = auth.getRefreshToken();
     if (!refreshToken) {
       isRefreshing = false;
-      auth.logout();
+      auth.clearSession();
       router.navigate(['/login']);
       return throwError(() => new Error('No refresh token'));
     }
@@ -73,7 +73,7 @@ function handleTokenRefresh(
       }),
       catchError(err => {
         isRefreshing = false;
-        auth.logout();
+        auth.clearSession();
         router.navigate(['/login']);
         return throwError(() => err);
       })
