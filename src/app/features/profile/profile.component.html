@@ -1,0 +1,108 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2 class="page-title">{{ 'portal.profile.title' | translate }}</h2>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="loading-state">
+    <i class="fas fa-spinner fa-spin fa-2x"></i>
+  </div>
+
+  <!-- Load Error -->
+  <div *ngIf="loadError()" class="alert alert-danger">{{ loadError() | translate }}</div>
+
+  <ng-container *ngIf="!loading() && agency()">
+    <!-- Agency Info Card -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-building"></i>
+        <h3>{{ 'portal.profile.agencyInfo' | translate }}</h3>
+      </div>
+      <div class="info-grid">
+        <div class="info-row">
+          <span class="info-label">{{ 'portal.profile.agencyName' | translate }}</span>
+          <span class="info-value">{{ agency()!.nameEn }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'portal.profile.agencyNameAr' | translate }}</span>
+          <span class="info-value">{{ agency()!.nameAr }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'portal.profile.email' | translate }}</span>
+          <span class="info-value">{{ agency()!.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'portal.profile.licenseNumber' | translate }}</span>
+          <span class="info-value">{{ agency()!.commercialLicenseNumber }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'portal.profile.phone' | translate }}</span>
+          <span class="info-value">{{ agency()!.phone }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'portal.profile.registrationDate' | translate }}</span>
+          <span class="info-value">{{ agency()!.createdAt | date:'mediumDate' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ 'portal.profile.status' | translate }}</span>
+          <span class="status-badge status-badge--{{ agency()!.status.toLowerCase() }}">
+            {{ agency()!.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change Password Card -->
+    <div class="info-card">
+      <div class="card-title">
+        <i class="fas fa-lock"></i>
+        <h3>{{ 'portal.profile.changePassword' | translate }}</h3>
+      </div>
+
+      <div *ngIf="pwError()" class="alert alert-danger">{{ pwError() | translate }}</div>
+      <div *ngIf="pwSuccess()" class="alert alert-success">{{ pwSuccess() | translate }}</div>
+
+      <form [formGroup]="changePasswordForm" (ngSubmit)="submitChangePassword()" class="pw-form">
+        <div class="form-group">
+          <label class="form-label">{{ 'portal.profile.currentPassword' | translate }} *</label>
+          <input type="password" formControlName="currentPassword" class="form-control" />
+          <div class="field-error" *ngIf="changePasswordForm.get('currentPassword')?.invalid && changePasswordForm.get('currentPassword')?.touched">
+            {{ 'auth.validation.passwordRequired' | translate }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">{{ 'portal.profile.newPassword' | translate }} *</label>
+          <input type="password" formControlName="newPassword" class="form-control" />
+          <div class="field-error" *ngIf="changePasswordForm.get('newPassword')?.errors?.['required'] && changePasswordForm.get('newPassword')?.touched">
+            {{ 'auth.validation.passwordRequired' | translate }}
+          </div>
+          <div class="field-error" *ngIf="changePasswordForm.get('newPassword')?.errors?.['minlength'] && changePasswordForm.get('newPassword')?.touched">
+            {{ 'auth.validation.passwordMinLength' | translate }}
+          </div>
+          <div class="field-error" *ngIf="changePasswordForm.get('newPassword')?.errors?.['passwordPattern'] && changePasswordForm.get('newPassword')?.touched">
+            {{ 'auth.validation.passwordPattern' | translate }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">{{ 'portal.profile.confirmPassword' | translate }} *</label>
+          <input type="password" formControlName="confirmNewPassword" class="form-control" />
+          <div class="field-error" *ngIf="changePasswordForm.get('confirmNewPassword')?.errors?.['required'] && changePasswordForm.get('confirmNewPassword')?.touched">
+            {{ 'auth.validation.confirmPasswordRequired' | translate }}
+          </div>
+          <div class="field-error" *ngIf="changePasswordForm.get('confirmNewPassword')?.errors?.['passwordMismatch']">
+            {{ 'portal.profile.passwordMismatch' | translate }}
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="pwLoading()">
+            <i class="fas fa-spinner fa-spin" *ngIf="pwLoading()"></i>
+            {{ 'portal.profile.savePassword' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+</div>

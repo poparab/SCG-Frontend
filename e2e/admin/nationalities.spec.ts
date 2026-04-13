@@ -1,10 +1,10 @@
-import { test, expect, ADMIN_PREFIX } from '../fixtures/helpers';
+import { test, expect, ADMIN_PREFIX, testAdmin } from '../fixtures/helpers';
 
 test.describe('Admin Nationality Management', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`${ADMIN_PREFIX}/auth/login`);
-    await page.fill('#email', 'admin@scg.gov.eg');
-    await page.fill('#password', 'Admin@1234');
+    await page.fill('#email', testAdmin.email);
+    await page.fill('#password', testAdmin.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
   });
@@ -19,7 +19,7 @@ test.describe('Admin Nationality Management', () => {
     const adminToken = await apiHelpers.loginAdmin();
     const code = `Z${String.fromCharCode(65 + (Date.now() % 26))}`;
     const result = await apiHelpers.createNationality(adminToken, code, 200);
-    const nationalityId = typeof result === 'string' ? result : (result?.id ?? result);
+    const nationalityId = typeof result === 'string' ? result : ((result as { id?: string })?.id ?? result);
 
     // Only proceed if we got a valid GUID ID
     if (typeof nationalityId === 'string' && nationalityId.length > 8) {

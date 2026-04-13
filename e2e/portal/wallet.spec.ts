@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/helpers';
+import { test, expect, testAgency } from '../fixtures/helpers';
 
 test.describe('Portal Wallet (US-W-01)', () => {
   let agencyEmail: string;
@@ -11,7 +11,7 @@ test.describe('Portal Wallet (US-W-01)', () => {
     const api = new helpers(page);
 
     agencyEmail = `wallet-e2e-${Date.now()}@test.com`;
-    await api.registerAgency(agencyEmail, 'Test@1234');
+    await api.registerAgency(agencyEmail, testAgency.password);
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);
     // Credit wallet to have transaction history
@@ -23,7 +23,7 @@ test.describe('Portal Wallet (US-W-01)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
     await page.fill('#email', agencyEmail);
-    await page.fill('#password', 'Test@1234');
+    await page.fill('#password', testAgency.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
     await page.goto('/wallet');

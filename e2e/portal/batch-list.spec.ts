@@ -1,4 +1,4 @@
-import { test, expect, API_BASE } from '../fixtures/helpers';
+import { test, expect, API_BASE, testAgency, testTravelers } from '../fixtures/helpers';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -20,16 +20,17 @@ test.describe('Portal Batch List (US-BL-01)', () => {
     await api.createNationality(adminToken, 'IQ', 100);
 
     // Create and submit a batch via API to have data
-    const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
+    const agencyToken = await api.loginAgency(agencyEmail, testAgency.password);
+    const t = testTravelers[0]; // Omar Al-Rashidi — IQ
     const batchRes = await page.request.post(`${API_BASE}/batches`, {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
         name: `Batch ListTest ${Date.now()}`,
         nationalityCode: 'IQ',
         travelers: [{
-          firstNameEn: 'Ali', lastNameEn: 'Hassan',
-          passportNumber: `P${Date.now()}`, dateOfBirth: '1990-01-01',
-          gender: 0, travelDate: '2026-06-01'
+          firstNameEn: t.firstNameEn, lastNameEn: t.lastNameEn,
+          passportNumber: `IQ${Date.now()}`, dateOfBirth: t.birthDate,
+          gender: 0, travelDate: '2026-10-01'
         }]
       }
     });
@@ -47,7 +48,7 @@ test.describe('Portal Batch List (US-BL-01)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
     await page.fill('#email', agencyEmail);
-    await page.fill('#password', 'Test@1234');
+    await page.fill('#password', testAgency.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
     await page.goto('/batches');

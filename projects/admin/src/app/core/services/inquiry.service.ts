@@ -14,4 +14,12 @@ export class InquiryService {
   getInquiry(id: string): Observable<InquiryDetail> {
     return this.api.get<InquiryDetail>(`/inquiries/${id}`);
   }
+
+  approveInquiry(id: string): Observable<void> {
+    return this.api.put<void>(`/inquiries/${id}/approve`, {});
+  }
+
+  rejectInquiry(id: string, reason: string): Observable<void> {
+    return this.api.put<void>(`/inquiries/${id}/reject`, { reason });
+  }
 }

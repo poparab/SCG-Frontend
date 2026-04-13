@@ -35,6 +35,10 @@ export class AuthService {
     return this.api.post<RegisterResponse>('/auth/register', request);
   }
 
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.api.put<void>('/auth/change-password', { currentPassword, newPassword });
+  }
+
   logout(): Observable<void> {
     const refreshToken = this.getRefreshToken();
     const requests = [];

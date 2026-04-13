@@ -26,17 +26,17 @@
         <span>{{ 'portal.nav.batch' | translate }}</span>
       </a>
       <a class="nav-link" routerLink="/wallet" routerLinkActive="active">
-        <i class="fas fa-gear"></i>
-        <span>{{ 'portal.nav.settings' | translate }}</span>
+        <i class="fas fa-wallet"></i>
+        <span>{{ 'portal.nav.wallet' | translate }}</span>
+      </a>
+      <a class="nav-link" routerLink="/profile" routerLinkActive="active">
+        <i class="fas fa-user-circle"></i>
+        <span>{{ 'portal.nav.profile' | translate }}</span>
       </a>
     </nav>
 
     <!-- Right utilities -->
     <div class="top-right">
-      <button class="notif-btn" type="button" [attr.aria-label]="'portal.notifications.title' | translate">
-        <i class="fas fa-bell"></i>
-      </button>
-
       <div class="lang-toggle">
         <button [class.active]="currentLang === 'ar'" (click)="switchLang('ar')">عربي</button>
         <button [class.active]="currentLang === 'en'" (click)="switchLang('en')">EN</button>

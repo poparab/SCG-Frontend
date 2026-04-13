@@ -1,4 +1,4 @@
-import { test, expect, API_BASE } from '../fixtures/helpers';
+import { test, expect, API_BASE, testAgency, testTravelers } from '../fixtures/helpers';
 
 function unwrap<T>(body: { data: T }): T {
   return body.data;
@@ -24,7 +24,8 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
     await api.creditWallet(adminToken, agencyId, 10000);
     await api.createNationality(adminToken, 'AF', 100);
 
-    const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
+    const agencyToken = await api.loginAgency(agencyEmail, testAgency.password);
+    const t = testTravelers[6]; // Ali Karimi — AF (Afghanistan)
     const batchRes = await page.request.post(`${API_BASE}/batches`, {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
@@ -40,19 +41,19 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
     const addTravelerRes = await page.request.post(`${API_BASE}/batches/${batch.id}/travelers`, {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
-        firstNameEn: 'Nasser',
-        lastNameEn: 'Salem',
-        firstNameAr: null,
-        lastNameAr: null,
+        firstNameEn: t.firstNameEn,
+        lastNameEn: t.lastNameEn,
+        firstNameAr: t.firstNameAr,
+        lastNameAr: t.lastNameAr,
         passportNumber: `AF${Date.now()}`,
-        nationalityCode: 'AF',
-        dateOfBirth: '1995-02-28',
+        nationalityCode: t.nationality,
+        dateOfBirth: t.birthDate,
         gender: 0,
-        travelDate: '2026-09-01',
+        travelDate: '2026-10-01',
         arrivalAirport: null,
         transitCountries: null,
-        passportExpiry: '2030-01-01',
-        departureCountry: 'AF',
+        passportExpiry: t.passportExpiry,
+        departureCountry: t.nationality,
         purposeOfTravel: 'Tourism',
         flightNumber: null
       }
@@ -78,7 +79,7 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
     await page.fill('#email', agencyEmail);
-    await page.fill('#password', 'Test@1234');
+    await page.fill('#password', testAgency.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
   });
@@ -98,7 +99,7 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
     await page.goto(`/inquiries/${inquiryId}`);
 
     // Should show inquiry reference (INQ-XXXXXXXX-XXXXXX format) or traveler data
-    await expect(page.locator('body')).toContainText(/INQ-|Nasser/, { timeout: 5_000 });
+    await expect(page.locator('body')).toContainText(/INQ-|Karimi/, { timeout: 5_000 });
   });
 
   test('AC3: should display processing timeline', async ({ page }) => {

@@ -1,20 +1,5 @@
 import type { Page } from '@playwright/test';
-import { test, expect } from '../fixtures/helpers';
-
-async function selectSearchableOption(page: Page, controlName: string, searchTerm: string) {
-  const select = page.locator(
-    `app-searchable-select[formcontrolname="${controlName}"], app-searchable-select[ng-reflect-name="${controlName}"]`
-  ).first();
-
-  await expect(select).toBeVisible({ timeout: 5_000 });
-  await select.locator('.ss-trigger').click();
-
-  const dropdown = select.locator('.ss-dropdown');
-  await expect(dropdown).toBeVisible({ timeout: 5_000 });
-
-  await dropdown.locator('.ss-search-input').fill(searchTerm);
-  await dropdown.locator('.ss-option').first().click();
-}
+import { test, expect, testAgency, testTravelers, selectSearchableOption } from '../fixtures/helpers';
 
 test.describe('Batch Wizard', () => {
   let agencyEmail: string;
@@ -41,7 +26,7 @@ test.describe('Batch Wizard', () => {
     // Login via UI
     await page.goto('/login');
     await page.fill('#email', agencyEmail);
-    await page.fill('#password', 'Test@1234');
+    await page.fill('#password', testAgency.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
   });
@@ -55,15 +40,16 @@ test.describe('Batch Wizard', () => {
     await page.click('.wizard-card-footer .wz-btn-primary');
 
     // Step 2: Add Travelers (now includes nationality per traveler + new fields)
-    await page.fill('input[formControlName="firstNameEn"]', 'Ahmad');
-    await page.fill('input[formControlName="lastNameEn"]', 'Khalil');
-    await page.selectOption('select[formControlName="nationalityCode"]', 'SY');
-    await page.fill('input[formControlName="passportNumber"]', 'SY123456');
-    await page.fill('input[formControlName="passportExpiry"]', '2030-01-01');
-    await page.fill('input[formControlName="dateOfBirth"]', '1990-05-15');
+    const t = testTravelers[1]; // Ahmed Al-Masri — SY (Syria)
+    await page.fill('input[formControlName="firstNameEn"]', t.firstNameEn);
+    await page.fill('input[formControlName="lastNameEn"]', t.lastNameEn);
+    await page.selectOption('select[formControlName="nationalityCode"]', t.nationality);
+    await page.fill('input[formControlName="passportNumber"]', `SY${Date.now()}`);
+    await page.fill('input[formControlName="passportExpiry"]', t.passportExpiry);
+    await page.fill('input[formControlName="dateOfBirth"]', t.birthDate);
     await page.selectOption('select[formControlName="gender"]', '0');
-    await selectSearchableOption(page, 'departureCountry', 'SY');
-    await page.fill('input[formControlName="travelDate"]', '2026-06-01');
+    await selectSearchableOption(page, 'departureCountry', t.nationality);
+    await page.fill('input[formControlName="travelDate"]', '2026-10-01');
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.click('button[type="submit"].wz-btn-success');
 
@@ -115,31 +101,33 @@ test.describe('Batch Wizard', () => {
     await page.click('.wizard-card-footer .wz-btn-primary');
 
     // Step 2 — add first traveler
-    await page.fill('input[formControlName="firstNameEn"]', 'Traveler');
-    await page.fill('input[formControlName="lastNameEn"]', 'One');
-    await page.fill('input[formControlName="passportNumber"]', 'SY111111');
-    await page.fill('input[formControlName="dateOfBirth"]', '1990-01-01');
+    const t1 = testTravelers[1]; // Ahmed Al-Masri — SY
+    await page.fill('input[formControlName="firstNameEn"]', t1.firstNameEn);
+    await page.fill('input[formControlName="lastNameEn"]', t1.lastNameEn);
+    await page.fill('input[formControlName="passportNumber"]', `SY${Date.now()}1`);
+    await page.fill('input[formControlName="dateOfBirth"]', t1.birthDate);
     await page.selectOption('select[formControlName="gender"]', '0');
-    await page.selectOption('select[formControlName="nationalityCode"]', 'SY');
-    await page.fill('input[formControlName="passportExpiry"]', '2030-01-01');
-    await selectSearchableOption(page, 'departureCountry', 'SY');
+    await page.selectOption('select[formControlName="nationalityCode"]', t1.nationality);
+    await page.fill('input[formControlName="passportExpiry"]', t1.passportExpiry);
+    await selectSearchableOption(page, 'departureCountry', t1.nationality);
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
-    await page.fill('input[formControlName="travelDate"]', '2026-06-01');
+    await page.fill('input[formControlName="travelDate"]', '2026-10-01');
     await page.click('button[type="submit"].wz-btn-success');
 
     await expect(page.locator('.traveler-card')).toHaveCount(1, { timeout: 5_000 });
 
     // Add second traveler
-    await page.fill('input[formControlName="firstNameEn"]', 'Traveler');
-    await page.fill('input[formControlName="lastNameEn"]', 'Two');
-    await page.fill('input[formControlName="passportNumber"]', 'SY222222');
-    await page.fill('input[formControlName="dateOfBirth"]', '1985-05-15');
-    await page.selectOption('select[formControlName="gender"]', '1');
-    await page.selectOption('select[formControlName="nationalityCode"]', 'SY');
-    await page.fill('input[formControlName="passportExpiry"]', '2030-06-01');
-    await selectSearchableOption(page, 'departureCountry', 'SY');
+    const t2 = testTravelers[3]; // Khalid Benghazi — LY
+    await page.fill('input[formControlName="firstNameEn"]', t2.firstNameEn);
+    await page.fill('input[formControlName="lastNameEn"]', t2.lastNameEn);
+    await page.fill('input[formControlName="passportNumber"]', `LY${Date.now()}2`);
+    await page.fill('input[formControlName="dateOfBirth"]', t2.birthDate);
+    await page.selectOption('select[formControlName="gender"]', '0');
+    await page.selectOption('select[formControlName="nationalityCode"]', t2.nationality);
+    await page.fill('input[formControlName="passportExpiry"]', t2.passportExpiry);
+    await selectSearchableOption(page, 'departureCountry', t2.nationality);
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
-    await page.fill('input[formControlName="travelDate"]', '2026-06-01');
+    await page.fill('input[formControlName="travelDate"]', '2026-10-01');
     await page.click('button[type="submit"].wz-btn-success');
 
     await expect(page.locator('.traveler-card')).toHaveCount(2, { timeout: 5_000 });
@@ -166,14 +154,15 @@ test.describe('Batch Wizard', () => {
     await page.click('.wizard-card-footer .wz-btn-primary');
 
     // Step 2 — add traveler
-    await page.fill('input[formControlName="firstNameEn"]', 'Review');
-    await page.fill('input[formControlName="lastNameEn"]', 'Tester');
-    await page.fill('input[formControlName="passportNumber"]', 'SY999999');
-    await page.fill('input[formControlName="dateOfBirth"]', '1992-07-20');
+    const t = testTravelers[1]; // Ahmed Al-Masri — SY
+    await page.fill('input[formControlName="firstNameEn"]', t.firstNameEn);
+    await page.fill('input[formControlName="lastNameEn"]', t.lastNameEn);
+    await page.fill('input[formControlName="passportNumber"]', `SY${Date.now()}`);
+    await page.fill('input[formControlName="dateOfBirth"]', t.birthDate);
     await page.selectOption('select[formControlName="gender"]', '0');
-    await page.selectOption('select[formControlName="nationalityCode"]', 'SY');
-    await page.fill('input[formControlName="passportExpiry"]', '2030-01-01');
-    await selectSearchableOption(page, 'departureCountry', 'SY');
+    await page.selectOption('select[formControlName="nationalityCode"]', t.nationality);
+    await page.fill('input[formControlName="passportExpiry"]', t.passportExpiry);
+    await selectSearchableOption(page, 'departureCountry', t.nationality);
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.fill('input[formControlName="travelDate"]', '2026-08-01');
     await page.click('button[type="submit"].wz-btn-success');
@@ -201,14 +190,15 @@ test.describe('Batch Wizard', () => {
     await page.click('.wizard-card-footer .wz-btn-primary');
 
     // Add a traveler
-    await page.fill('input[formControlName="firstNameEn"]', 'ToRemove');
-    await page.fill('input[formControlName="lastNameEn"]', 'Person');
-    await page.fill('input[formControlName="passportNumber"]', 'SY888888');
-    await page.fill('input[formControlName="dateOfBirth"]', '1988-03-10');
+    const t = testTravelers[1]; // Ahmed Al-Masri — SY
+    await page.fill('input[formControlName="firstNameEn"]', t.firstNameEn);
+    await page.fill('input[formControlName="lastNameEn"]', t.lastNameEn);
+    await page.fill('input[formControlName="passportNumber"]', `SY${Date.now()}`);
+    await page.fill('input[formControlName="dateOfBirth"]', t.birthDate);
     await page.selectOption('select[formControlName="gender"]', '0');
-    await page.selectOption('select[formControlName="nationalityCode"]', 'SY');
-    await page.fill('input[formControlName="passportExpiry"]', '2030-01-01');
-    await selectSearchableOption(page, 'departureCountry', 'SY');
+    await page.selectOption('select[formControlName="nationalityCode"]', t.nationality);
+    await page.fill('input[formControlName="passportExpiry"]', t.passportExpiry);
+    await selectSearchableOption(page, 'departureCountry', t.nationality);
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.fill('input[formControlName="travelDate"]', '2026-06-01');
     await page.click('button[type="submit"].wz-btn-success');

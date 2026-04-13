@@ -1,4 +1,4 @@
-import { test, expect, API_BASE } from '../fixtures/helpers';
+import { test, expect, API_BASE, testAgency, testTravelers } from '../fixtures/helpers';
 
 function unwrap<T>(body: { data: T }): T {
   return body.data;
@@ -41,12 +41,20 @@ test.describe('Portal Batch Detail (US-40, US-40A)', () => {
 
     for (const traveler of [
       {
-        firstNameEn: 'Omar', lastNameEn: 'Farouq', passportNumber: `LY${Date.now()}A`,
-        dateOfBirth: '1985-03-20', gender: 0, travelDate: '2026-07-01'
+        firstNameEn: testTravelers[6].firstNameEn,   // Ali — AF
+        lastNameEn: testTravelers[6].lastNameEn,
+        passportNumber: `AF${Date.now()}A`,
+        dateOfBirth: testTravelers[6].birthDate,
+        gender: 0,
+        travelDate: '2026-10-01'
       },
       {
-        firstNameEn: 'Sara', lastNameEn: 'Ahmed', passportNumber: `LY${Date.now()}B`,
-        dateOfBirth: '1992-08-10', gender: 1, travelDate: '2026-07-01'
+        firstNameEn: testTravelers[4].firstNameEn,   // Amira — SD (used as second traveler)
+        lastNameEn: testTravelers[4].lastNameEn,
+        passportNumber: `AF${Date.now()}B`,
+        dateOfBirth: testTravelers[4].birthDate,
+        gender: 1,
+        travelDate: '2026-10-01'
       }
     ]) {
       const addTravelerRes = await page.request.post(`${API_BASE}/batches/${batchId}/travelers`, {
@@ -77,7 +85,7 @@ test.describe('Portal Batch Detail (US-40, US-40A)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
     await page.fill('#email', agencyEmail);
-    await page.fill('#password', 'Test@1234');
+    await page.fill('#password', testAgency.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
   });

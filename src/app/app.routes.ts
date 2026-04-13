@@ -23,6 +23,7 @@ export const routes: Routes = [
       { path: 'batches', loadChildren: () => import('./features/batch/batch.routes').then(m => m.BATCH_ROUTES) },
       { path: 'inquiries', loadChildren: () => import('./features/inquiry/inquiry.routes').then(m => m.INQUIRY_ROUTES) },
       { path: 'wallet', loadChildren: () => import('./features/wallet/wallet.routes').then(m => m.WALLET_ROUTES) },
+      { path: 'profile', loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent) },
     ]
   },
   // Fallback

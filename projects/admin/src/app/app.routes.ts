@@ -35,8 +35,14 @@ export const routes: Routes = [
           { path: ':id', loadComponent: () => import('./features/nationalities/nationality-detail/nationality-detail.component').then(m => m.NationalityDetailComponent) }
         ]
       },
-      { path: 'announcements', loadComponent: () => import('./features/announcements/admin-announcements.component').then(m => m.AdminAnnouncementsComponent) },
-      { path: 'submission-windows', loadComponent: () => import('./features/submission-windows/admin-submission-windows.component').then(m => m.AdminSubmissionWindowsComponent) },
+      {
+        path: 'users',
+        children: [
+          { path: '', loadComponent: () => import('./features/users/admin-users.component').then(m => m.AdminUsersComponent) },
+          { path: ':id', loadComponent: () => import('./features/users/user-detail/user-detail.component').then(m => m.UserDetailComponent) }
+        ]
+      },
+      { path: 'audit-logs', loadComponent: () => import('./features/audit-logs/audit-logs.component').then(m => m.AuditLogsComponent) },
     ]
   },
   { path: '**', redirectTo: '' }

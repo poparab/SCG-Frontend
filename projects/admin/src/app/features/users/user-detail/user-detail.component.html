@@ -1,0 +1,136 @@
+<div class="page-shell">
+  <div class="page-back">
+    <a routerLink="/users" class="back-link">
+      <i class="fas fa-arrow-right"></i>
+      <span>{{ 'admin.common.back' | translate }}</span>
+    </a>
+  </div>
+
+  <div *ngIf="loading()" class="page-loading">
+    <i class="fas fa-spinner fa-spin fa-2x"></i>
+  </div>
+
+  <ng-container *ngIf="!loading() && user()">
+    <div class="detail-header">
+      <div class="detail-title">
+        <i class="fas fa-user-shield fa-lg"></i>
+        <div>
+          <h2>{{ user()!.fullName }}</h2>
+          <p>{{ user()!.email }}</p>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button type="button" class="btn-secondary" (click)="toggleActive()" [disabled]="actionLoading()">
+          <i [class]="user()!.isActive ? 'fas fa-user-slash' : 'fas fa-user-check'"></i>
+          <span>{{ user()!.isActive ? ('admin.users.deactivate' | translate) : ('admin.users.activate' | translate) }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="actionError()" class="alert alert-danger">{{ actionError() | translate }}</div>
+    <div *ngIf="actionSuccess()" class="alert alert-success">{{ actionSuccess() | translate }}</div>
+
+    <!-- Info / Edit Card -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <h3>{{ 'admin.users.edit_user' | translate }}</h3>
+        <button *ngIf="!isEditing()" type="button" class="btn-secondary btn-sm" (click)="startEdit()">
+          <i class="fas fa-pen"></i>
+        </button>
+      </div>
+
+      <div *ngIf="!isEditing()" class="detail-fields">
+        <div class="detail-row">
+          <span class="detail-label">{{ 'admin.users.full_name' | translate }}</span>
+          <span class="detail-value">{{ user()!.fullName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">{{ 'admin.users.email' | translate }}</span>
+          <span class="detail-value">{{ user()!.email }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">{{ 'admin.users.role' | translate }}</span>
+          <span class="detail-value badge badge-info">
+            {{ user()!.role === 'SuperAdmin' ? ('admin.users.role_super_admin' | translate) : ('admin.users.role_admin' | translate) }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">{{ 'admin.users.status' | translate }}</span>
+          <span [class]="user()!.isActive ? 'badge badge-success' : 'badge badge-danger'">
+            {{ user()!.isActive ? ('admin.users.active' | translate) : ('admin.users.inactive' | translate) }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">{{ 'admin.users.created_at' | translate }}</span>
+          <span class="detail-value">{{ user()!.createdAt | date:'mediumDate' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">{{ 'admin.users.last_login' | translate }}</span>
+          <span class="detail-value">{{ user()!.lastLoginAt ? (user()!.lastLoginAt | date:'short') : '—' }}</span>
+        </div>
+      </div>
+
+      <form *ngIf="isEditing()" [formGroup]="editForm" (ngSubmit)="saveEdit()" class="detail-form">
+        <div class="form-group">
+          <label>{{ 'admin.users.full_name' | translate }} *</label>
+          <input type="text" formControlName="fullName" class="form-control" />
+          <div class="field-error" *ngIf="editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched">
+            {{ 'admin.users.full_name_required' | translate }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label>{{ 'admin.users.role' | translate }} *</label>
+          <select formControlName="role" class="form-control">
+            <option value="Admin">{{ 'admin.users.role_admin' | translate }}</option>
+            <option value="SuperAdmin">{{ 'admin.users.role_super_admin' | translate }}</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="cancelEdit()">{{ 'admin.common.cancel' | translate }}</button>
+          <button type="submit" class="btn-primary" [disabled]="actionLoading()">
+            <i class="fas fa-spinner fa-spin" *ngIf="actionLoading()"></i>
+            {{ 'admin.common.save' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Reset Password Card -->
+    <div class="detail-card">
+      <div class="detail-card-header">
+        <h3>{{ 'admin.users.reset_password' | translate }}</h3>
+      </div>
+      <form [formGroup]="resetPasswordForm" (ngSubmit)="submitResetPassword()" class="detail-form">
+        <div class="form-group">
+          <label>{{ 'admin.users.new_password' | translate }} *</label>
+          <input type="password" formControlName="newPassword" class="form-control" />
+          <div class="field-error" *ngIf="resetPasswordForm.get('newPassword')?.errors?.['required'] && resetPasswordForm.get('newPassword')?.touched">
+            {{ 'admin.users.password_required' | translate }}
+          </div>
+          <div class="field-error" *ngIf="resetPasswordForm.get('newPassword')?.errors?.['minlength'] && resetPasswordForm.get('newPassword')?.touched">
+            {{ 'admin.users.password_min_length' | translate }}
+          </div>
+          <div class="field-error" *ngIf="resetPasswordForm.get('newPassword')?.errors?.['passwordPattern'] && resetPasswordForm.get('newPassword')?.touched">
+            {{ 'admin.users.password_pattern' | translate }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label>{{ 'admin.users.confirm_password' | translate }} *</label>
+          <input type="password" formControlName="confirmPassword" class="form-control" />
+          <div class="field-error" *ngIf="resetPasswordForm.get('confirmPassword')?.errors?.['required'] && resetPasswordForm.get('confirmPassword')?.touched">
+            {{ 'admin.users.confirm_password_required' | translate }}
+          </div>
+          <div class="field-error" *ngIf="resetPasswordForm.get('confirmPassword')?.errors?.['passwordMismatch']">
+            {{ 'admin.users.passwords_not_match' | translate }}
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="actionLoading()">
+            <i class="fas fa-spinner fa-spin" *ngIf="actionLoading()"></i>
+            {{ 'admin.users.reset_password' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+</div>

@@ -1,10 +1,10 @@
-import { test, expect, ADMIN_PREFIX } from '../fixtures/helpers';
+import { test, expect, ADMIN_PREFIX, testAdmin } from '../fixtures/helpers';
 
 test.describe('Admin Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`${ADMIN_PREFIX}/auth/login`);
-    await page.fill('#email', 'admin@scg.gov.eg');
-    await page.fill('#password', 'Admin@1234');
+    await page.fill('#email', testAdmin.email);
+    await page.fill('#password', testAdmin.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
   });

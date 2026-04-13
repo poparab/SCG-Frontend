@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/helpers';
+import { test, expect, testAgency } from '../fixtures/helpers';
 
 test.describe('Portal Dashboard & Navigation', () => {
   let agencyEmail: string;
@@ -10,7 +10,7 @@ test.describe('Portal Dashboard & Navigation', () => {
     const api = new helpers(page);
 
     agencyEmail = `dash-e2e-${Date.now()}@test.com`;
-    await api.registerAgency(agencyEmail, 'Test@1234');
+    await api.registerAgency(agencyEmail, testAgency.password);
     const adminToken = await api.loginAdmin();
     await api.approveAgency(agencyEmail, adminToken);
     await context.close();
@@ -19,7 +19,7 @@ test.describe('Portal Dashboard & Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
     await page.fill('#email', agencyEmail);
-    await page.fill('#password', 'Test@1234');
+    await page.fill('#password', testAgency.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
   });

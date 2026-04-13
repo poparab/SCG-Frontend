@@ -1,4 +1,4 @@
-import { test, expect, API_BASE, ADMIN_PREFIX } from '../fixtures/helpers';
+import { test, expect, API_BASE, ADMIN_PREFIX, testAdmin, testAgency } from '../fixtures/helpers';
 
 const ADMIN_BASE_URL = process.env.BASE_URL_ADMIN || 'http://localhost:4201';
 
@@ -10,8 +10,8 @@ test.describe('Admin Agency Management', () => {
   test.beforeEach(async ({ page }) => {
     // Login as admin
     await page.goto(`${ADMIN_PREFIX}/auth/login`);
-    await page.fill('#email', 'admin@scg.gov.eg');
-    await page.fill('#password', 'Admin@1234');
+    await page.fill('#email', testAdmin.email);
+    await page.fill('#password', testAdmin.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
   });
@@ -39,8 +39,8 @@ test.describe('Admin Agency Management', () => {
     await apiHelpers.approveAgency(approvedEmail, adminToken);
 
     await page.goto(adminUrl('/auth/login'));
-    await page.fill('#email', 'admin@scg.gov.eg');
-    await page.fill('#password', 'Admin@1234');
+    await page.fill('#email', testAdmin.email);
+    await page.fill('#password', testAdmin.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
 
@@ -132,12 +132,12 @@ test.describe('Admin Agency Management', () => {
 
   test('US-M2-09 AC4: approved agency should be able to login', async ({ page, apiHelpers }) => {
     const email = `login-after-approve-${Date.now()}@test.com`;
-    await apiHelpers.registerAgency(email, 'Test@1234');
+    await apiHelpers.registerAgency(email, testAgency.password);
     const adminToken = await apiHelpers.loginAdmin();
     await apiHelpers.approveAgency(email, adminToken);
 
     // Verify the agency can login via API
-    const token = await apiHelpers.loginAgency(email, 'Test@1234');
+    const token = await apiHelpers.loginAgency(email, testAgency.password);
     expect(token).toBeTruthy();
   });
 
@@ -145,7 +145,7 @@ test.describe('Admin Agency Management', () => {
     const adminToken = await apiHelpers.loginAdmin();
     const code = Array.from({ length: 3 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
     const createdNationality = await apiHelpers.createNationality(adminToken, code, 125);
-    expect(createdNationality === null || createdNationality.id).toBeTruthy();
+    expect(createdNationality === null || (createdNationality as { id?: string }).id).toBeTruthy();
 
     const email = `agency-nats-${Date.now()}@test.com`;
     await apiHelpers.registerAgency(email);

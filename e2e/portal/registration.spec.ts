@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/helpers';
+import { test, expect, testAgency } from '../fixtures/helpers';
 
 test.describe('Portal Registration', () => {
   test.beforeEach(async ({ page }) => {
@@ -18,12 +18,12 @@ test.describe('Portal Registration', () => {
   test('should register a new agency successfully', async ({ page }) => {
     const email = `reg-e2e-${Date.now()}@test.com`;
 
-    await page.fill('#agencyName', 'E2E Test Agency');
-    await page.fill('#commercialRegNumber', `CR${Date.now()}`);
-    await page.fill('#contactPersonName', 'E2E Tester');
+    await page.fill('#agencyName', testAgency.nameEn);
+    await page.fill('#commercialRegNumber', `${testAgency.licenseNumber}-${Date.now()}`);
+    await page.fill('#contactPersonName', testAgency.contactPersonName);
     await page.fill('#email', email);
-    await page.fill('#password', 'Test@1234');
-    await page.fill('#confirmPassword', 'Test@1234');
+    await page.fill('#password', testAgency.password);
+    await page.fill('#confirmPassword', testAgency.password);
     await page.selectOption('select[formControlName="countryCode"]', '+20');
     await page.fill('#mobileNumber', '01099887766');
 
@@ -37,15 +37,15 @@ test.describe('Portal Registration', () => {
     const email = `dup-e2e-${Date.now()}@test.com`;
 
     // Register via API first
-    await apiHelpers.registerAgency(email, 'Test@1234');
+    await apiHelpers.registerAgency(email, testAgency.password);
 
     // Try same email via UI
-    await page.fill('#agencyName', 'Duplicate Agency');
-    await page.fill('#commercialRegNumber', `CRDUP${Date.now()}`);
-    await page.fill('#contactPersonName', 'Dup Tester');
+    await page.fill('#agencyName', testAgency.nameEn);
+    await page.fill('#commercialRegNumber', `${testAgency.licenseNumber}-DUP-${Date.now()}`);
+    await page.fill('#contactPersonName', testAgency.contactPersonName);
     await page.fill('#email', email);
-    await page.fill('#password', 'Test@1234');
-    await page.fill('#confirmPassword', 'Test@1234');
+    await page.fill('#password', testAgency.password);
+    await page.fill('#confirmPassword', testAgency.password);
     await page.selectOption('select[formControlName="countryCode"]', '+20');
     await page.fill('#mobileNumber', '01011223344');
 

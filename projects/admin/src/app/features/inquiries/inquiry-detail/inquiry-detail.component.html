@@ -99,6 +99,41 @@
       </div>
     </div>
 
+    <!-- Rejection Reason (if rejected) -->
+    @if (inquiry()!.status === 'Rejected' && inquiry()!.rejectionReason) {
+      <div class="alert alert-danger mt-3">
+        <strong>{{ 'admin.inquiries.rejection_reason_info' | translate }}:</strong> {{ inquiry()!.rejectionReason }}
+      </div>
+    }
+
+    <!-- MVP Manual Decision Banner + Action Bar -->
+    @if (canTakeAction()) {
+      <div class="mvp-banner alert alert-info mt-3">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>{{ 'admin.inquiries.mvp_manual_banner' | translate }}:</strong>
+        {{ 'admin.inquiries.mvp_manual_detail' | translate }}
+      </div>
+      <div class="action-bar mt-3">
+        <button class="btn btn-success" (click)="approveInquiry()" [disabled]="actionLoading()">
+          @if (actionLoading()) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          <i class="fas fa-check me-1"></i>
+          {{ 'admin.inquiries.approve' | translate }}
+        </button>
+        <button class="btn btn-danger ms-2" (click)="showRejectModal.set(true)" [disabled]="actionLoading()">
+          <i class="fas fa-times me-1"></i>
+          {{ 'admin.inquiries.reject' | translate }}
+        </button>
+      </div>
+    }
+
+    <!-- Feedback -->
+    @if (actionError()) {
+      <div class="alert alert-danger mt-3">{{ actionError() | translate }}</div>
+    }
+    @if (actionSuccess()) {
+      <div class="alert alert-success mt-3">{{ actionSuccess() | translate }}</div>
+    }
+
     <!-- Status Timeline -->
     <div class="timeline-section">
       <h3>{{ 'admin.inquiries.status_timeline' | translate }}</h3>
@@ -121,3 +156,45 @@
     </div>
   }
 </div>
+
+<!-- Reject Modal -->
+@if (showRejectModal()) {
+  <div class="modal-backdrop" (click)="showRejectModal.set(false)">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ 'admin.inquiries.reject_inquiry' | translate }}</h3>
+        <button class="modal-close" type="button" (click)="showRejectModal.set(false)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form [formGroup]="rejectForm" (ngSubmit)="submitReject()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">{{ 'admin.inquiries.rejection_reason' | translate }}</label>
+            <textarea
+              formControlName="reason"
+              class="form-control"
+              rows="4"
+              [placeholder]="'admin.inquiries.rejection_reason_placeholder' | translate">
+            </textarea>
+            @if (rejectForm.controls.reason.touched && rejectForm.controls.reason.hasError('required')) {
+              <div class="invalid-feedback d-block">{{ 'admin.inquiries.reason_required' | translate }}</div>
+            }
+            @if (rejectForm.controls.reason.touched && rejectForm.controls.reason.hasError('minlength')) {
+              <div class="invalid-feedback d-block">{{ 'admin.agencies.reason_required' | translate }}</div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="showRejectModal.set(false)">
+            {{ 'admin.common.cancel' | translate }}
+          </button>
+          <button type="submit" class="btn btn-danger" [disabled]="actionLoading()">
+            @if (actionLoading()) { <span class="spinner-border spinner-border-sm me-1"></span> }
+            {{ 'admin.inquiries.confirm_reject' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

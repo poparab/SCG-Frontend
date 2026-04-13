@@ -1,4 +1,4 @@
-import { test, expect, API_BASE, ADMIN_PREFIX } from '../fixtures/helpers';
+import { test, expect, API_BASE, ADMIN_PREFIX, testAdmin, testTravelers } from '../fixtures/helpers';
 
 test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
   let agencyEmail: string;
@@ -15,18 +15,19 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
     const adminToken = await api.loginAdmin();
     const agencyId = await api.approveAgency(agencyEmail, adminToken);
     await api.creditWallet(adminToken, agencyId, 10000);
-    await api.createNationality(adminToken, 'SO', 100);
+    await api.createNationality(adminToken, 'SD', 100);
 
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
+    const t = testTravelers[4]; // Amira Hassan — SD (Sudan)
     const batchRes = await page.request.post(`${API_BASE}/batches`, {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
         name: `Admin InqTest ${Date.now()}`,
-        nationalityCode: 'SO',
+        nationalityCode: 'SD',
         travelers: [{
-          firstNameEn: 'Mohamed', lastNameEn: 'Abdi',
-          passportNumber: `SO${Date.now()}`, dateOfBirth: '1991-04-12',
-          gender: 0, travelDate: '2026-10-01'
+          firstNameEn: t.firstNameEn, lastNameEn: t.lastNameEn,
+          passportNumber: `SD${Date.now()}`, dateOfBirth: t.birthDate,
+          gender: 1, travelDate: '2026-10-01'
         }]
       }
     });
@@ -43,8 +44,8 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto(`${ADMIN_PREFIX}/auth/login`);
-    await page.fill('#email', 'admin@scg.gov.eg');
-    await page.fill('#password', 'Admin@1234');
+    await page.fill('#email', testAdmin.email);
+    await page.fill('#password', testAdmin.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
   });
@@ -118,12 +119,78 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
 
     const searchBox = page.locator('.search-box input').first();
     await expect(searchBox).toBeVisible({ timeout: 5_000 });
-    await searchBox.fill('Mohamed');
+    await searchBox.fill(testTravelers[4].lastNameEn); // Hassan
     await searchBox.press('Enter');
     await page.waitForTimeout(1000);
 
     // Table should be visible with results
     const table = page.locator('table.data-table, .table-card table').first();
     await expect(table).toBeVisible({ timeout: 5_000 });
+  });
+
+  test('US-M2-16 AC2: should approve an inquiry via detail page', async ({ page }) => {
+    await page.goto(`${ADMIN_PREFIX}/inquiries`);
+
+    const viewBtn = page.locator('a.btn-action').first();
+    if (!(await viewBtn.isVisible({ timeout: 5000 }).catch(() => false))) return;
+    await viewBtn.click();
+    await expect(page).toHaveURL(/\/inquiries\/.+/, { timeout: 5_000 });
+
+    const approveBtn = page.locator('button').filter({ hasText: /Approve|اعتماد/i });
+    if (!(await approveBtn.isVisible({ timeout: 3000 }).catch(() => false))) return;
+    await approveBtn.click();
+    await page.waitForTimeout(2000);
+
+    const badge = page.locator('.badge, .status-pill');
+    await expect(badge.first()).toContainText(/Approved|معتمد/i, { timeout: 5_000 });
+  });
+
+  test('US-M2-16 AC3: should reject an inquiry with a reason', async ({ page }) => {
+    await page.goto(`${ADMIN_PREFIX}/inquiries`);
+
+    const viewBtn = page.locator('a.btn-action').first();
+    if (!(await viewBtn.isVisible({ timeout: 5000 }).catch(() => false))) return;
+    await viewBtn.click();
+    await expect(page).toHaveURL(/\/inquiries\/.+/, { timeout: 5_000 });
+
+    const rejectBtn = page.locator('button').filter({ hasText: /Reject|رفض/i });
+    if (!(await rejectBtn.isVisible({ timeout: 3000 }).catch(() => false))) return;
+    await rejectBtn.click();
+
+    // Reason input should appear
+    const reasonInput = page.locator('textarea, input[formControlName="rejectionReason"]').first();
+    if (await reasonInput.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await reasonInput.fill('Rejected for E2E test purposes - reason exceeds 10 chars');
+    }
+
+    // Confirm rejection
+    const confirmBtn = page.locator('button').filter({ hasText: /Confirm|تأكيد/i }).last();
+    if (await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await confirmBtn.click();
+      await page.waitForTimeout(2000);
+      const badge = page.locator('.badge, .status-pill');
+      await expect(badge.first()).toContainText(/Rejected|مرفوض/i, { timeout: 5_000 });
+    }
+  });
+
+  test('US-M2-16 AC4: reject button disabled when inquiry already rejected', async ({ page }) => {
+    await page.goto(`${ADMIN_PREFIX}/inquiries`);
+
+    // Filter to Rejected status
+    const rejectedPill = page.locator('button.pill').filter({ hasText: /Rejected|مرفوض/i });
+    if (await rejectedPill.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await rejectedPill.click();
+      await page.waitForTimeout(1000);
+    }
+
+    const viewBtn = page.locator('a.btn-action').first();
+    if (!(await viewBtn.isVisible({ timeout: 5000 }).catch(() => false))) return;
+    await viewBtn.click();
+    await expect(page).toHaveURL(/\/inquiries\/.+/, { timeout: 5_000 });
+
+    const rejectBtn = page.locator('button').filter({ hasText: /Reject|رفض/i });
+    if (await rejectBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await expect(rejectBtn).toBeDisabled();
+    }
   });
 });

@@ -5,6 +5,31 @@ export interface PagedResult<T> {
   pageSize: number;
 }
 
+export interface AdminUserListItem {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  createdAt: string;
+  lastLoginAt?: string;
+}
+
+export interface AdminUserDetail extends AdminUserListItem {}
+
+export interface AuditLogItem {
+  id: string;
+  userId?: string;
+  userEmail?: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  oldValues?: string;
+  newValues?: string;
+  ipAddress?: string;
+  timestamp: string;
+}
+
 export interface AdminDashboardData {
   totalAgencies: number;
   pendingAgencies: number;
@@ -120,6 +145,7 @@ export interface InquiryDetail {
   agencyName: string;
   batchId?: string;
   status: string;
+  rejectionReason?: string;
   statusHistory: StatusHistoryItem[];
   createdAt: string;
   updatedAt: string;

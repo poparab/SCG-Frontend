@@ -1,0 +1,156 @@
+<div class="page-shell">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">{{ 'admin.users.title' | translate }}</h2>
+      <p class="page-subtitle">{{ 'admin.users.subtitle' | translate }}</p>
+    </div>
+    <button class="btn-primary" type="button" (click)="openCreateModal()">
+      <i class="fas fa-user-plus"></i>
+      <span>{{ 'admin.users.create_user' | translate }}</span>
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <i class="fas fa-search"></i>
+      <input type="text" [formControl]="searchControl" [placeholder]="'admin.users.search_placeholder' | translate" class="filter-input" />
+    </div>
+    <select class="filter-select" (change)="onRoleFilterChange($any($event.target).value)">
+      <option value="">{{ 'admin.common.all' | translate }}</option>
+      <option value="Admin">{{ 'admin.users.role_admin' | translate }}</option>
+      <option value="SuperAdmin">{{ 'admin.users.role_super_admin' | translate }}</option>
+    </select>
+    <select class="filter-select" (change)="onActiveFilterChange($any($event.target).value)">
+      <option value="">{{ 'admin.common.all' | translate }}</option>
+      <option value="true">{{ 'admin.users.active' | translate }}</option>
+      <option value="false">{{ 'admin.users.inactive' | translate }}</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <div *ngIf="loading()" class="table-loading">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+
+    <table *ngIf="!loading()" class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'admin.users.full_name' | translate }}</th>
+          <th>{{ 'admin.users.email' | translate }}</th>
+          <th>{{ 'admin.users.role' | translate }}</th>
+          <th>{{ 'admin.users.status' | translate }}</th>
+          <th>{{ 'admin.users.last_login' | translate }}</th>
+          <th>{{ 'admin.users.created_at' | translate }}</th>
+          <th>{{ 'admin.common.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users()">
+          <td>
+            <a [routerLink]="['/users', user.id]" class="link-primary">{{ user.fullName }}</a>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="badge badge-info">
+              {{ user.role === 'SuperAdmin' ? ('admin.users.role_super_admin' | translate) : ('admin.users.role_admin' | translate) }}
+            </span>
+          </td>
+          <td>
+            <span [class]="user.isActive ? 'badge badge-success' : 'badge badge-danger'">
+              {{ user.isActive ? ('admin.users.active' | translate) : ('admin.users.inactive' | translate) }}
+            </span>
+          </td>
+          <td>{{ user.lastLoginAt ? (user.lastLoginAt | date:'short') : '—' }}</td>
+          <td>{{ user.createdAt | date:'mediumDate' }}</td>
+          <td>
+            <div class="action-cell">
+              <a [routerLink]="['/users', user.id]" class="action-btn action-btn-view">
+                <i class="fas fa-eye"></i>
+              </a>
+              <button type="button" class="action-btn" [class.action-btn-warning]="user.isActive" [class.action-btn-success]="!user.isActive" (click)="toggleActive(user)">
+                <i [class]="user.isActive ? 'fas fa-user-slash' : 'fas fa-user-check'"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="users().length === 0">
+          <td colspan="7" class="no-data">{{ 'admin.common.no_data' | translate }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <span class="page-info">{{ currentPage() }} / {{ totalPages }}</span>
+      <button class="page-btn" [disabled]="currentPage() === totalPages" (click)="goToPage(currentPage() + 1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal-overlay" *ngIf="showCreateModal()" (click)="closeCreateModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ 'admin.users.create_form_heading' | translate }}</h3>
+      <button type="button" class="modal-close" (click)="closeCreateModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <form [formGroup]="createForm" (ngSubmit)="submitCreate()" class="modal-body">
+      <div *ngIf="createError()" class="alert alert-danger">{{ createError() | translate }}</div>
+      <div *ngIf="createSuccess()" class="alert alert-success">{{ createSuccess() | translate }}</div>
+
+      <div class="form-group">
+        <label>{{ 'admin.users.full_name' | translate }} *</label>
+        <input type="text" formControlName="fullName" class="form-control" />
+        <div class="field-error" *ngIf="createForm.get('fullName')?.invalid && createForm.get('fullName')?.touched">
+          {{ 'admin.users.full_name_required' | translate }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'admin.users.email' | translate }} *</label>
+        <input type="email" formControlName="email" class="form-control" />
+        <div class="field-error" *ngIf="createForm.get('email')?.invalid && createForm.get('email')?.touched">
+          {{ 'admin.users.email_required' | translate }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'admin.users.password_placeholder' | translate }} *</label>
+        <input type="password" formControlName="password" class="form-control" [placeholder]="'admin.users.password_placeholder' | translate" />
+        <div class="field-error" *ngIf="createForm.get('password')?.errors?.['required'] && createForm.get('password')?.touched">
+          {{ 'admin.users.password_required' | translate }}
+        </div>
+        <div class="field-error" *ngIf="createForm.get('password')?.errors?.['minlength'] && createForm.get('password')?.touched">
+          {{ 'admin.users.password_min_length' | translate }}
+        </div>
+        <div class="field-error" *ngIf="createForm.get('password')?.errors?.['passwordPattern'] && createForm.get('password')?.touched">
+          {{ 'admin.users.password_pattern' | translate }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'admin.users.role' | translate }} *</label>
+        <select formControlName="role" class="form-control">
+          <option value="Admin">{{ 'admin.users.role_admin' | translate }}</option>
+          <option value="SuperAdmin">{{ 'admin.users.role_super_admin' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeCreateModal()">{{ 'admin.common.cancel' | translate }}</button>
+        <button type="submit" class="btn-primary" [disabled]="createLoading()">
+          <i class="fas fa-spinner fa-spin" *ngIf="createLoading()"></i>
+          {{ 'admin.users.create_user' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

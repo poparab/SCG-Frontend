@@ -1,4 +1,4 @@
-import { test, expect, API_BASE } from '../fixtures/helpers';
+import { test, expect, API_BASE, testAgency, testTravelers } from '../fixtures/helpers';
 
 test.describe('Portal Inquiry List (US-IL-01)', () => {
   let agencyEmail: string;
@@ -18,16 +18,17 @@ test.describe('Portal Inquiry List (US-IL-01)', () => {
     await api.createNationality(adminToken, 'SD', 100);
 
     // Create and submit a batch to generate inquiries
-    const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
+    const agencyToken = await api.loginAgency(agencyEmail, testAgency.password);
+    const t = testTravelers[4]; // Amira Hassan — SD
     const batchRes = await page.request.post(`${API_BASE}/batches`, {
       headers: { Authorization: `Bearer ${agencyToken}` },
       data: {
         name: `InqList Batch ${Date.now()}`,
         nationalityCode: 'SD',
         travelers: [{
-          firstNameEn: 'Khalid', lastNameEn: 'Osman',
-          passportNumber: `SD${Date.now()}`, dateOfBirth: '1988-06-15',
-          gender: 0, travelDate: '2026-08-01'
+          firstNameEn: t.firstNameEn, lastNameEn: t.lastNameEn,
+          passportNumber: `SD${Date.now()}`, dateOfBirth: t.birthDate,
+          gender: 1, travelDate: '2026-10-01'
         }]
       }
     });
@@ -45,7 +46,7 @@ test.describe('Portal Inquiry List (US-IL-01)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
     await page.fill('#email', agencyEmail);
-    await page.fill('#password', 'Test@1234');
+    await page.fill('#password', testAgency.password);
     await page.click('button[type="submit"]');
     await page.waitForURL('**/dashboard', { timeout: 10_000 });
     await page.goto('/inquiries');
