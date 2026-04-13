@@ -19,7 +19,7 @@ test.describe('Portal Registration', () => {
     const email = `reg-e2e-${Date.now()}@test.com`;
 
     await page.fill('#agencyName', testAgency.nameEn);
-    await page.fill('#commercialRegNumber', `${testAgency.licenseNumber}-${Date.now()}`);
+    await page.fill('#commercialRegNumber', `LICETEST${Date.now().toString().slice(-8)}`);
     await page.fill('#contactPersonName', testAgency.contactPersonName);
     await page.fill('#email', email);
     await page.fill('#password', testAgency.password);
@@ -41,7 +41,7 @@ test.describe('Portal Registration', () => {
 
     // Try same email via UI
     await page.fill('#agencyName', testAgency.nameEn);
-    await page.fill('#commercialRegNumber', `${testAgency.licenseNumber}-DUP-${Date.now()}`);
+    await page.fill('#commercialRegNumber', `LICEDUP${Date.now().toString().slice(-8)}`);
     await page.fill('#contactPersonName', testAgency.contactPersonName);
     await page.fill('#email', email);
     await page.fill('#password', testAgency.password);

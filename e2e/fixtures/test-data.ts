@@ -20,7 +20,7 @@ export const testAgency = {
   password: 'Test@1234',
   contactPersonName: 'محمد الحسيني',
   phone: '+201234567890',
-  licenseNumber: 'LIC-TEST-E2E-001',
+  licenseNumber: 'LICE2E001',
 };
 
 /** Seeded super-admin account. */

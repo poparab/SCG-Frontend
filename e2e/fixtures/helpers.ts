@@ -26,7 +26,7 @@ export class ApiHelpers {
     const res = await this.page.request.post(`${API_BASE}/auth/register`, {
       data: {
         agencyName: `${testAgency.nameEn} ${uniqueSuffix}`,
-        commercialRegNumber: `${testAgency.licenseNumber}-${uniqueSuffix}`,
+        commercialRegNumber: `${testAgency.licenseNumber}${Date.now().toString().slice(-8)}`,
         contactPersonName: testAgency.contactPersonName,
         email,
         password,
