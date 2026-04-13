@@ -13,7 +13,7 @@
   <div class="filters-bar">
     <div class="search-box">
       <i class="fas fa-search"></i>
-      <input type="search" [formControl]="searchControl" [placeholder]="'admin.users.search_placeholder' | translate" />
+      <input type="search" class="filter-input" [formControl]="searchControl" [placeholder]="'admin.users.search_placeholder' | translate" />
     </div>
     <div class="select-wrap">
       <i class="fas fa-user-shield"></i>
@@ -71,10 +71,10 @@
             <td>{{ user.createdAt | date:'mediumDate' }}</td>
             <td>
               <div class="action-cell">
-                <a [routerLink]="['/users', user.id]" class="btn-action" [attr.aria-label]="'admin.common.view_all' | translate">
+                <a [routerLink]="['/users', user.id]" class="btn-action action-btn-view" [attr.aria-label]="'admin.common.view_all' | translate">
                   <i class="fas fa-eye"></i>
                 </a>
-                <button type="button" class="btn-action" [class.btn-action-warning]="user.isActive" [class.btn-action-success]="!user.isActive" (click)="toggleActive(user)" [attr.aria-label]="user.isActive ? ('admin.users.deactivate' | translate) : ('admin.users.activate' | translate)">
+                <button type="button" class="btn-action action-btn" [class.btn-action-warning]="user.isActive" [class.btn-action-success]="!user.isActive" (click)="toggleActive(user)" [attr.aria-label]="user.isActive ? ('admin.users.deactivate' | translate) : ('admin.users.activate' | translate)">
                   <i [class]="user.isActive ? 'fas fa-user-slash' : 'fas fa-user-check'"></i>
                 </button>
               </div>
@@ -99,7 +99,7 @@
   </div>
 </div>
 
-<div class="modal-backdrop" *ngIf="showCreateModal()" (click)="closeCreateModal()">
+<div class="modal-backdrop modal-overlay" *ngIf="showCreateModal()" (click)="closeCreateModal()">
   <div class="modal-panel" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3>{{ 'admin.users.create_form_heading' | translate }}</h3>
