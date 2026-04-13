@@ -1,5 +1,4 @@
-<div class="page-shell">
-  <!-- Page Header -->
+<div class="list-page">
   <div class="page-header">
     <div>
       <h2 class="page-title">{{ 'admin.auditLogs.title' | translate }}</h2>
@@ -7,93 +6,105 @@
     </div>
   </div>
 
-  <!-- Filters -->
-  <div class="filter-bar filter-bar-multi">
-    <div class="filter-group">
-      <label>{{ 'admin.auditLogs.entity_type' | translate }}</label>
-      <input type="text" [formControl]="entityTypeControl" [placeholder]="'admin.auditLogs.entity_type_placeholder' | translate" class="filter-input" />
+  <div class="filters-card">
+    <div class="filters-grid">
+      <div class="filter-field filter-field-search">
+        <label>{{ 'admin.auditLogs.entity_type' | translate }}</label>
+        <div class="search-box">
+          <i class="fas fa-database"></i>
+          <input type="search" [formControl]="entityTypeControl" [placeholder]="'admin.auditLogs.entity_type_placeholder' | translate" class="filter-input" />
+        </div>
+      </div>
+      <div class="filter-field filter-field-search">
+        <label>{{ 'admin.auditLogs.user_email' | translate }}</label>
+        <div class="search-box">
+          <i class="fas fa-at"></i>
+          <input type="search" [formControl]="userEmailControl" [placeholder]="'admin.auditLogs.user_email_placeholder' | translate" class="filter-input" />
+        </div>
+      </div>
+      <div class="filter-field filter-field-search">
+        <label>{{ 'admin.auditLogs.action' | translate }}</label>
+        <div class="search-box">
+          <i class="fas fa-bolt"></i>
+          <input type="search" [formControl]="actionControl" [placeholder]="'admin.auditLogs.action_placeholder' | translate" class="filter-input" />
+        </div>
+      </div>
+      <div class="filter-field">
+        <label>{{ 'admin.auditLogs.date_from' | translate }}</label>
+        <input type="date" [formControl]="dateFromControl" class="filter-control" />
+      </div>
+      <div class="filter-field">
+        <label>{{ 'admin.auditLogs.date_to' | translate }}</label>
+        <input type="date" [formControl]="dateToControl" class="filter-control" />
+      </div>
+      <div class="filter-actions">
+        <button type="button" class="btn" (click)="clearFilters()">
+          <i class="fas fa-rotate-left"></i>
+          {{ 'admin.common.cancel' | translate }}
+        </button>
+      </div>
     </div>
-    <div class="filter-group">
-      <label>{{ 'admin.auditLogs.user_email' | translate }}</label>
-      <input type="text" [formControl]="userEmailControl" [placeholder]="'admin.auditLogs.user_email_placeholder' | translate" class="filter-input" />
-    </div>
-    <div class="filter-group">
-      <label>{{ 'admin.auditLogs.action' | translate }}</label>
-      <input type="text" [formControl]="actionControl" [placeholder]="'admin.auditLogs.action_placeholder' | translate" class="filter-input" />
-    </div>
-    <div class="filter-group">
-      <label>{{ 'admin.auditLogs.date_from' | translate }}</label>
-      <input type="date" [formControl]="dateFromControl" class="filter-input" />
-    </div>
-    <div class="filter-group">
-      <label>{{ 'admin.auditLogs.date_to' | translate }}</label>
-      <input type="date" [formControl]="dateToControl" class="filter-input" />
-    </div>
-    <button type="button" class="btn-secondary btn-sm" (click)="clearFilters()">
-      <i class="fas fa-times"></i>
-      {{ 'admin.common.cancel' | translate }}
-    </button>
   </div>
 
-  <!-- Table -->
   <div class="table-card">
     <div *ngIf="loading()" class="table-loading">
       <i class="fas fa-spinner fa-spin"></i>
     </div>
 
-    <table *ngIf="!loading()" class="data-table">
-      <thead>
-        <tr>
-          <th>{{ 'admin.auditLogs.timestamp' | translate }}</th>
-          <th>{{ 'admin.auditLogs.user_email' | translate }}</th>
-          <th>{{ 'admin.auditLogs.action' | translate }}</th>
-          <th>{{ 'admin.auditLogs.entity_type' | translate }}</th>
-          <th>{{ 'admin.auditLogs.entity_id' | translate }}</th>
-          <th>{{ 'admin.auditLogs.ip_address' | translate }}</th>
-          <th>{{ 'admin.common.actions' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <ng-container *ngFor="let log of logs()">
+    <div class="table-responsive" *ngIf="!loading()">
+      <table class="data-table">
+        <thead>
           <tr>
-            <td>{{ log.timestamp | date:'short' }}</td>
-            <td>{{ log.userEmail || '—' }}</td>
-            <td><span class="badge badge-info">{{ log.action }}</span></td>
-            <td>{{ log.entityType }}</td>
-            <td class="entity-id">{{ log.entityId }}</td>
-            <td>{{ log.ipAddress || '—' }}</td>
-            <td>
-              <button type="button" class="action-btn action-btn-view" (click)="toggleExpand(log.id)" [title]="'admin.auditLogs.view_details' | translate">
-                <i [class]="expandedId() === log.id ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
-              </button>
-            </td>
+            <th>{{ 'admin.auditLogs.timestamp' | translate }}</th>
+            <th>{{ 'admin.auditLogs.user_email' | translate }}</th>
+            <th>{{ 'admin.auditLogs.action' | translate }}</th>
+            <th>{{ 'admin.auditLogs.entity_type' | translate }}</th>
+            <th>{{ 'admin.auditLogs.entity_id' | translate }}</th>
+            <th>{{ 'admin.auditLogs.ip_address' | translate }}</th>
+            <th>{{ 'admin.common.actions' | translate }}</th>
           </tr>
-          <tr *ngIf="expandedId() === log.id" class="expand-row">
-            <td colspan="7">
-              <div class="expand-content">
-                <div class="expand-section" *ngIf="log.oldValues">
-                  <h4>{{ 'admin.auditLogs.old_values' | translate }}</h4>
-                  <pre class="values-pre">{{ log.oldValues }}</pre>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let log of logs()">
+            <tr>
+              <td>{{ log.timestamp | date:'short' }}</td>
+              <td>{{ log.userEmail || '—' }}</td>
+              <td><span class="badge badge-info">{{ log.action }}</span></td>
+              <td><span class="badge badge-soft">{{ log.entityType }}</span></td>
+              <td class="entity-id">{{ log.entityId }}</td>
+              <td>{{ log.ipAddress || '—' }}</td>
+              <td>
+                <button type="button" class="btn-action" (click)="toggleExpand(log.id)" [title]="'admin.auditLogs.view_details' | translate">
+                  <i [class]="expandedId() === log.id ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="expandedId() === log.id" class="expand-row">
+              <td colspan="7">
+                <div class="expand-content">
+                  <div class="expand-section" *ngIf="log.oldValues">
+                    <h4>{{ 'admin.auditLogs.old_values' | translate }}</h4>
+                    <pre class="values-pre">{{ log.oldValues }}</pre>
+                  </div>
+                  <div class="expand-section" *ngIf="log.newValues">
+                    <h4>{{ 'admin.auditLogs.new_values' | translate }}</h4>
+                    <pre class="values-pre">{{ log.newValues }}</pre>
+                  </div>
+                  <div *ngIf="!log.oldValues && !log.newValues" class="no-change-data">
+                    {{ 'admin.auditLogs.no_change_data' | translate }}
+                  </div>
                 </div>
-                <div class="expand-section" *ngIf="log.newValues">
-                  <h4>{{ 'admin.auditLogs.new_values' | translate }}</h4>
-                  <pre class="values-pre">{{ log.newValues }}</pre>
-                </div>
-                <div *ngIf="!log.oldValues && !log.newValues" class="no-change-data">
-                  {{ 'admin.auditLogs.no_change_data' | translate }}
-                </div>
-              </div>
-            </td>
+              </td>
+            </tr>
+          </ng-container>
+          <tr *ngIf="logs().length === 0">
+            <td colspan="7" class="no-data">{{ 'admin.common.no_data' | translate }}</td>
           </tr>
-        </ng-container>
-        <tr *ngIf="logs().length === 0">
-          <td colspan="7" class="no-data">{{ 'admin.common.no_data' | translate }}</td>
-        </tr>
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
 
-    <!-- Pagination -->
-    <div class="pagination" *ngIf="totalPages > 1">
+    <div class="pagination-bar" *ngIf="totalPages > 1">
       <button class="page-btn" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
         <i class="fas fa-chevron-right"></i>
       </button>
