@@ -34,4 +34,8 @@ export class ApiService {
   postFormData<T>(path: string, formData: FormData): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${path}`, formData);
   }
+
+  putFormData<T>(path: string, formData: FormData): Observable<T> {
+    return this.http.put<T>(`${this.baseUrl}${path}`, formData);
+  }
 }

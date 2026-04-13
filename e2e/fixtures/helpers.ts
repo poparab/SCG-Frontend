@@ -1,8 +1,25 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { test as base, expect, Page } from '@playwright/test';
 import { testAdmin, testAgency, type Traveler } from './test-data';
 
 export const API_BASE = process.env.API_BASE || 'http://localhost:5155/api';
 export const ADMIN_PREFIX = process.env.ADMIN_PREFIX || '';
+export const travelerDocumentFixturePath = path.resolve(process.cwd(), 'public', 'favicon.png');
+
+const travelerDocumentBuffer = readFileSync(travelerDocumentFixturePath);
+
+export function uniqueTestEmail(prefix: string): string {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`;
+}
+
+function buildTravelerDocumentPart(name: string) {
+  return {
+    name,
+    mimeType: 'image/png',
+    buffer: travelerDocumentBuffer
+  };
+}
 
 // Re-export test data for convenience in specs
 export { testAdmin, testAgency, type Traveler };
@@ -17,16 +34,35 @@ export interface TestFixtures {
   apiHelpers: ApiHelpers;
 }
 
+interface TravelerBatchPayload {
+  firstNameEn: string;
+  lastNameEn: string;
+  firstNameAr?: string;
+  lastNameAr?: string;
+  passportNumber: string;
+  nationalityCode: string;
+  dateOfBirth: string;
+  gender: number;
+  travelDate: string;
+  arrivalAirport?: string | null;
+  transitCountries?: string | null;
+  passportExpiry: string;
+  departureCountry: string;
+  purposeOfTravel: string;
+  flightNumber?: string | null;
+}
+
 export class ApiHelpers {
   constructor(private page: Page) {}
 
   async registerAgency(email: string, password = testAgency.password) {
     const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const uniqueCommercialRegNumber = `${testAgency.licenseNumber}${Date.now().toString().slice(-6)}${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
 
     const res = await this.page.request.post(`${API_BASE}/auth/register`, {
       data: {
         agencyName: `${testAgency.nameEn} ${uniqueSuffix}`,
-        commercialRegNumber: `${testAgency.licenseNumber}${Date.now().toString().slice(-8)}`,
+        commercialRegNumber: uniqueCommercialRegNumber,
         contactPersonName: testAgency.contactPersonName,
         email,
         password,
@@ -34,8 +70,9 @@ export class ApiHelpers {
         mobileNumber: '01012345678',
       },
     });
-    expect(res.ok()).toBeTruthy();
-    return unwrap(await res.json());
+    const bodyText = await res.text();
+    expect(res.ok(), `registerAgency failed (${res.status()}): ${bodyText}`).toBeTruthy();
+    return unwrap(JSON.parse(bodyText));
   }
 
   async loginAdmin(): Promise<string> {
@@ -106,6 +143,61 @@ export class ApiHelpers {
       },
     });
   }
+
+  async createBatch(agencyToken: string, agencyId: string, name: string, notes?: string) {
+    const res = await this.page.request.post(`${API_BASE}/batches`, {
+      headers: { Authorization: `Bearer ${agencyToken}` },
+      data: {
+        agencyId,
+        name,
+        inquiryTypeId: null,
+        notes: notes ?? null,
+      },
+    });
+    const bodyText = await res.text();
+    expect(res.ok(), `createBatch failed (${res.status()}): ${bodyText}`).toBeTruthy();
+    return unwrap<{ id: string }>(JSON.parse(bodyText));
+  }
+
+  async addTravelerToBatch(agencyToken: string, batchId: string, traveler: TravelerBatchPayload) {
+    const multipart: Record<string, string | { name: string; mimeType: string; buffer: Buffer }> = {
+      firstNameEn: traveler.firstNameEn,
+      lastNameEn: traveler.lastNameEn,
+      passportNumber: traveler.passportNumber,
+      nationalityCode: traveler.nationalityCode,
+      dateOfBirth: traveler.dateOfBirth,
+      gender: traveler.gender.toString(),
+      travelDate: traveler.travelDate,
+      passportExpiry: traveler.passportExpiry,
+      departureCountry: traveler.departureCountry,
+      purposeOfTravel: traveler.purposeOfTravel,
+      passportImageDocument: buildTravelerDocumentPart('passport.png'),
+      ticketImageDocument: buildTravelerDocumentPart('ticket.png'),
+    };
+
+    if (traveler.firstNameAr) multipart['firstNameAr'] = traveler.firstNameAr;
+    if (traveler.lastNameAr) multipart['lastNameAr'] = traveler.lastNameAr;
+    if (traveler.arrivalAirport) multipart['arrivalAirport'] = traveler.arrivalAirport;
+    if (traveler.transitCountries) multipart['transitCountries'] = traveler.transitCountries;
+    if (traveler.flightNumber) multipart['flightNumber'] = traveler.flightNumber;
+
+    const res = await this.page.request.post(`${API_BASE}/batches/${batchId}/travelers`, {
+      headers: { Authorization: `Bearer ${agencyToken}` },
+      multipart,
+    });
+    const bodyText = await res.text();
+    expect(res.ok(), `addTravelerToBatch failed (${res.status()}): ${bodyText}`).toBeTruthy();
+    return unwrap<{ id: string }>(JSON.parse(bodyText));
+  }
+
+  async submitBatch(agencyToken: string, batchId: string) {
+    const res = await this.page.request.post(`${API_BASE}/batches/${batchId}/submit`, {
+      headers: { Authorization: `Bearer ${agencyToken}` },
+    });
+    const bodyText = await res.text();
+    expect(res.ok(), `submitBatch failed (${res.status()}): ${bodyText}`).toBeTruthy();
+    return JSON.parse(bodyText);
+  }
 }
 
 /** UI helper: log in as admin through the admin app. */
@@ -152,6 +244,12 @@ export async function selectSearchableOption(
   await dropdown.locator('.ss-option').first().click();
 }
 
+export async function uploadRequiredTravelerDocuments(page: Page): Promise<void> {
+  const fileInputs = page.locator('input[type="file"]');
+  await fileInputs.nth(0).setInputFiles(travelerDocumentFixturePath);
+  await fileInputs.nth(1).setInputFiles(travelerDocumentFixturePath);
+}
+
 /**
  * UI helper: fills the batch wizard with the provided travelers and submits.
  * Assumes the agency is already logged in.
@@ -175,13 +273,14 @@ export async function createBatchWithTravelers(
     await page.fill('input[formControlName="lastNameEn"]', t.lastNameEn);
     await page.selectOption('select[formControlName="nationalityCode"]', t.nationality);
     // Unique passport to prevent constraint violations on repeated runs
-    await page.fill('input[formControlName="passportNumber"]', `${t.nationality}${Date.now()}`);
+    await page.fill('input[formControlName="passportNumber"]', `${t.nationality}${Date.now()}${i}`);
     await page.fill('input[formControlName="passportExpiry"]', t.passportExpiry);
     await page.fill('input[formControlName="dateOfBirth"]', t.birthDate);
     await page.selectOption('select[formControlName="gender"]', t.gender === 'Male' ? '0' : '1');
     await selectSearchableOption(page, 'departureCountry', t.nationality);
     await page.fill('input[formControlName="travelDate"]', '2026-10-01');
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
+    await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
     await expect(page.locator('.traveler-card')).toHaveCount(i + 1, { timeout: 5_000 });
   }

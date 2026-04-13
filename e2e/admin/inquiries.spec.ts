@@ -1,4 +1,4 @@
-import { test, expect, API_BASE, ADMIN_PREFIX, testAdmin, testTravelers } from '../fixtures/helpers';
+import { test, expect, ADMIN_PREFIX, testAdmin, testTravelers, uniqueTestEmail } from '../fixtures/helpers';
 
 test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
   let agencyEmail: string;
@@ -10,7 +10,7 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
     const api = new helpers(page);
 
     // Create an agency with a submitted batch to generate inquiries
-    agencyEmail = `adm-inq-e2e-${Date.now()}@test.com`;
+    agencyEmail = uniqueTestEmail('adm-inq-e2e');
     await api.registerAgency(agencyEmail, 'Test@1234');
     const adminToken = await api.loginAdmin();
     const agencyId = await api.approveAgency(agencyEmail, adminToken);
@@ -19,26 +19,25 @@ test.describe('Admin Inquiry Management (US-M2-15, US-M2-16)', () => {
 
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
     const t = testTravelers[4]; // Amira Hassan — SD (Sudan)
-    const batchRes = await page.request.post(`${API_BASE}/batches`, {
-      headers: { Authorization: `Bearer ${agencyToken}` },
-      data: {
-        name: `Admin InqTest ${Date.now()}`,
-        nationalityCode: 'SD',
-        travelers: [{
-          firstNameEn: t.firstNameEn, lastNameEn: t.lastNameEn,
-          passportNumber: `SD${Date.now()}`, dateOfBirth: t.birthDate,
-          gender: 1, travelDate: '2026-10-01'
-        }]
-      }
+    const batch = await api.createBatch(agencyToken, agencyId, `Admin InqTest ${Date.now()}`);
+    await api.addTravelerToBatch(agencyToken, batch.id, {
+      firstNameEn: t.firstNameEn,
+      lastNameEn: t.lastNameEn,
+      firstNameAr: t.firstNameAr,
+      lastNameAr: t.lastNameAr,
+      passportNumber: `SD${Date.now()}`,
+      nationalityCode: 'SD',
+      dateOfBirth: t.birthDate,
+      gender: 1,
+      travelDate: '2026-10-01',
+      arrivalAirport: null,
+      transitCountries: null,
+      passportExpiry: t.passportExpiry,
+      departureCountry: 'SD',
+      purposeOfTravel: 'Tourism',
+      flightNumber: null
     });
-    if (batchRes.ok()) {
-      const batch = await batchRes.json();
-      if (batch.id) {
-        await page.request.post(`${API_BASE}/batches/${batch.id}/submit`, {
-          headers: { Authorization: `Bearer ${agencyToken}` }
-        });
-      }
-    }
+    await api.submitBatch(agencyToken, batch.id);
     await context.close();
   });
 

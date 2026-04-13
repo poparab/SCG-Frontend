@@ -1,4 +1,4 @@
-import { test, expect, ADMIN_PREFIX, testAdmin } from '../fixtures/helpers';
+import { test, expect, ADMIN_PREFIX, testAdmin, uniqueTestEmail } from '../fixtures/helpers';
 
 test.describe('Admin Dashboard', () => {
   test.beforeEach(async ({ page }) => {
@@ -22,8 +22,8 @@ test.describe('Admin Dashboard', () => {
 
   test('should reflect registered agencies in dashboard KPIs', async ({ page, apiHelpers }) => {
     // Register agencies via API
-    await apiHelpers.registerAgency(`dash-a1-${Date.now()}@test.com`);
-    await apiHelpers.registerAgency(`dash-a2-${Date.now()}@test.com`);
+    await apiHelpers.registerAgency(uniqueTestEmail('dash-a1'));
+    await apiHelpers.registerAgency(uniqueTestEmail('dash-a2'));
 
     // Refresh dashboard
     await page.reload();

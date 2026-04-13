@@ -1,4 +1,4 @@
-import { test, expect, testAgency } from '../fixtures/helpers';
+import { test, expect, testAgency, uniqueTestEmail } from '../fixtures/helpers';
 
 test.describe('Portal Registration', () => {
   test.beforeEach(async ({ page }) => {
@@ -16,7 +16,7 @@ test.describe('Portal Registration', () => {
   });
 
   test('should register a new agency successfully', async ({ page }) => {
-    const email = `reg-e2e-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('reg-e2e');
 
     await page.fill('#agencyName', testAgency.nameEn);
     await page.fill('#commercialRegNumber', `LICETEST${Date.now().toString().slice(-8)}`);
@@ -34,7 +34,7 @@ test.describe('Portal Registration', () => {
   });
 
   test('should show error for duplicate email', async ({ page, apiHelpers }) => {
-    const email = `dup-e2e-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('dup-e2e');
 
     // Register via API first
     await apiHelpers.registerAgency(email, testAgency.password);
@@ -69,7 +69,7 @@ test.describe('Portal Registration', () => {
     await page.fill('#agencyName', 'Mismatch Agency');
     await page.fill('#commercialRegNumber', `CRMM${Date.now()}`);
     await page.fill('#contactPersonName', 'Mismatch Tester');
-    await page.fill('#email', `mm-${Date.now()}@test.com`);
+    await page.fill('#email', uniqueTestEmail('mm'));
     await page.fill('#password', 'Test@1234');
     await page.fill('#confirmPassword', 'Different@5678');
     await page.selectOption('select[formControlName="countryCode"]', '+20');

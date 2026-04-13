@@ -1,4 +1,4 @@
-import { test, expect, testAgency } from '../fixtures/helpers';
+import { test, expect, testAgency, uniqueTestEmail } from '../fixtures/helpers';
 
 test.describe('Portal Profile (US-PR-01)', () => {
   let agencyEmail: string;
@@ -9,7 +9,7 @@ test.describe('Portal Profile (US-PR-01)', () => {
     const helpers = (await import('../fixtures/helpers')).ApiHelpers;
     const api = new helpers(page);
 
-    agencyEmail = `profile-e2e-${Date.now()}@test.com`;
+    agencyEmail = uniqueTestEmail('profile-e2e');
     await api.registerAgency(agencyEmail, testAgency.password);
     const adminToken = await api.loginAdmin();
     await api.approveAgency(agencyEmail, adminToken);
@@ -86,7 +86,7 @@ test.describe('Portal Profile (US-PR-01)', () => {
 
     const helpers = (await import('../fixtures/helpers')).ApiHelpers;
     const api = new helpers(freshPage);
-    const freshEmail = `profile-pw-chg-${Date.now()}@test.com`;
+    const freshEmail = uniqueTestEmail('profile-pw-chg');
     const newPassword = 'Changed@5678';
 
     await api.registerAgency(freshEmail, testAgency.password);

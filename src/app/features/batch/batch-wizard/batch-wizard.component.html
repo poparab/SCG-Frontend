@@ -306,6 +306,52 @@
                   </div>
                 </div>
 
+                <div class="form-section-label">
+                  <i class="fa-solid fa-file-arrow-up"></i> {{ 'batch.documents' | translate }}
+                </div>
+                <div class="ff-grid">
+                  <div class="ff-field">
+                    <label>{{ 'batch.passportImage' | translate }} <span class="ff-req">*</span></label>
+                    <input
+                      #passportImageInput
+                      type="file"
+                      class="form-control"
+                      [accept]="travelerDocumentAccept"
+                      [class.is-invalid]="travelerForm.get('passportImage')?.touched && travelerForm.get('passportImage')?.invalid"
+                      (change)="onTravelerDocumentSelected($event, 'passportImage')">
+                    <small class="text-muted">{{ 'batch.documentHelp' | translate }}</small>
+                    @if (hasExistingTravelerDocument('passportImage')) {
+                      <small class="d-block text-muted">{{ 'batch.documentExisting' | translate }}</small>
+                    }
+                    @if (getSelectedTravelerDocumentName('passportImage'); as selectedName) {
+                      <small class="d-block text-muted">{{ selectedName }}</small>
+                    }
+                    @if (getTravelerDocumentErrorKey('passportImage'); as errorKey) {
+                      <small class="text-danger d-block">{{ errorKey | translate }}</small>
+                    }
+                  </div>
+                  <div class="ff-field">
+                    <label>{{ 'batch.ticketImage' | translate }} <span class="ff-req">*</span></label>
+                    <input
+                      #ticketImageInput
+                      type="file"
+                      class="form-control"
+                      [accept]="travelerDocumentAccept"
+                      [class.is-invalid]="travelerForm.get('ticketImage')?.touched && travelerForm.get('ticketImage')?.invalid"
+                      (change)="onTravelerDocumentSelected($event, 'ticketImage')">
+                    <small class="text-muted">{{ 'batch.documentHelp' | translate }}</small>
+                    @if (hasExistingTravelerDocument('ticketImage')) {
+                      <small class="d-block text-muted">{{ 'batch.documentExisting' | translate }}</small>
+                    }
+                    @if (getSelectedTravelerDocumentName('ticketImage'); as selectedName) {
+                      <small class="d-block text-muted">{{ selectedName }}</small>
+                    }
+                    @if (getTravelerDocumentErrorKey('ticketImage'); as errorKey) {
+                      <small class="text-danger d-block">{{ errorKey | translate }}</small>
+                    }
+                  </div>
+                </div>
+
                 <div class="form-actions">
                   <button type="submit" class="wz-btn wz-btn-success" [disabled]="submitting()">
                     <i class="fa-solid fa-plus"></i>

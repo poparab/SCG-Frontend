@@ -1,4 +1,4 @@
-import { test, expect, API_BASE, testAgency, testTravelers } from '../fixtures/helpers';
+import { test, expect, API_BASE, testAgency, testTravelers, uniqueTestEmail } from '../fixtures/helpers';
 
 function unwrap<T>(body: { data: T }): T {
   return body.data;
@@ -17,7 +17,7 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
     const helpers = (await import('../fixtures/helpers')).ApiHelpers;
     const api = new helpers(page);
 
-    agencyEmail = `inqdet-e2e-${Date.now()}@test.com`;
+    agencyEmail = uniqueTestEmail('inqdet-e2e');
     await api.registerAgency(agencyEmail, 'Test@1234');
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);
@@ -26,44 +26,27 @@ test.describe('Portal Inquiry Detail (US-IV-01)', () => {
 
     const agencyToken = await api.loginAgency(agencyEmail, testAgency.password);
     const t = testTravelers[6]; // Ali Karimi — AF (Afghanistan)
-    const batchRes = await page.request.post(`${API_BASE}/batches`, {
-      headers: { Authorization: `Bearer ${agencyToken}` },
-      data: {
-        agencyId,
-        name: `InqDetail Batch ${Date.now()}`,
-        notes: 'E2E inquiry detail setup'
-      }
-    });
-    expect(batchRes.ok()).toBeTruthy();
+    const batch = await api.createBatch(agencyToken, agencyId, `InqDetail Batch ${Date.now()}`, 'E2E inquiry detail setup');
 
-    const batch = unwrap<{ id: string }>(await batchRes.json());
-
-    const addTravelerRes = await page.request.post(`${API_BASE}/batches/${batch.id}/travelers`, {
-      headers: { Authorization: `Bearer ${agencyToken}` },
-      data: {
-        firstNameEn: t.firstNameEn,
-        lastNameEn: t.lastNameEn,
-        firstNameAr: t.firstNameAr,
-        lastNameAr: t.lastNameAr,
-        passportNumber: `AF${Date.now()}`,
-        nationalityCode: t.nationality,
-        dateOfBirth: t.birthDate,
-        gender: 0,
-        travelDate: '2026-10-01',
-        arrivalAirport: null,
-        transitCountries: null,
-        passportExpiry: t.passportExpiry,
-        departureCountry: t.nationality,
-        purposeOfTravel: 'Tourism',
-        flightNumber: null
-      }
+    await api.addTravelerToBatch(agencyToken, batch.id, {
+      firstNameEn: t.firstNameEn,
+      lastNameEn: t.lastNameEn,
+      firstNameAr: t.firstNameAr,
+      lastNameAr: t.lastNameAr,
+      passportNumber: `AF${Date.now()}`,
+      nationalityCode: t.nationality,
+      dateOfBirth: t.birthDate,
+      gender: 0,
+      travelDate: '2026-10-01',
+      arrivalAirport: null,
+      transitCountries: null,
+      passportExpiry: t.passportExpiry,
+      departureCountry: t.nationality,
+      purposeOfTravel: 'Tourism',
+      flightNumber: null
     });
-    expect(addTravelerRes.ok()).toBeTruthy();
 
-    const submitRes = await page.request.post(`${API_BASE}/batches/${batch.id}/submit`, {
-      headers: { Authorization: `Bearer ${agencyToken}` }
-    });
-    expect(submitRes.ok()).toBeTruthy();
+    await api.submitBatch(agencyToken, batch.id);
 
     const inqRes = await page.request.get(`${API_BASE}/inquiries?agencyId=${agencyId}`, {
       headers: { Authorization: `Bearer ${agencyToken}` }

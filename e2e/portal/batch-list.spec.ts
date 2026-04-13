@@ -1,4 +1,4 @@
-import { test, expect, API_BASE, testAgency, testTravelers } from '../fixtures/helpers';
+import { test, expect, testAgency, testTravelers, uniqueTestEmail } from '../fixtures/helpers';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -12,7 +12,7 @@ test.describe('Portal Batch List (US-BL-01)', () => {
     const helpers = (await import('../fixtures/helpers')).ApiHelpers;
     const api = new helpers(page);
 
-    agencyEmail = `blist-e2e-${Date.now()}@test.com`;
+    agencyEmail = uniqueTestEmail('blist-e2e');
     await api.registerAgency(agencyEmail, 'Test@1234');
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);
@@ -22,26 +22,25 @@ test.describe('Portal Batch List (US-BL-01)', () => {
     // Create and submit a batch via API to have data
     const agencyToken = await api.loginAgency(agencyEmail, testAgency.password);
     const t = testTravelers[0]; // Omar Al-Rashidi — IQ
-    const batchRes = await page.request.post(`${API_BASE}/batches`, {
-      headers: { Authorization: `Bearer ${agencyToken}` },
-      data: {
-        name: `Batch ListTest ${Date.now()}`,
-        nationalityCode: 'IQ',
-        travelers: [{
-          firstNameEn: t.firstNameEn, lastNameEn: t.lastNameEn,
-          passportNumber: `IQ${Date.now()}`, dateOfBirth: t.birthDate,
-          gender: 0, travelDate: '2026-10-01'
-        }]
-      }
+    const batch = await api.createBatch(agencyToken, agencyId, `Batch ListTest ${Date.now()}`);
+    await api.addTravelerToBatch(agencyToken, batch.id, {
+      firstNameEn: t.firstNameEn,
+      lastNameEn: t.lastNameEn,
+      firstNameAr: t.firstNameAr,
+      lastNameAr: t.lastNameAr,
+      passportNumber: `IQ${Date.now()}`,
+      nationalityCode: 'IQ',
+      dateOfBirth: t.birthDate,
+      gender: 0,
+      travelDate: '2026-10-01',
+      arrivalAirport: null,
+      transitCountries: null,
+      passportExpiry: t.passportExpiry,
+      departureCountry: 'IQ',
+      purposeOfTravel: 'Tourism',
+      flightNumber: null
     });
-    if (batchRes.ok()) {
-      const batch = await batchRes.json();
-      if (batch.id) {
-        await page.request.post(`${API_BASE}/batches/${batch.id}/submit`, {
-          headers: { Authorization: `Bearer ${agencyToken}` }
-        });
-      }
-    }
+    await api.submitBatch(agencyToken, batch.id);
     await context.close();
   });
 

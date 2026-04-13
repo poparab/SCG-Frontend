@@ -1,4 +1,4 @@
-import { test, expect, testAgency } from '../fixtures/helpers';
+import { test, expect, testAgency, uniqueTestEmail } from '../fixtures/helpers';
 
 test.describe('Portal Wallet (US-W-01)', () => {
   let agencyEmail: string;
@@ -10,7 +10,7 @@ test.describe('Portal Wallet (US-W-01)', () => {
     const helpers = (await import('../fixtures/helpers')).ApiHelpers;
     const api = new helpers(page);
 
-    agencyEmail = `wallet-e2e-${Date.now()}@test.com`;
+    agencyEmail = uniqueTestEmail('wallet-e2e');
     await api.registerAgency(agencyEmail, testAgency.password);
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);

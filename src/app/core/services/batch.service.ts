@@ -8,8 +8,7 @@ import {
   CreateBatchRequest,
   BatchListItem,
   BatchDetail,
-  AddTravelerRequest,
-  UpdateTravelerRequest,
+  TravelerSaveRequest,
   SubmitBatchResponse
 } from '../models/batch.models';
 
@@ -30,12 +29,12 @@ export class BatchService {
     return this.api.get<BatchDetail>(`/batches/${id}`);
   }
 
-  addTraveler(batchId: string, traveler: AddTravelerRequest): Observable<{ id: string }> {
-    return this.api.post<{ id: string }>(`/batches/${batchId}/travelers`, traveler);
+  addTraveler(batchId: string, traveler: TravelerSaveRequest): Observable<{ id: string }> {
+    return this.api.postFormData<{ id: string }>(`/batches/${batchId}/travelers`, this.buildTravelerFormData(traveler));
   }
 
-  updateTraveler(batchId: string, travelerId: string, traveler: UpdateTravelerRequest): Observable<void> {
-    return this.api.put<void>(`/batches/${batchId}/travelers/${travelerId}`, traveler);
+  updateTraveler(batchId: string, travelerId: string, traveler: TravelerSaveRequest): Observable<void> {
+    return this.api.putFormData<void>(`/batches/${batchId}/travelers/${travelerId}`, this.buildTravelerFormData(traveler));
   }
 
   removeTraveler(batchId: string, travelerId: string): Observable<void> {
@@ -50,5 +49,42 @@ export class BatchService {
     return this.http.get(`${environment.apiUrl}/batches/${batchId}/export`, {
       responseType: 'blob'
     });
+  }
+
+  private buildTravelerFormData(traveler: TravelerSaveRequest): FormData {
+    const formData = new FormData();
+
+    formData.append('firstNameEn', traveler.firstNameEn);
+    formData.append('lastNameEn', traveler.lastNameEn);
+    formData.append('passportNumber', traveler.passportNumber);
+    formData.append('nationalityCode', traveler.nationalityCode);
+    formData.append('dateOfBirth', traveler.dateOfBirth);
+    formData.append('gender', String(traveler.gender));
+    formData.append('travelDate', traveler.travelDate);
+    formData.append('passportExpiry', traveler.passportExpiry);
+    formData.append('departureCountry', traveler.departureCountry);
+    formData.append('purposeOfTravel', traveler.purposeOfTravel);
+
+    this.appendOptionalValue(formData, 'firstNameAr', traveler.firstNameAr);
+    this.appendOptionalValue(formData, 'lastNameAr', traveler.lastNameAr);
+    this.appendOptionalValue(formData, 'arrivalAirport', traveler.arrivalAirport);
+    this.appendOptionalValue(formData, 'transitCountries', traveler.transitCountries);
+    this.appendOptionalValue(formData, 'flightNumber', traveler.flightNumber);
+
+    if (traveler.passportImage instanceof File) {
+      formData.append('passportImageDocument', traveler.passportImage);
+    }
+
+    if (traveler.ticketImage instanceof File) {
+      formData.append('ticketImageDocument', traveler.ticketImage);
+    }
+
+    return formData;
+  }
+
+  private appendOptionalValue(formData: FormData, key: string, value?: string): void {
+    if (value) {
+      formData.append(key, value);
+    }
   }
 }

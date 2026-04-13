@@ -1,4 +1,4 @@
-import { test, expect, API_BASE, testAgency, testTravelers } from '../fixtures/helpers';
+import { test, expect, testAgency, testTravelers, uniqueTestEmail } from '../fixtures/helpers';
 
 function unwrap<T>(body: { data: T }): T {
   return body.data;
@@ -17,7 +17,7 @@ test.describe('Portal Batch Detail (US-40, US-40A)', () => {
     const helpers = (await import('../fixtures/helpers')).ApiHelpers;
     const api = new helpers(page);
 
-    agencyEmail = `bdetail-e2e-${Date.now()}@test.com`;
+    agencyEmail = uniqueTestEmail('bdetail-e2e');
     await api.registerAgency(agencyEmail, 'Test@1234');
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);
@@ -26,17 +26,7 @@ test.describe('Portal Batch Detail (US-40, US-40A)', () => {
 
     // Create and submit a batch using the current API contract.
     const agencyToken = await api.loginAgency(agencyEmail, 'Test@1234');
-    const batchRes = await page.request.post(`${API_BASE}/batches`, {
-      headers: { Authorization: `Bearer ${agencyToken}` },
-      data: {
-        agencyId,
-        name: `Detail Test Batch ${Date.now()}`,
-        notes: 'E2E batch detail setup'
-      }
-    });
-    expect(batchRes.ok()).toBeTruthy();
-
-    const batch = unwrap<{ id: string }>(await batchRes.json());
+    const batch = await api.createBatch(agencyToken, agencyId, `Detail Test Batch ${Date.now()}`, 'E2E batch detail setup');
     batchId = batch.id;
 
     for (const traveler of [
@@ -57,27 +47,19 @@ test.describe('Portal Batch Detail (US-40, US-40A)', () => {
         travelDate: '2026-10-01'
       }
     ]) {
-      const addTravelerRes = await page.request.post(`${API_BASE}/batches/${batchId}/travelers`, {
-        headers: { Authorization: `Bearer ${agencyToken}` },
-        data: {
-          ...traveler,
-          nationalityCode: 'AF',
-          passportExpiry: '2030-01-01',
-          departureCountry: 'AF',
-          purposeOfTravel: 'Tourism',
-          arrivalAirport: null,
-          transitCountries: null,
-          flightNumber: null
-        }
+      await api.addTravelerToBatch(agencyToken, batchId, {
+        ...traveler,
+        nationalityCode: 'AF',
+        passportExpiry: '2030-01-01',
+        departureCountry: 'AF',
+        purposeOfTravel: 'Tourism',
+        arrivalAirport: null,
+        transitCountries: null,
+        flightNumber: null
       });
-
-      expect(addTravelerRes.ok()).toBeTruthy();
     }
 
-    const submitRes = await page.request.post(`${API_BASE}/batches/${batchId}/submit`, {
-      headers: { Authorization: `Bearer ${agencyToken}` }
-    });
-    expect(submitRes.ok()).toBeTruthy();
+    await api.submitBatch(agencyToken, batchId);
 
     await context.close();
   });

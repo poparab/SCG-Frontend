@@ -35,7 +35,7 @@ export class RegisterComponent {
 
   form = this.fb.nonNullable.group({
     agencyName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-    commercialRegNumber: ['', [Validators.pattern(/^[a-zA-Z0-9]{6,20}$/)]],
+    commercialRegNumber: ['', [Validators.pattern(/^[A-Za-z0-9\/-]{3,20}$/)]],
     contactPersonName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [

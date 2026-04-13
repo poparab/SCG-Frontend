@@ -1,4 +1,4 @@
-import { test, expect, API_BASE, testAgency, testTravelers } from '../fixtures/helpers';
+import { test, expect, testAgency, testTravelers, uniqueTestEmail } from '../fixtures/helpers';
 
 test.describe('Portal Inquiry List (US-IL-01)', () => {
   let agencyEmail: string;
@@ -10,7 +10,7 @@ test.describe('Portal Inquiry List (US-IL-01)', () => {
     const helpers = (await import('../fixtures/helpers')).ApiHelpers;
     const api = new helpers(page);
 
-    agencyEmail = `inqlist-e2e-${Date.now()}@test.com`;
+    agencyEmail = uniqueTestEmail('inqlist-e2e');
     await api.registerAgency(agencyEmail, 'Test@1234');
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);
@@ -20,26 +20,25 @@ test.describe('Portal Inquiry List (US-IL-01)', () => {
     // Create and submit a batch to generate inquiries
     const agencyToken = await api.loginAgency(agencyEmail, testAgency.password);
     const t = testTravelers[4]; // Amira Hassan — SD
-    const batchRes = await page.request.post(`${API_BASE}/batches`, {
-      headers: { Authorization: `Bearer ${agencyToken}` },
-      data: {
-        name: `InqList Batch ${Date.now()}`,
-        nationalityCode: 'SD',
-        travelers: [{
-          firstNameEn: t.firstNameEn, lastNameEn: t.lastNameEn,
-          passportNumber: `SD${Date.now()}`, dateOfBirth: t.birthDate,
-          gender: 1, travelDate: '2026-10-01'
-        }]
-      }
+    const batch = await api.createBatch(agencyToken, agencyId, `InqList Batch ${Date.now()}`);
+    await api.addTravelerToBatch(agencyToken, batch.id, {
+      firstNameEn: t.firstNameEn,
+      lastNameEn: t.lastNameEn,
+      firstNameAr: t.firstNameAr,
+      lastNameAr: t.lastNameAr,
+      passportNumber: `SD${Date.now()}`,
+      nationalityCode: 'SD',
+      dateOfBirth: t.birthDate,
+      gender: 1,
+      travelDate: '2026-10-01',
+      arrivalAirport: null,
+      transitCountries: null,
+      passportExpiry: t.passportExpiry,
+      departureCountry: 'SD',
+      purposeOfTravel: 'Tourism',
+      flightNumber: null
     });
-    if (batchRes.ok()) {
-      const batch = await batchRes.json();
-      if (batch.id) {
-        await page.request.post(`${API_BASE}/batches/${batch.id}/submit`, {
-          headers: { Authorization: `Bearer ${agencyToken}` }
-        });
-      }
-    }
+    await api.submitBatch(agencyToken, batch.id);
     await context.close();
   });
 
@@ -74,8 +73,10 @@ test.describe('Portal Inquiry List (US-IL-01)', () => {
   });
 
   test('AC3: should show at least one inquiry row', async ({ page }) => {
+    await expect(page.locator('.text-center.py-5')).toHaveCount(0, { timeout: 10_000 });
+
     const table = page.locator('.data-table-card .data-table');
-    await expect(table).toBeVisible({ timeout: 5_000 });
+    await expect(table).toBeVisible({ timeout: 10_000 });
 
     const rows = table.locator('tbody tr');
     // Check rows exist (may show empty state in Arabic if no inquiries created)

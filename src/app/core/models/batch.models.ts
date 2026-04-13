@@ -28,6 +28,15 @@ export interface BatchDetail {
   travelers: BatchTraveler[];
 }
 
+export interface TravelerDocumentMetadata {
+  fileName?: string;
+  originalFileName?: string;
+  contentType?: string;
+  fileSize?: number;
+  url?: string;
+  uploadedAt?: string;
+}
+
 export interface BatchTraveler {
   id: string;
   firstNameEn: string;
@@ -47,9 +56,11 @@ export interface BatchTraveler {
   inquiryId?: string;
   inquiryStatus?: string;
   inquiryReferenceNumber?: string;
+  hasPassportImageDocument?: boolean;
+  hasTicketImageDocument?: boolean;
 }
 
-export interface AddTravelerRequest {
+export interface TravelerSaveRequest {
   firstNameEn: string;
   lastNameEn: string;
   firstNameAr?: string;
@@ -65,9 +76,13 @@ export interface AddTravelerRequest {
   departureCountry: string;
   purposeOfTravel: string;
   flightNumber?: string;
+  passportImage?: File | null;
+  ticketImage?: File | null;
 }
 
-export type UpdateTravelerRequest = AddTravelerRequest;
+export type AddTravelerRequest = TravelerSaveRequest;
+
+export type UpdateTravelerRequest = TravelerSaveRequest;
 
 export interface SubmitBatchResponse {
   batchReference: string;

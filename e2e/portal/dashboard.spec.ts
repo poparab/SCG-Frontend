@@ -1,4 +1,4 @@
-import { test, expect, testAgency } from '../fixtures/helpers';
+import { test, expect, testAgency, uniqueTestEmail } from '../fixtures/helpers';
 
 test.describe('Portal Dashboard & Navigation', () => {
   let agencyEmail: string;
@@ -9,7 +9,7 @@ test.describe('Portal Dashboard & Navigation', () => {
     const helpers = (await import('../fixtures/helpers')).ApiHelpers;
     const api = new helpers(page);
 
-    agencyEmail = `dash-e2e-${Date.now()}@test.com`;
+    agencyEmail = uniqueTestEmail('dash-e2e');
     await api.registerAgency(agencyEmail, testAgency.password);
     const adminToken = await api.loginAdmin();
     await api.approveAgency(agencyEmail, adminToken);

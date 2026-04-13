@@ -1,4 +1,4 @@
-import { test, expect, testAgency } from '../fixtures/helpers';
+import { test, expect, testAgency, uniqueTestEmail } from '../fixtures/helpers';
 
 test.describe('Portal Login', () => {
   test.beforeEach(async ({ page }) => {
@@ -20,7 +20,7 @@ test.describe('Portal Login', () => {
   });
 
   test('should login with approved agency and redirect to dashboard', async ({ page, apiHelpers }) => {
-    const email = `login-e2e-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('login-e2e');
     const password = testAgency.password;
 
     // Setup via API: register, approve
@@ -33,7 +33,7 @@ test.describe('Portal Login', () => {
     await page.fill('#password', password);
     await page.click('button[type="submit"]');
 
-    await page.waitForURL('**/dashboard', { timeout: 10_000 });
+    await page.waitForURL('**/dashboard', { timeout: 20_000 });
     await expect(page).toHaveURL(/\/dashboard/);
   });
 
@@ -43,7 +43,7 @@ test.describe('Portal Login', () => {
   });
 
   test('US-26 AC3: should block login for pending (unapproved) account', async ({ page, apiHelpers }) => {
-    const email = `pending-e2e-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('pending-e2e');
     const password = testAgency.password;
 
     // Register but do NOT approve

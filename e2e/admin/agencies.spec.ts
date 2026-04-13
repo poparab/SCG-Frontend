@@ -1,4 +1,4 @@
-import { test, expect, API_BASE, ADMIN_PREFIX, testAdmin, testAgency } from '../fixtures/helpers';
+import { test, expect, API_BASE, ADMIN_PREFIX, testAdmin, testAgency, uniqueTestEmail } from '../fixtures/helpers';
 
 const ADMIN_BASE_URL = process.env.BASE_URL_ADMIN || 'http://localhost:4201';
 
@@ -29,8 +29,8 @@ test.describe('Admin Agency Management', () => {
     const helpers = (await import('../fixtures/helpers')).ApiHelpers;
     const apiHelpers = new helpers(page);
 
-    const pendingEmail = `pending-filter-${Date.now()}@test.com`;
-    const approvedEmail = `approved-filter-${Date.now()}@test.com`;
+    const pendingEmail = uniqueTestEmail('pending-filter');
+    const approvedEmail = uniqueTestEmail('approved-filter');
 
     await apiHelpers.registerAgency(pendingEmail);
     await apiHelpers.registerAgency(approvedEmail);
@@ -66,7 +66,7 @@ test.describe('Admin Agency Management', () => {
 
   test('should approve a pending agency', async ({ page, apiHelpers }) => {
     // Register an agency via API
-    const email = `admin-approve-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('admin-approve');
     await apiHelpers.registerAgency(email);
 
     // Navigate to agencies
@@ -91,7 +91,7 @@ test.describe('Admin Agency Management', () => {
   });
 
   test('should view agency detail', async ({ page, apiHelpers }) => {
-    const email = `detail-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('detail');
     await apiHelpers.registerAgency(email);
     const adminToken = await apiHelpers.loginAdmin();
     const agencyId = await apiHelpers.approveAgency(email, adminToken);
@@ -101,7 +101,7 @@ test.describe('Admin Agency Management', () => {
   });
 
   test('US-M2-09 AC2/AC3: should approve agency via detail page UI', async ({ page, apiHelpers }) => {
-    const email = `ui-approve-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('ui-approve');
     await apiHelpers.registerAgency(email);
 
     // Find agency via API to get ID
@@ -131,7 +131,7 @@ test.describe('Admin Agency Management', () => {
   });
 
   test('US-M2-09 AC4: approved agency should be able to login', async ({ page, apiHelpers }) => {
-    const email = `login-after-approve-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('login-after-approve');
     await apiHelpers.registerAgency(email, testAgency.password);
     const adminToken = await apiHelpers.loginAdmin();
     await apiHelpers.approveAgency(email, adminToken);
@@ -147,7 +147,7 @@ test.describe('Admin Agency Management', () => {
     const createdNationality = await apiHelpers.createNationality(adminToken, code, 125);
     expect(createdNationality === null || (createdNationality as { id?: string }).id).toBeTruthy();
 
-    const email = `agency-nats-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('agency-nats');
     await apiHelpers.registerAgency(email);
 
     const listRes = await page.request.get(
@@ -165,7 +165,7 @@ test.describe('Admin Agency Management', () => {
   });
 
   test('US-M2-W1 AC1/AC2: should show wallet section with credit button on active agency', async ({ page, apiHelpers }) => {
-    const email = `wallet-ui-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('wallet-ui');
     await apiHelpers.registerAgency(email);
     const adminToken = await apiHelpers.loginAdmin();
     const agencyId = await apiHelpers.approveAgency(email, adminToken);
@@ -182,7 +182,7 @@ test.describe('Admin Agency Management', () => {
   });
 
   test('US-M2-W1 AC3: should credit agency wallet via UI modal', async ({ page, apiHelpers }) => {
-    const email = `credit-ui-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('credit-ui');
     await apiHelpers.registerAgency(email);
     const adminToken = await apiHelpers.loginAdmin();
     const agencyId = await apiHelpers.approveAgency(email, adminToken);
@@ -218,7 +218,7 @@ test.describe('Admin Agency Management', () => {
   });
 
   test('US-M2-W1: should credit agency wallet without manual reference', async ({ page, apiHelpers }) => {
-    const email = `credit-no-ref-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('credit-no-ref');
     await apiHelpers.registerAgency(email);
     const adminToken = await apiHelpers.loginAdmin();
     const agencyId = await apiHelpers.approveAgency(email, adminToken);
@@ -248,7 +248,7 @@ test.describe('Admin Agency Management', () => {
   });
 
   test('US-M2-W1: credit wallet form should require amount', async ({ page, apiHelpers }) => {
-    const email = `credit-val-${Date.now()}@test.com`;
+    const email = uniqueTestEmail('credit-val');
     await apiHelpers.registerAgency(email);
     const adminToken = await apiHelpers.loginAdmin();
     const agencyId = await apiHelpers.approveAgency(email, adminToken);

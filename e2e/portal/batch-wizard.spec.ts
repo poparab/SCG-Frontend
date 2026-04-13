@@ -1,6 +1,16 @@
 import type { Page } from '@playwright/test';
 import { test, expect, testAgency, testTravelers, selectSearchableOption } from '../fixtures/helpers';
 
+const travelerDocumentFixture = 'public/favicon.png';
+
+async function uploadRequiredTravelerDocuments(page: Page): Promise<void> {
+  const fileInputs = page.locator('input[type="file"]');
+  await fileInputs.nth(0).setInputFiles(travelerDocumentFixture);
+  await fileInputs.nth(1).setInputFiles(travelerDocumentFixture);
+}
+
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Batch Wizard', () => {
   let agencyEmail: string;
   let agencyToken: string;
@@ -12,7 +22,7 @@ test.describe('Batch Wizard', () => {
     const helpers = (await import('../fixtures/helpers')).ApiHelpers;
     const api = new helpers(page);
 
-    agencyEmail = `batch-e2e-${Date.now()}@test.com`;
+    agencyEmail = `batch-e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`;
     await api.registerAgency(agencyEmail, 'Test@1234');
     const adminToken = await api.loginAdmin();
     agencyId = await api.approveAgency(agencyEmail, adminToken);
@@ -51,6 +61,7 @@ test.describe('Batch Wizard', () => {
     await selectSearchableOption(page, 'departureCountry', t.nationality);
     await page.fill('input[formControlName="travelDate"]', '2026-10-01');
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
+    await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
 
     // Wait for traveler card to appear
@@ -115,6 +126,7 @@ test.describe('Batch Wizard', () => {
     await selectSearchableOption(page, 'departureCountry', t1.nationality);
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.fill('input[formControlName="travelDate"]', '2026-10-01');
+    await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
 
     await expect(page.locator('.traveler-card')).toHaveCount(1, { timeout: 5_000 });
@@ -131,6 +143,7 @@ test.describe('Batch Wizard', () => {
     await selectSearchableOption(page, 'departureCountry', t2.nationality);
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.fill('input[formControlName="travelDate"]', '2026-10-01');
+    await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
 
     await expect(page.locator('.traveler-card')).toHaveCount(2, { timeout: 5_000 });
@@ -168,6 +181,7 @@ test.describe('Batch Wizard', () => {
     await selectSearchableOption(page, 'departureCountry', t.nationality);
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.fill('input[formControlName="travelDate"]', '2026-08-01');
+    await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
 
     await expect(page.locator('.traveler-card')).toHaveCount(1, { timeout: 5_000 });
@@ -204,6 +218,7 @@ test.describe('Batch Wizard', () => {
     await selectSearchableOption(page, 'departureCountry', t.nationality);
     await page.selectOption('select[formControlName="purposeOfTravel"]', 'Tourism');
     await page.fill('input[formControlName="travelDate"]', '2026-06-01');
+    await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
 
     await expect(page.locator('.traveler-card')).toHaveCount(1, { timeout: 5_000 });

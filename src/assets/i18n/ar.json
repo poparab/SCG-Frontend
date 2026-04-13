@@ -80,7 +80,7 @@
       "agencyNameRequired": "اسم الوكالة مطلوب.",
       "agencyNameMinLength": "يجب أن يكون اسم الوكالة 3 أحرف على الأقل.",
       "commercialRegRequired": "رقم السجل التجاري مطلوب.",
-      "commercialRegPattern": "يجب أن يكون أبجديًا رقميًا، من 6 إلى 20 حرفًا.",
+      "commercialRegPattern": "يجب أن يكون من 3 إلى 20 حرفًا، ويمكن أن يحتوي على حروف أو أرقام أو شرطة أو شرطة مائلة.",
       "contactPersonRequired": "اسم المسؤول مطلوب.",
       "contactPersonMinLength": "يجب أن يكون اسم المسؤول 3 أحرف على الأقل.",
       "mobileRequired": "رقم الجوال مطلوب.",
@@ -251,8 +251,7 @@
     "approved": "تمت الموافقة",
     "show": "عرض",
     "rowsPerPage": "سطر",
-    "displayRows": "عرض",
-    "noAgency": "لم يتم ربط حسابك بوكالة. يرجى التواصل مع الإدارة."
+    "displayRows": "عرض"
   },
   "batch": {
     "name": "اسم الحزمة",
@@ -301,6 +300,14 @@
     "personalData": "البيانات الشخصية",
     "flightData": "بيانات الرحلة",
     "documents": "المستندات",
+    "passportImage": "صورة الجواز",
+    "ticketImage": "صورة التذكرة",
+    "documentHelp": "الملفات المسموحة: PDF و JPG و JPEG و PNG. الحد الأقصى للحجم: 5 ميجابايت.",
+    "documentExisting": "يوجد مستند مرفوع بالفعل. اختر ملفًا جديدًا فقط إذا كنت تريد استبداله.",
+    "passportImageRequired": "صورة الجواز مطلوبة.",
+    "ticketImageRequired": "صورة التذكرة مطلوبة.",
+    "documentInvalidType": "يسمح فقط بملفات PDF و JPG و JPEG و PNG.",
+    "documentMaxSizeExceeded": "يجب ألا يزيد حجم كل ملف عن 5 ميجابايت.",
     "purpose": {
       "tourism": "سياحة",
       "business": "عمل",
@@ -340,6 +347,7 @@
     "selectArrivalAirport": "اختر المطار",
     "atLeastOneTraveler": "أضف مسافرًا واحدًا على الأقل للمتابعة.",
     "errorCreating": "فشل إنشاء الحزمة.",
+    "errorSavingTraveler": "فشل حفظ بيانات المسافر.",
     "errorSubmitting": "فشل إرسال الحزمة.",
     "batchInfo": "بيانات الحزمة",
     "totalTravelers": "إجمالي المسافرين",
