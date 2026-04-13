@@ -74,6 +74,9 @@ test.describe('Batch Wizard', () => {
     await page.fill('input[formControlName="name"]', 'Nav Test Batch');
     await page.click('.wizard-card-footer .wz-btn-primary');
 
+    // Wait for Step 2 to render (traveler form appears)
+    await expect(page.locator('input[formControlName="firstNameEn"]')).toBeVisible({ timeout: 5_000 });
+
     // Step 2 — go back
     await page.click('.wizard-card-footer .wz-btn-secondary');
 

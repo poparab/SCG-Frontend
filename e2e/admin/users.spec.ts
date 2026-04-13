@@ -35,7 +35,7 @@ test.describe('Admin User Management', () => {
   test('should open create user modal and validate required fields', async ({ page }) => {
     await page.goto(`${ADMIN_PREFIX}/users`);
 
-    const createBtn = page.locator('button.btn-primary').filter({ hasText: /Create|إضافة/i });
+    const createBtn = page.locator('button.btn-primary').filter({ hasText: /Create|إنشاء/i });
     await expect(createBtn).toBeVisible({ timeout: 5_000 });
     await createBtn.click();
 
@@ -52,7 +52,7 @@ test.describe('Admin User Management', () => {
   test('should create a new admin user', async ({ page }) => {
     await page.goto(`${ADMIN_PREFIX}/users`);
 
-    const createBtn = page.locator('button.btn-primary').filter({ hasText: /Create|إضافة/i });
+    const createBtn = page.locator('button.btn-primary').filter({ hasText: /Create|إنشاء/i });
     await createBtn.click();
 
     const modal = page.locator('.modal-overlay');
@@ -79,14 +79,28 @@ test.describe('Admin User Management', () => {
     const table = page.locator('table.data-table, .table-card table').first();
     await expect(table).toBeVisible({ timeout: 5_000 });
 
-    // Find the toggle button in the first row
-    const toggleBtn = table.locator('tbody tr').first().locator('button.action-btn').first();
-    if (await toggleBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await toggleBtn.click();
-      // Status badge should update
-      await page.waitForTimeout(1500);
-      const badge = table.locator('tbody tr').first().locator('.badge');
-      await expect(badge).toBeVisible({ timeout: 5_000 });
+    // Find a non-admin row to toggle (avoid deactivating the seeded SuperAdmin)
+    const rows = table.locator('tbody tr');
+    const rowCount = await rows.count();
+    let toggled = false;
+    for (let i = 0; i < rowCount; i++) {
+      const rowText = await rows.nth(i).textContent();
+      // Skip the seeded admin row to avoid locking us out
+      if (rowText?.includes('admin@scg.gov.eg')) continue;
+      const toggleBtn = rows.nth(i).locator('button.action-btn').first();
+      if (await toggleBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await toggleBtn.click();
+        await page.waitForTimeout(1500);
+        // Check the status badge (second .badge in the row — first is role badge)
+        const statusBadge = rows.nth(i).locator('.badge').last();
+        await expect(statusBadge).toBeVisible({ timeout: 5_000 });
+        toggled = true;
+        break;
+      }
+    }
+    // If only the seeded admin exists, just verify the table loaded
+    if (!toggled) {
+      await expect(rows.first()).toBeVisible();
     }
   });
 

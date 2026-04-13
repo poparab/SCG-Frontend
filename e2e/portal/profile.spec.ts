@@ -32,7 +32,7 @@ test.describe('Portal Profile (US-PR-01)', () => {
     await expect(infoCard).toBeVisible({ timeout: 5_000 });
 
     // Should display the agency email
-    await expect(page.locator('.info-value')).toContainText(agencyEmail, { timeout: 5_000 });
+    await expect(page.locator('.info-value').filter({ hasText: agencyEmail })).toBeVisible({ timeout: 5_000 });
   });
 
   test('AC2: should display the change password form', async ({ page }) => {
