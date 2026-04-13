@@ -141,6 +141,29 @@ test.describe('Admin Agency Management', () => {
     expect(token).toBeTruthy();
   });
 
+  test('should show newly added nationality for every agency detail', async ({ page, apiHelpers }) => {
+    const adminToken = await apiHelpers.loginAdmin();
+    const code = Array.from({ length: 3 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
+    const createdNationality = await apiHelpers.createNationality(adminToken, code, 125);
+    expect(createdNationality === null || createdNationality.id).toBeTruthy();
+
+    const email = `agency-nats-${Date.now()}@test.com`;
+    await apiHelpers.registerAgency(email);
+
+    const listRes = await page.request.get(
+      `${API_BASE}/agencies?searchTerm=${email}`,
+      { headers: { Authorization: `Bearer ${adminToken}` } }
+    );
+    expect(listRes.ok()).toBeTruthy();
+    const list = await listRes.json();
+    const agencyId = list.data.items[0].id as string;
+
+    await page.goto(`${ADMIN_PREFIX}/agencies/${agencyId}`);
+
+    await expect(page.locator('table.data-table')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('tbody tr').filter({ hasText: code }).first()).toBeVisible({ timeout: 10_000 });
+  });
+
   test('US-M2-W1 AC1/AC2: should show wallet section with credit button on active agency', async ({ page, apiHelpers }) => {
     const email = `wallet-ui-${Date.now()}@test.com`;
     await apiHelpers.registerAgency(email);
@@ -177,25 +200,51 @@ test.describe('Admin Agency Management', () => {
 
     // Fill credit form
     await modal.locator('input[formControlName="amount"]').fill('1000');
+    await modal.locator('select[formControlName="paymentMethod"]').selectOption('Cash');
     await modal.locator('input[formControlName="reference"]').fill(`REF-E2E-${Date.now()}`);
 
     // Submit
     const submitBtn = modal.locator('button[type="submit"]');
     await submitBtn.click();
 
-    // Wait for API response and modal to close (or success feedback)
-    await page.waitForTimeout(3000);
-    // Check if modal closed or if success alert appeared
-    const modalStillVisible = await modal.isVisible().catch(() => false);
-    if (modalStillVisible) {
-      // Check for success alert on the page behind modal
-      const successAlert = page.locator('.alert-success');
-      const hasSuccess = await successAlert.isVisible({ timeout: 3000 }).catch(() => false);
-      // Close modal manually if success
-      if (hasSuccess) {
-        await page.locator('.modal-close, .modal-backdrop').first().click();
-      }
-    }
+    await expect(page.locator('.alert-success')).toBeVisible({ timeout: 10_000 });
+
+    const walletResponse = await page.request.get(`${API_BASE}/agencies/${agencyId}/wallet`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    expect(walletResponse.ok()).toBeTruthy();
+    const wallet = await walletResponse.json();
+    expect(wallet.data.balance).toBe(1000);
+  });
+
+  test('US-M2-W1: should credit agency wallet without manual reference', async ({ page, apiHelpers }) => {
+    const email = `credit-no-ref-${Date.now()}@test.com`;
+    await apiHelpers.registerAgency(email);
+    const adminToken = await apiHelpers.loginAdmin();
+    const agencyId = await apiHelpers.approveAgency(email, adminToken);
+
+    await page.goto(`${ADMIN_PREFIX}/agencies/${agencyId}`);
+
+    const creditBtn = page.locator('button').filter({ hasText: /Credit|إيداع/i }).first();
+    await expect(creditBtn).toBeVisible({ timeout: 5_000 });
+    await creditBtn.click();
+
+    const modal = page.locator('.modal-panel');
+    await expect(modal).toBeVisible({ timeout: 3_000 });
+
+    await modal.locator('input[formControlName="amount"]').fill('750');
+    await modal.locator('select[formControlName="paymentMethod"]').selectOption('Cash');
+
+    await modal.locator('button[type="submit"]').click();
+
+    await expect(page.locator('.alert-success')).toBeVisible({ timeout: 10_000 });
+
+    const walletResponse = await page.request.get(`${API_BASE}/agencies/${agencyId}/wallet`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    expect(walletResponse.ok()).toBeTruthy();
+    const wallet = await walletResponse.json();
+    expect(wallet.data.balance).toBe(750);
   });
 
   test('US-M2-W1: credit wallet form should require amount', async ({ page, apiHelpers }) => {
