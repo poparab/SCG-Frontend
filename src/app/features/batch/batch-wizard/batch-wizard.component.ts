@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, DestroyRef, ElementRef, ViewChild } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, DestroyRef, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -91,7 +91,7 @@ function futureDateValidator(): ValidatorFn {
   templateUrl: './batch-wizard.component.html',
   styleUrl: './batch-wizard.component.scss'
 })
-export class BatchWizardComponent implements OnInit {
+export class BatchWizardComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly batchService = inject(BatchService);
   private readonly authService = inject(AuthService);
@@ -170,6 +170,11 @@ export class BatchWizardComponent implements OnInit {
         error: () => this.nationalities.set([])
       });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.submitting.set(false);
+    this.showConfirmModal.set(false);
   }
 
   private loadExistingBatch(id: string): void {
