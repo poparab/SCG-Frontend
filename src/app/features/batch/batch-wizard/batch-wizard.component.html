@@ -377,38 +377,43 @@
               <h4 class="form-section-title">
                 <i class="fa-solid fa-users"></i> {{ 'batch.addedTravelers' | translate }} ({{ travelers().length }})
               </h4>
-              @for (t of travelers(); track t.id; let i = $index) {
-                <div class="traveler-card">
-                  <div class="traveler-card-header">
-                    <span class="traveler-name">{{ t.firstNameEn }} {{ t.lastNameEn }}</span>
-                    <div class="traveler-card-actions">
-                      <button class="action-icon ai-edit" (click)="editTraveler(t)" [title]="'batch.edit' | translate">
-                        <i class="fa-solid fa-pen"></i>
-                      </button>
-                      <button class="action-icon ai-delete" (click)="removeTraveler(t)" [title]="'batch.remove' | translate">
-                        <i class="fa-solid fa-trash"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="traveler-card-pills">
-                    <span class="pill pill-blue"><i class="fa-solid fa-flag"></i> {{ t.nationalityCode }}</span>
-                    <span class="pill pill-neutral"><i class="fa-solid fa-passport"></i> {{ t.passportNumber }}</span>
-                    @if (t.arrivalAirport) {
-                      <span class="pill pill-neutral"><i class="fa-solid fa-plane-arrival"></i> {{ t.arrivalAirport }}</span>
+              <div class="data-table-card">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'batch.col.travelerName' | translate }}</th>
+                      <th>{{ 'batch.col.nationality' | translate }}</th>
+                      <th>{{ 'batch.col.passport' | translate }}</th>
+                      <th>{{ 'batch.travelDate' | translate }}</th>
+                      <th>{{ 'batch.departureCountry' | translate }}</th>
+                      <th>{{ 'batch.purposeOfTravel' | translate }}</th>
+                      <th>{{ 'batch.col.action' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (t of travelers(); track t.id) {
+                      <tr>
+                        <td class="ref-cell">{{ t.firstNameEn }} {{ t.lastNameEn }}</td>
+                        <td>{{ t.nationalityCode }}</td>
+                        <td dir="ltr">{{ t.passportNumber }}</td>
+                        <td>{{ t.travelDate | date:'yyyy/MM/dd' }}</td>
+                        <td>{{ t.departureCountry || '—' }}</td>
+                        <td>{{ t.purposeOfTravel || '—' }}</td>
+                        <td>
+                          <div class="action-icons">
+                            <button class="action-icon ai-edit" (click)="editTraveler(t)" [title]="'batch.edit' | translate">
+                              <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="action-icon ai-delete" (click)="removeTraveler(t)" [title]="'batch.remove' | translate">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
                     }
-                    <span class="pill pill-neutral"><i class="fa-solid fa-calendar-days"></i> {{ t.travelDate | date:'shortDate' }}</span>
-                    @if (t.purposeOfTravel) {
-                      <span class="pill pill-blue"><i class="fa-solid fa-bullseye"></i> {{ t.purposeOfTravel }}</span>
-                    }
-                    @if (t.flightNumber) {
-                      <span class="pill pill-neutral"><i class="fa-solid fa-hashtag"></i> {{ t.flightNumber }}</span>
-                    }
-                    @if (t.departureCountry) {
-                      <span class="pill pill-neutral"><i class="fa-solid fa-plane-departure"></i> {{ t.departureCountry }}</span>
-                    }
-                  </div>
-                </div>
-              }
+                  </tbody>
+                </table>
+              </div>
             </div>
           }
 

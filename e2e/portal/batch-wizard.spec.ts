@@ -64,8 +64,8 @@ test.describe('Batch Wizard', () => {
     await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
 
-    // Wait for traveler card to appear
-    await expect(page.locator('.traveler-card')).toHaveCount(1, { timeout: 5_000 });
+    // Wait for traveler row to appear in the table
+    await expect(page.locator('.travelers-table-section .data-table tbody tr')).toHaveCount(1, { timeout: 5_000 });
 
     // Click Submit on Step 2
     await page.click('.wizard-card-footer .wz-btn-primary');
@@ -129,7 +129,7 @@ test.describe('Batch Wizard', () => {
     await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
 
-    await expect(page.locator('.traveler-card')).toHaveCount(1, { timeout: 5_000 });
+    await expect(page.locator('.travelers-table-section .data-table tbody tr')).toHaveCount(1, { timeout: 5_000 });
 
     // Add second traveler
     const t2 = testTravelers[3]; // Khalid Benghazi — LY
@@ -146,7 +146,7 @@ test.describe('Batch Wizard', () => {
     await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
 
-    await expect(page.locator('.traveler-card')).toHaveCount(2, { timeout: 5_000 });
+    await expect(page.locator('.travelers-table-section .data-table tbody tr')).toHaveCount(2, { timeout: 5_000 });
   });
 
   test('should block step 2 next when no travelers added', async ({ page }) => {
@@ -184,7 +184,7 @@ test.describe('Batch Wizard', () => {
     await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
 
-    await expect(page.locator('.traveler-card')).toHaveCount(1, { timeout: 5_000 });
+    await expect(page.locator('.travelers-table-section .data-table tbody tr')).toHaveCount(1, { timeout: 5_000 });
 
     // Click Submit — modal should appear
     await page.click('.wizard-card-footer .wz-btn-primary');
@@ -221,13 +221,13 @@ test.describe('Batch Wizard', () => {
     await uploadRequiredTravelerDocuments(page);
     await page.click('button[type="submit"].wz-btn-success');
 
-    await expect(page.locator('.traveler-card')).toHaveCount(1, { timeout: 5_000 });
+    await expect(page.locator('.travelers-table-section .data-table tbody tr')).toHaveCount(1, { timeout: 5_000 });
 
     // Click remove button
-    const removeBtn = page.locator('.traveler-card .traveler-card-actions .action-icon.ai-delete').first();
+    const removeBtn = page.locator('.travelers-table-section .data-table tbody tr .action-icon.ai-delete').first();
     if (await removeBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await removeBtn.click();
-      await expect(page.locator('.traveler-card')).toHaveCount(0, { timeout: 5_000 });
+      await expect(page.locator('.travelers-table-section .data-table tbody tr')).toHaveCount(0, { timeout: 5_000 });
     }
   });
 });
